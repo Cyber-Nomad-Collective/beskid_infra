@@ -4,11 +4,12 @@ From empty `beskid_infra` to OpenTofu-managed Coolify apps with OpenBao and Let'
 
 ## Prerequisites
 
-- Coolify running (Traefik proxy, ports 80/443)
+- Coolify running (Traefik/Caddy proxy, ports 80/443)
 - API token: Settings → API tokens
-- **New** Coolify project named `Beskid` (rename the legacy project to `old` to avoid UUID conflicts)
-- OpenTofu ≥ 1.6 (runs in GitHub Actions — not required on the Coolify host)
+- OpenTofu ≥ 1.6 (runs in GitHub Actions — not on the Coolify host)
 - GHCR images for enabled services (`main` / `staging`)
+
+**Greenfield:** OpenTofu creates `coolify_project.beskid` — do not create the project manually. Legacy **Beskid_MANUAL** stays untouched. See [greenfield.md](greenfield.md).
 
 OpenBao is **deployed by OpenTofu** (`modules/coolify_openbao`) as a Coolify Compose service before site/auth. No separate OpenBao install on the host.
 
@@ -47,33 +48,27 @@ cp ../config/production.tfvars.example ../config/production.tfvars
 tofu init && tofu plan
 ```
 
-## 4. Import existing apps
+## 4. Staging lane
 
-```bash
-tofu import 'module.stack.module.apps["site"].coolify_application.this' rsso488sscg80kookoo00sk4
-```
-
-More: [coolify-import.md](coolify-import.md).
-
-## 5. Staging environment
-
-Create `staging` in Coolify UI (or `manage_environment = true` in `environments/staging`).
+After production apply, note `tofu output coolify_project_uuid` or let CI resolve by name.
 
 ```bash
 git checkout stg
-source scripts/export-openbao-for-tofu.sh
 cd environments/staging && tofu init && tofu apply
 ```
 
-## 6. GitHub Actions
+Legacy import (Beskid_MANUAL only): [coolify-import.md](coolify-import.md).
+
+## 5. GitHub Actions
 
 **Repository variables** (Actions → Variables):
 
 | Variable | Value |
 |----------|-------|
 | `COOLIFY_ENDPOINT` | `https://coolify.bdziam.dev` |
-| `COOLIFY_PROJECT_UUID` | **New** Beskid project UUID (not the renamed `old` project) |
-| `COOLIFY_SERVER_UUID` | Target server UUID |
+| `COOLIFY_SERVER_UUID` | `ec0cs0cw0ocsok488gc0k80k` |
+
+Do **not** set `COOLIFY_PROJECT_UUID` — production creates the project; staging resolves it in CI.
 
 **Repository secrets:**
 
@@ -87,7 +82,7 @@ Workflows: [`beskid-platform.yml`](../../.github/workflows/beskid-platform.yml) 
 
 GitHub environments: `staging`, `production` (approval on production apply).
 
-## 7. GHCR on Coolify server
+## 6. GHCR on Coolify server
 
 Settings → Docker Registries → `ghcr.io` with PAT `read:packages`.
 
