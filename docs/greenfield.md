@@ -27,7 +27,7 @@ Do **not** set `COOLIFY_PROJECT_UUID` — production creates the project; stagin
 On `main` → **production**, on `stg` → **staging**:
 
 1. **`coolify_project.beskid`** (production only)
-2. Coolify **environment** (`production` / `staging`)
+2. Coolify **environment** — production uses Coolify's default `production` env (created with the project); staging creates `staging` via `manage_environment = true`
 3. **OpenBao** Compose service
 4. **site**, **auth**, **tracker**, **nexus**, and **pckg** GHCR apps (toggle via `enable_services`)
 
@@ -54,5 +54,6 @@ git checkout main && just plan && just apply
 | Error | Fix |
 |-------|-----|
 | `no attribute named "uuid"` on `coolify_project` | Use `.id` — arcusis provider UUID is the Terraform `id` attribute |
+| `Environment with this name already exists` (409) | Coolify creates a default `production` environment with each new project — set `manage_environment = false` on production |
 | `templatefile` / colon in interpolation | Only `${openbao_version}` / `${openbao_fqdn}` in compose — no shell `${VAR:-default}` anywhere in the file (including comments); pass defaults in Terraform |
 | Literal `$` in compose for Coolify | Escape as `$${` in YAML processed by `templatefile()` |

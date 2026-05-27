@@ -73,9 +73,9 @@ variable "server_uuid" {
 }
 
 variable "manage_environment" {
-  description = "Create Coolify environment in the Beskid project (new project after legacy rename)."
+  description = "Create a Coolify environment resource. Leave false for production — Coolify creates a default production environment when the project is created."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "coolify_environment_name" {

@@ -23,7 +23,7 @@ variable "coolify_environment_name" {
 }
 
 variable "manage_environment" {
-  description = "Create coolify_environment resource (set false when importing existing)."
+  description = "Create coolify_environment resource. False for production (Coolify default env); true for staging lane."
   type        = bool
   default     = true
 }
