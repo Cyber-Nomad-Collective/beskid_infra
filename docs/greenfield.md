@@ -34,6 +34,8 @@ On `main` → **production**, on `stg` → **staging**:
 
 ## Pipeline
 
+For infra-only debugging: **Actions → Beskid platform → Run workflow** with **Skip GHCR builds** (no container matrix). The vendored Coolify provider is cached in CI when `beskid_infra/vendor/` is unchanged.
+
 Push to `main` or `stg` → **Beskid platform**:
 
 1. GHCR build (site, auth, tracker, nexus, pckg)

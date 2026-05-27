@@ -79,6 +79,9 @@ _lane:
 
 _tf-init:
     #!/usr/bin/env bash
+    set -euo pipefail
+    "{{superrepo}}/scripts/ci/install-coolify-provider.sh"
+    export TF_CLI_CONFIG_FILE="{{root}}/terraform.tofurc.generated"
     source "{{lib_dir}}/git-tofu-env.sh"
     lane="$(beskid_tofu_env_from_git)"
     cd "{{root}}/environments/${lane}"
@@ -86,6 +89,8 @@ _tf-init:
 
 _tf-plan:
     #!/usr/bin/env bash
+    set -euo pipefail
+    export TF_CLI_CONFIG_FILE="{{root}}/terraform.tofurc.generated"
     source "{{lib_dir}}/git-tofu-env.sh"
     lane="$(beskid_tofu_env_from_git)"
     if [[ -n "${VAULT_ADDR:-}" ]]; then

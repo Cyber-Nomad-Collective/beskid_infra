@@ -18,7 +18,7 @@ Upstream already base64-encodes `docker_compose_raw` on POST/PATCH.
 
 `arcusis/coolify` is **not** listed in `.terraform.lock.hcl` — the Beskid build is installed from the filesystem mirror (`terraform.tofurc.generated`) and Go binaries are not reproducible across machines. Hashicorp/random and vault remain lock-pinned.
 
-Optional: `./scripts/ci/lock-coolify-provider.sh` records checksums after `tofu init` for local auditing (not used in CI).
+CI caches `~/.terraform.d/plugins/.../coolify` keyed on `vendor/**`; `install-coolify-provider.sh` skips `go build` when the binary exists. Rebuild with `FORCE_COOLIFY_PROVIDER_BUILD=1`.
 
 ## Refresh from upstream
 
