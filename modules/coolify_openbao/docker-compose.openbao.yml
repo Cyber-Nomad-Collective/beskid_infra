@@ -1,0 +1,34 @@
+# OpenBao on Coolify (Traefik terminates TLS; listener is plain HTTP on 8200).
+# Coolify sets SERVICE_FQDN_OPENBAO_8200 for the public hostname.
+services:
+  openbao:
+    image: quay.io/openbao/openbao:${OPENBAO_VERSION:-2.1.0}
+    restart: unless-stopped
+    cap_add:
+      - IPC_LOCK
+    environment:
+      SERVICE_FQDN_OPENBAO_8200: "${openbao_fqdn}"
+      OPENBAO_DISABLE_MLOCK: "true"
+      OPENBAO_LOCAL_CONFIG: |
+        ui = true
+        disable_mlock = true
+        storage "file" {
+          path = "/openbao/data"
+        }
+        listener "tcp" {
+          address     = "0.0.0.0:8200"
+          tls_disable = true
+        }
+    volumes:
+      - openbao_data:/openbao/data
+    expose:
+      - "8200"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8200/v1/sys/health?standbyok=true"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  openbao_data:

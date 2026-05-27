@@ -9,7 +9,7 @@ variable "environment" {
 }
 
 variable "service" {
-  description = "Logical service key (site, auth, tracker, nexus, pckg)."
+  description = "Logical service key (site, auth, tracker, nexus, pckg, bao)."
   type        = string
 }
 

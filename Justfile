@@ -192,13 +192,3 @@ output:
     source "{{lib_dir}}/git-tofu-env.sh"
     lane="$(beskid_tofu_env_from_git)"
     cd "{{root}}/environments/${lane}" && tofu output
-
-import-site-prod:
-    cd "{{root}}/environments/production"
-    tofu import -var-file="../../config/production.tfvars" \
-      'module.stack.module.apps["site"].coolify_application.this' rsso488sscg80kookoo00sk4
-
-import-nexus-prod:
-    cd "{{root}}/environments/production"
-    tofu import -var-file="../../config/production.tfvars" \
-      'module.stack.module.apps["nexus"].coolify_application.this' rc7pssssk5i3vqjrt1anx4y3

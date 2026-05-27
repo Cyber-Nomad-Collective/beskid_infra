@@ -18,7 +18,8 @@ docs/
   architecture.md
   deploy-matrix.md
   openbao-layout.md
-  coolify-import.md
+  greenfield.md
+  coolify-import.md   # legacy Beskid_MANUAL only
 ```
 
 ## Toolchain
@@ -33,11 +34,13 @@ Manifest: [`../repo-deps.json`](../repo-deps.json) · [`../scripts/README.md`](.
 
 ## Quick start
 
+See [docs/greenfield.md](docs/greenfield.md) for the default path (OpenTofu creates the Coolify project).
+
 ```bash
 just config-init
 # edit .env + config/*.tfvars
-git checkout main && just plan    # production
-git checkout stg && just plan     # staging
+git checkout main && just plan    # production — creates coolify_project.beskid
+git checkout stg && just plan     # staging — needs project_uuid from prod output
 ```
 
 Manual OpenTofu: [docs/bootstrap.md](docs/bootstrap.md). Local UUIDs: [config/coolify.snapshot.json](config/coolify.snapshot.json).

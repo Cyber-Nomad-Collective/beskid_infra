@@ -1,9 +1,9 @@
-output "public_urls" {
-  value = module.stack.public_urls
+output "coolify_project_uuid" {
+  value = local.coolify_project_uuid
 }
 
-output "hosts" {
-  value = module.stack.hosts
+output "public_urls" {
+  value = module.stack.public_urls
 }
 
 output "application_ids" {

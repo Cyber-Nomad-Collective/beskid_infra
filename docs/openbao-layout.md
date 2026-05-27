@@ -1,6 +1,11 @@
 # OpenBao secret layout
 
-Runtime secrets live in OpenBao KV v2. OpenTofu reads them at `tofu apply` and pushes to Coolify via `coolify_envs_bulk` (replacing UI-managed vars for that app).
+Runtime secrets live in OpenBao KV v2. **OpenBao itself** is deployed by `modules/coolify_openbao` (Coolify Compose) before site/auth. OpenTofu reads KV at apply time and pushes to Coolify via `coolify_envs_bulk`.
+
+| Lane | OpenBao URL |
+|------|-------------|
+| production | `https://bao.beskid-lang.org` |
+| staging | `https://stg-bao.beskid-lang.org` |
 
 ## Path hierarchy
 

@@ -1,15 +1,24 @@
-# Copy to terraform.tfvars (gitignored). Prefer OpenBao export in CI — see scripts/export-openbao-for-tofu.sh
+# Copy to terraform.tfvars (gitignored).
 
 coolify_endpoint = "https://coolify.bdziam.dev"
-# coolify_api_token — from secret/beskid/tofu/production
 
-openbao_address = "https://openbao.example.com"
-# openbao_token — AppRole or admin token
+manage_coolify_project      = true
+coolify_project_name        = "Beskid"
+coolify_project_description = "Beskid platform — OpenTofu greenfield"
 
-project_uuid = "tosg8kc80g8go00sgcswsccg"
-server_uuid  = "ec0cs0cw0ocsok488gc0k80k"
+server_uuid = "ec0cs0cw0ocsok488gc0k80k"
 
-manage_environment = false
+manage_environment = true
+deploy_openbao     = true
+instant_deploy     = true
 
-# Pilot: enable one service at a time, then expand.
-# enable_services = { site = true, auth = true, tracker = false, nexus = false, pckg = false }
+openbao_enabled      = false
+seed_openbao_secrets = false
+
+enable_services = {
+  site    = true
+  auth    = true
+  tracker = false
+  nexus   = false
+  pckg    = false
+}

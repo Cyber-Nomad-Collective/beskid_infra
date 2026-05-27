@@ -1,13 +1,20 @@
 # Copy to config/production.tfvars (gitignored)
-# UUIDs from config/coolify.snapshot.json (MCP 2026-05-27)
 
 coolify_endpoint = "https://coolify.bdziam.dev"
-openbao_address  = "https://openbao.example.com:8200"
 
-project_uuid = "tosg8kc80g8go00sgcswsccg"
-server_uuid  = "ec0cs0cw0ocsok488gc0k80k"
+# OpenTofu creates the project — do not set project_uuid on first apply.
+manage_coolify_project      = true
+coolify_project_name        = "Beskid"
+coolify_project_description = "Beskid platform — OpenTofu greenfield"
 
-manage_environment = false
+server_uuid = "ec0cs0cw0ocsok488gc0k80k"
+
+manage_environment = true
+deploy_openbao     = true
+instant_deploy     = true
+
+openbao_enabled      = false
+seed_openbao_secrets = false
 
 enable_services = {
   site    = true

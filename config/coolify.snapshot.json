@@ -1,0 +1,36 @@
+{
+  "_comment": "Coolify inventory via MCP 2026-05-27. Greenfield: OpenTofu creates project Beskid.",
+  "coolify_version": "4.0.0-beta.473",
+  "coolify_endpoint": "https://coolify.bdziam.dev",
+  "coolify_api_path": "/api/v1",
+  "server": {
+    "uuid": "ec0cs0cw0ocsok488gc0k80k",
+    "name": "localhost",
+    "ip": "host.docker.internal",
+    "public_ipv4": "191.96.53.21",
+    "proxy_type": "CADDY",
+    "is_reachable": true
+  },
+  "project": {
+    "name": "Beskid",
+    "uuid": null,
+    "managed_by": "opentofu",
+    "note": "Created by coolify_project.beskid on first production apply"
+  },
+  "legacy_project": {
+    "name": "Beskid_MANUAL",
+    "uuid": "tosg8kc80g8go00sgcswsccg",
+    "description": "Deprecated — not imported; left in Coolify UI only"
+  },
+  "other_projects": [
+    { "name": "External", "uuid": "zoosc0g8gg40w0w8cgck8cs0" },
+    { "name": "Bloq", "uuid": "dok4sc00wowc8wgcgk4w4gks" },
+    { "name": "Tools", "uuid": "fkwockcw40oocw404gs0sw44" }
+  ],
+  "dns_on_server": [
+    "bao.beskid-lang.org",
+    "beskid-lang.org",
+    "auth.beskid-lang.org",
+    "cdn.beskid-lang.org"
+  ]
+}

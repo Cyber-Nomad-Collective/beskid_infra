@@ -4,7 +4,7 @@ provider "coolify" {
 }
 
 provider "vault" {
-  address = var.openbao_address
+  address = coalesce(var.openbao_address, module.openbao_hostname.url)
   token   = var.openbao_token
   # OpenBao is Vault API-compatible; skip_child_token avoids lease issues in CI.
   skip_child_token = true
