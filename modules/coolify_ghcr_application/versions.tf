@@ -3,7 +3,7 @@ terraform {
 
   required_providers {
     coolify = {
-      source  = "registry.terraform.io/arcusis/coolify"
+      source  = "terraform.io/arcusis/coolify"
       version = ">= 0.3.0"
     }
     vault = {
