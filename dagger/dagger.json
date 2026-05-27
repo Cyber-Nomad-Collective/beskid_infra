@@ -1,0 +1,21 @@
+{
+  "name": "beskid-ci",
+  "engineVersion": "v0.21.0",
+  "dependencies": [
+    {
+      "name": "rust",
+      "source": "github.com/purpleclay/daggerverse/rust@225932120f3b39fcb8118c9aeb2e31f3c1b2d3f2"
+    },
+    {
+      "name": "nsv",
+      "source": "github.com/purpleclay/daggerverse/nsv@v0.12.2"
+    },
+    {
+      "name": "github",
+      "source": "github.com/camptocamp/daggerverse/github@v0.1.5"
+    }
+  ],
+  "sdk": {
+    "source": "typescript"
+  }
+}

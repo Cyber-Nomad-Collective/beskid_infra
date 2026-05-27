@@ -1,148 +1,106 @@
 # OpenBao secret layout
 
-All runtime secrets for the Beskid platform live in OpenBao KV v2 at `secret/beskid/`.
-OpenTofu reads these at `tofu apply` time to populate Coolify environment variables.
-No secret values are committed to this repository.
+Runtime secrets live in OpenBao KV v2. OpenTofu reads them at `tofu apply` and pushes to Coolify via `coolify_envs_bulk` (replacing UI-managed vars for that app).
 
 ## Path hierarchy
 
 ```
 secret/
   beskid/
-    production/
-      site/          # beskid-lang.org
-      auth/          # auth.beskid-lang.org
-      tracker/       # tracker.beskid-lang.org (future)
-      nexus/         # nexus.beskid-lang.org (future)
-      pckg/          # pckg.beskid-lang.org (future)
-    staging/
-      site/
-      auth/
-      tracker/
-      nexus/
-      pckg/
+    production/   site, auth, tracker, nexus, pckg
+    staging/      site, auth, tracker, nexus, pckg
+    tofu/
+      production/   git branch main
+      staging/      git branch stg
     ci/
-      build/         # NODE_AUTH_TOKEN for GHCR push
-      open-vsx/      # OVSX_TOKEN
+      build/        NODE_AUTH_TOKEN, OVSX_TOKEN
 ```
 
-## Per-service secrets
+## Per-service keys
 
-### site (beskid-lang.org)
+### site
 
-| Key | Required | Notes |
-|-----|----------|-------|
-| `PUBLIC_GISCUS_REPO` | no | GitHub Discussions integration |
-| `PUBLIC_GISCUS_REPO_ID` | no | |
-| `PUBLIC_GISCUS_CATEGORY` | no | |
-| `PUBLIC_GISCUS_CATEGORY_ID` | no | |
+| Key | Required |
+|-----|----------|
+| `IMAGE_TAG` | yes (`main` / `staging`) |
+| `PUBLIC_GISCUS_*` | no |
 
-### auth (auth.beskid-lang.org)
+### auth
 
-| Key | Required | Notes |
-|-----|----------|-------|
-| `AUTH_HUB_PUBLIC_URL` | yes | `https://auth.beskid-lang.org` |
-| `SESSION_SECRET` | yes | 32+ random chars |
-| `GITHUB_CLIENT_ID` | yes* | GitHub OAuth app |
-| `GITHUB_CLIENT_SECRET` | yes* | |
-| `GITHUB_OAUTH_CALLBACK_URL` | yes* | `https://auth.beskid-lang.org/callback` |
-| `AUTH_SETUP_TOKEN` | recommended | First-run onboarding |
-| `AUTH_DATA_DIR` | no | Default: `data/runtime` |
-| `PORT` | no | Default: `8090` |
-| `IMAGE_TAG` | yes | `main` or `staging` |
+| Key | Required |
+|-----|----------|
+| `AUTH_HUB_PUBLIC_URL` | yes (TF sets from hostname; patch if overriding) |
+| `SESSION_SECRET` | yes |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | yes* |
+| `IMAGE_TAG` | yes |
 
-*OAuth credentials can alternatively be saved via `/onboarding` into SQLite (encrypted with `SESSION_SECRET`).
+### tracker
 
-### tracker (tracker.beskid-lang.org) — future
+| Key | Required |
+|-----|----------|
+| `AUTH_HUB_PUBLIC_URL` | yes |
+| `SESSION_SECRET` | yes |
+| `TRACKER_PUBLIC_URL` | yes (TF sets from hostname) |
+| `GITHUB_SYNC_TOKEN` | recommended |
 
-| Key | Required | Notes |
-|-----|----------|-------|
-| `AUTH_HUB_PUBLIC_URL` | yes | Hub URL for OAuth handoff |
-| `AUTH_HUB_SERVICE_TOKEN` | yes | From hub pairing |
+### nexus
 
-### nexus (nexus.beskid-lang.org) — future
+| Key | Required |
+|-----|----------|
+| `GITNEXUS_HOME` | yes (`/data/gitnexus`) |
+| `AUTH_HUB_PUBLIC_URL` | yes |
+| `SESSION_SECRET` | yes |
 
-| Key | Required | Notes |
-|-----|----------|-------|
-| `GITNEXUS_HOME` | yes | Persistent volume path |
-| `AUTH_HUB_PUBLIC_URL` | yes | |
-| `AUTH_HUB_SERVICE_TOKEN` | yes | |
+### pckg
 
-### pckg (pckg.beskid-lang.org) — future
+| Key | Required |
+|-----|----------|
+| `ConnectionStrings__Default` | yes (or components via `PCKG_DB_*` + TF) |
+| `POSTGRES_PASSWORD` | yes (or TF-managed DB password) |
+| `AUTH_HUB_PUBLIC_URL` | yes |
+| `IMAGE_TAG` | yes |
 
-| Key | Required | Notes |
-|-----|----------|-------|
-| `ConnectionStrings__Default` | yes | Postgres connection string |
-| `AUTH_HUB_PUBLIC_URL` | yes | |
-| `AUTH_HUB_SERVICE_TOKEN` | yes | |
-| `Pckg__Database__AutoMigrateOnStartup` | yes | `true` in production |
+### tofu/{environment} (CI / local)
 
-### ci/build
+| Key | Required |
+|-----|----------|
+| `coolify_endpoint` | yes (base URL, no `/api/v1`) |
+| `coolify_api_token` | yes |
+| `coolify_project_uuid` | optional |
+| `coolify_server_uuid` | optional |
 
-| Key | Required | Notes |
-|-----|----------|-------|
-| `NODE_AUTH_TOKEN` | yes | GitHub PAT with `read:packages` for `@cyber-nomad-collective` |
-| `OVSX_TOKEN` | no | Open VSX publish token |
-
-## Bootstrap with bao CLI
+## Bootstrap
 
 ```bash
-# Enable KV v2 at secret/ (should already exist)
-bao secrets enable -path=secret kv-v2
+export VAULT_ADDR="https://bao.example.com:8200"
+export VAULT_TOKEN="..."
 
-# Production secrets
-bao kv put secret/beskid/production/auth \
-  AUTH_HUB_PUBLIC_URL="https://auth.beskid-lang.org" \
+vault secrets enable -path=secret kv-v2 2>/dev/null || true
+
+vault kv put secret/beskid/production/auth \
   SESSION_SECRET="$(openssl rand -base64 32)" \
   IMAGE_TAG="main"
 
-bao kv put secret/beskid/production/site \
-  IMAGE_TAG="main"
-
-# Staging secrets — isolated from production
-bao kv put secret/beskid/staging/auth \
-  AUTH_HUB_PUBLIC_URL="https://auth-staging.example.com" \
+vault kv put secret/beskid/staging/auth \
   SESSION_SECRET="$(openssl rand -base64 32)" \
   IMAGE_TAG="staging"
 
-bao kv put secret/beskid/staging/site \
-  IMAGE_TAG="staging"
-
-# CI secrets
-bao kv put secret/beskid/ci/build \
-  NODE_AUTH_TOKEN="ghp_..."
-
-# Verify
-bao kv get secret/beskid/production/auth
+vault kv put secret/beskid/tofu/production \
+  coolify_endpoint="https://coolify.bdziam.dev" \
+  coolify_api_token="tcp-..." \
+  coolify_project_uuid="tosg8kc80g8go00sgcswsccg" \
+  coolify_server_uuid="ec0cs0cw0ocsok488gc0k80k"
 ```
 
-## OpenTofu integration
+## OpenTofu
 
-In `main.tf`, secrets are read at apply time:
+Provider: `hashicorp/vault` with `address = var.openbao_address`. Module `openbao_kv` reads `secret/beskid/<lane>/<service>`.
 
-```hcl
-data "openbao_kv_secret_v2" "auth_secrets" {
-  path = "secret/beskid/production/auth"
-}
+Disable reads during bootstrap: `openbao_enabled = false` and set env only in Coolify UI temporarily.
 
-# Pass to Coolify env vars
-env_vars = data.openbao_kv_secret_v2.auth_secrets.data
-```
-
-## Secret rotation
+## Rotation
 
 ```bash
-# Rotate a single key
-bao kv patch secret/beskid/production/auth SESSION_SECRET="$(openssl rand -base64 32)"
-
-# Rotate all secrets for a service
-bao kv put secret/beskid/production/auth \
-  AUTH_HUB_PUBLIC_URL="https://auth.beskid-lang.org" \
-  SESSION_SECRET="$(openssl rand -base64 32)" \
-  GITHUB_CLIENT_ID="..." \
-  GITHUB_CLIENT_SECRET="..." \
-  IMAGE_TAG="main"
-
-# Redeploy to pick up new secrets
-tofu apply
+vault kv patch secret/beskid/production/auth SESSION_SECRET="$(openssl rand -base64 32)"
+cd environments/production && tofu apply
 ```

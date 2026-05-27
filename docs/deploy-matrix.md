@@ -1,42 +1,47 @@
 # Deploy matrix
 
-Which service runs where, and how it gets deployed.
+| Service | GHCR image | production (`main`) | staging (`stg`) | Port |
+|---------|-----------|---------------------|-----------------|------|
+| **site** | `beskid-site` | `beskid-lang.org` | `stg.beskid-lang.org` | 80 |
+| **auth** | `beskid-auth` | `auth.beskid-lang.org` | `stg-auth.beskid-lang.org` | 8090 |
+| **tracker** | `beskid-tracker` | `tracker.beskid-lang.org` | `stg-tracker.beskid-lang.org` | 3000 |
+| **nexus** | `beskid-nexus` | `nexus.beskid-lang.org` | `stg-nexus.beskid-lang.org` | 8452 |
+| **pckg** | `beskid-pckg` | `pckg.beskid-lang.org` | `stg-pckg.beskid-lang.org` | 8082 |
 
-| Service | GHCR image | Production | Staging | Compose |
-|---------|-----------|------------|---------|---------|
-| **beskid-site** | `ghcr.io/cyber-nomad-collective/beskid-site:main` | `beskid-lang.org` | auto-domain | `site/docker-compose.yml` |
-| **beskid-auth** | `ghcr.io/cyber-nomad-collective/beskid-auth:main` | `auth.beskid-lang.org` | auto-domain | `site/auth/docker-compose.yml` |
-| **beskid-tracker** | (future) `ghcr.io/.../beskid-tracker:main` | `tracker.beskid-lang.org` | — | `beskid_tracker/docker-compose.coolify.yml` |
-| **beskid-nexus** | (future) `ghcr.io/.../beskid-nexus:main` | `nexus.beskid-lang.org` | — | `beskid_nexus/docker-compose.coolify.yml` |
-| **beskid-pckg** | (future) `ghcr.io/.../beskid-pckg:main` | `pckg.beskid-lang.org` | — | `pckg/docker-compose.coolify.yml` |
+Image tags: `main` on production, `staging` on staging.
 
-## Coolify map
+## Git branch → OpenTofu
 
-| App | UUID | Managed by | Import command |
-|-----|------|-----------|----------------|
-| `beskid-site` | `rsso488sscg80kookoo00sk4` | OpenTofu | `tofu import module.beskid_site.coolify_application.app rsso488sscg80kookoo00sk4` |
-| `beskid-auth` | (new) | OpenTofu | Created by `tofu apply` |
+| Branch | Environment root | Coolify env | OpenBao `secret/beskid/tofu/` |
+|--------|------------------|-------------|-------------------------------|
+| `main` | `environments/production` | `production` | `production` |
+| `stg` | `environments/staging` | `staging` | `staging` |
 
-## GHCR images
+## Coolify (existing production UUIDs)
 
-| Image | Tags | Built by |
-|-------|------|----------|
-| `beskid-site` | `main`, `staging`, `sha-*` | `.github/workflows/container-images.yml` in `beskid` |
-| `beskid-auth` | `main`, `staging`, `sha-*` | `.github/workflows/container-images.yml` in `beskid` |
+| App | UUID | Import |
+|-----|------|--------|
+| beskid site | `rsso488sscg80kookoo00sk4` | `module.stack.module.apps["site"]` |
+| Pckg (legacy compose) | `fotldmgwdsxttpde914u8ktr` | migrate to `module.stack.module.pckg` |
+| Nexus | `rc7pssssk5i3vqjrt1anx4y3` | `module.stack.module.apps["nexus"]` |
+| Tracker | `s8voih0gwkrftklgsmxqglo4` | `module.stack.module.apps["tracker"]` |
+
+Project `tosg8kc80g8go00sgcswsccg` · Server `ec0cs0cw0ocsok488gc0k80k`.
+
+## GHCR
+
+Built by `.github/workflows/container-images.yml` in the `beskid` superrepo (and per-service repos when split).
 
 ## DNS
 
-| Domain | Points to |
-|--------|-----------|
-| `beskid-lang.org` | Coolify server IP |
-| `auth.beskid-lang.org` | Coolify server IP |
-| `*.beskid-lang.org` | Coolify server IP (wildcard) |
+Point each hostname (or `*.beskid-lang.org` + single-level subdomains) to the Coolify server IP. Let's Encrypt via Coolify proxy — ports 80/443 open.
 
-## Volume map
+## Volumes
 
-| Service | Volume | Path in container |
-|---------|--------|-------------------|
+| Service | Volume | Mount |
+|---------|--------|-------|
 | auth | `auth-data` | `/app/site/auth/data/runtime` |
-| pckg (future) | `pckg-pg-data` | Postgres data |
-| tracker (future) | `tracker-data` | SQLite / app data |
-| nexus (future) | `nexus-data` | `GITNEXUS_HOME` |
+| tracker | `tracker-data` | `/app/beskid_tracker/data/runtime` |
+| nexus | `nexus-data` | `/data/gitnexus` |
+| pckg | `*-packages`, `*-data` | `/app/packages`, `/app/data` |
+| pckg DB | Coolify PostgreSQL resource | — |

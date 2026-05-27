@@ -1,188 +1,89 @@
 # Bootstrap guide
 
-Step-by-step instructions to go from empty `beskid_infra` to OpenTofu-managed Coolify apps.
+From empty `beskid_infra` to OpenTofu-managed Coolify apps with OpenBao and Let's Encrypt.
 
 ## Prerequisites
 
-- [ ] Coolify instance running and accessible
-- [ ] Coolify API token with admin scope (Settings → API)
-- [ ] OpenBao cluster running (or skip OpenBao for now — use GitHub Secrets)
-- [ ] OpenTofu CLI v1.8+ installed locally
-- [ ] Push access to `Cyber-Nomad-Collective/beskid_infra`
+- Coolify running (Traefik proxy, ports 80/443)
+- API token: Settings → API tokens
+- OpenBao KV v2 at `secret/`
+- OpenTofu ≥ 1.6
+- GHCR images for enabled services (`main` / `staging`)
 
-## Step 0: Clone and prepare
-
-```bash
-git clone https://github.com/Cyber-Nomad-Collective/beskid_infra.git
-cd beskid_infra
-```
-
-## Step 1: Get Coolify resource UUIDs
-
-In the Coolify UI or API, note these UUIDs:
+## 1. OpenBao
 
 ```bash
-# From the Coolify dashboard → Projects → Beskid → Settings
-PROJECT_UUID="tosg8kc80g8go00sgcswsccg"
+export VAULT_ADDR="https://bao.example.com:8200"
+export VAULT_TOKEN="..."
 
-# From Servers → localhost → Settings
-SERVER_UUID="ec0cs0cw0ocsok488gc0k80k"
+vault kv put secret/beskid/tofu/production \
+  coolify_endpoint="https://coolify.bdziam.dev" \
+  coolify_api_token="tcp-..." \
+  coolify_project_uuid="tosg8kc80g8go00sgcswsccg" \
+  coolify_server_uuid="ec0cs0cw0ocsok488gc0k80k"
 
-# Existing app UUID (beskid site)
-SITE_APP_UUID="rsso488sscg80kookoo00sk4"
-
-# GitHub App UUID (Settings → GitHub Apps → cyber-nomad-cooliify)
-GITHUB_APP_UUID="w4sckcs4cw8w4sgkgs0ko8oc"
-```
-
-## Step 2: Generate Coolify API token
-
-1. Coolify UI → Settings → API tokens
-2. Create token with scope: **admin** (needed for read + write + deploy)
-3. Save it: `tcp-...`
-
-## Step 3: Set up OpenBao (skip if not ready)
-
-If OpenBao is running:
-
-```bash
-export BAO_ADDR="https://bao.your-domain.com:8200"
-export BAO_TOKEN="hvs.root-or-admin-token"
-
-# Enable KV v2 if not already enabled
-bao secrets enable -path=secret kv-v2 || echo "already enabled"
-
-# Populate production secrets
-bao kv put secret/beskid/production/site \
-  IMAGE_TAG="main"
-
-bao kv put secret/beskid/production/auth \
-  AUTH_HUB_PUBLIC_URL="https://auth.beskid-lang.org" \
+vault kv put secret/beskid/production/auth \
   SESSION_SECRET="$(openssl rand -base64 32)" \
   IMAGE_TAG="main"
-
-# Verify
-bao kv get secret/beskid/production/auth
 ```
 
-If OpenBao is NOT ready: skip the `openbao` provider in terraform.
-Secrets stay in Coolify UI until OpenBao is live.
-Set `IMAGE_TAG=main` manually in the Coolify UI for now.
+See [openbao-layout.md](openbao-layout.md).
 
-## Step 4: Configure local environment
+## 2. DNS
+
+Create **A** records for each hostname you enable (see [deploy-matrix.md](deploy-matrix.md)), e.g. `beskid-lang.org`, `auth.beskid-lang.org`, `stg-auth.beskid-lang.org`.
+
+## 3. Local apply
 
 ```bash
+git checkout main
+source scripts/export-openbao-for-tofu.sh   # branch → production
+
 cd environments/production
-
-# Create terraform.tfvars from the example
-cp terraform.tfvars.example terraform.tfvars
-
-# Edit terraform.tfvars — add your Coolify URL and API token:
-#   coolify_url       = "https://coolify.your-domain.com"
-#   coolify_api_token = "tcp-..."
-
-# Or use env vars instead:
-export COOLIFY_URL="https://coolify.your-domain.com"
-export COOLIFY_API_TOKEN="tcp-..."
+cp ../config/production.tfvars.example ../config/production.tfvars
+tofu init && tofu plan
 ```
 
-## Step 5: Install Coolify provider
+## 4. Import existing apps
 
 ```bash
-# The provider is from GitHub — clone and build it
-cd /tmp
-git clone https://github.com/SierraJC/coolify-terraform-provider.git
-cd coolify-terraform-provider
-go build -o ~/.terraform.d/plugins/github.com/SierraJC/coolify/0.0.1/linux_amd64/terraform-provider-coolify
-
-# Back in beskid_infra
-cd /path/to/beskid_infra/environments/production
-tofu init
+tofu import 'module.stack.module.apps["site"].coolify_application.this' rsso488sscg80kookoo00sk4
 ```
 
-## Step 6: Import existing resources
+More: [coolify-import.md](coolify-import.md).
 
-Import the Coolify project, server, environment, and existing `beskid site` app:
+## 5. Staging environment
+
+Create `staging` in Coolify UI (or `manage_environment = true` in `environments/staging`).
 
 ```bash
-cd environments/production
-
-# Import project
-tofu import coolify_project.beskid tosg8kc80g8go00sgcswsccg
-
-# Import server
-tofu import coolify_server.beskid ec0cs0cw0ocsok488gc0k80k
-
-# Import production environment
-tofu import coolify_environment.production e4g8w0c0gk0gcsc0wo4c8gcg
-
-# Import existing site app
-tofu import 'module.beskid_site.coolify_application.app' rsso488sscg80kookoo00sk4
+git checkout stg
+source scripts/export-openbao-for-tofu.sh
+cd environments/staging && tofu init && tofu apply
 ```
 
-## Step 7: Plan and apply
+## 6. GitHub Actions
 
-```bash
-# Plan — review what will change
-tofu plan
-
-# If plan looks correct (should show no changes for imported resources,
-# and creation of beskid-auth app):
-tofu apply
-```
-
-Expected output:
-- `coolify_project.beskid` — no changes (imported)
-- `coolify_server.beskid` — no changes (imported)
-- `module.beskid_site.coolify_application.app` — no changes (imported)
-- `module.beskid_auth.coolify_application.app` — **will be created**
-
-## Step 8: Set up GitHub Actions CI
-
-Add these secrets to the `beskid_infra` repo:
+Repository secrets:
 
 | Secret | Value |
 |--------|-------|
-| `COOLIFY_URL` | Your Coolify instance URL |
-| `COOLIFY_API_TOKEN` | The admin API token from Step 2 |
+| `COOLIFY_ENDPOINT` | `https://coolify.bdziam.dev` |
+| `COOLIFY_API_TOKEN` | API token |
+| `OPENBAO_ADDR` | OpenBao URL |
+| `OPENBAO_TOKEN` | CI token |
+| `COOLIFY_PROJECT_UUID` | Project UUID |
+| `COOLIFY_SERVER_UUID` | Server UUID |
 
-Push to `main` to trigger the `tofu-plan-apply.yml` workflow.
+Environments: `staging`, `production` (approval on production).
 
-## Step 9: Configure Coolify server for GHCR pull
+## 7. GHCR on Coolify server
 
-On the Coolify server:
+Settings → Docker Registries → `ghcr.io` with PAT `read:packages`.
 
-```bash
-# GHCR pull credential — PAT with read:packages scope for Cyber-Nomad-Collective
-echo "$GHCR_PAT" | docker login ghcr.io -u <github-username> --password-stdin
-```
-
-## Step 10: Redeploy
-
-```bash
-# Trigger redeploy via OpenTofu or Coolify UI
-tofu apply
-# or in Coolify UI: beskid site → Deploy
-```
-
-### Verify
+## Verify
 
 ```bash
-curl -sI https://beskid-lang.org/ | head -5
-curl -s https://auth.beskid-lang.org/api/v1/health
+curl -sI "https://beskid-lang.org/" | head -3
+curl -s "https://auth.beskid-lang.org/api/v1/health"
 ```
-
-## Rollback
-
-```bash
-cd environments/production
-tofu destroy -target=module.beskid_auth  # if auth fails
-# The existing beskid site app is imported, not destroyed
-```
-
-## After bootstrap
-
-- [ ] Move Terraform state to remote backend (S3 / GCS)
-- [ ] Create `staging` branch and environment
-- [ ] Add OpenBao integration (if not done in Step 3)
-- [ ] Add remaining services (tracker, nexus, pckg)

@@ -1,44 +1,68 @@
 # beskid_infra
 
-OpenTofu infrastructure for the Beskid platform — manages Coolify apps, DNS, and secrets via OpenBao.
+OpenTofu for the Beskid platform: Coolify apps (GHCR image-only), automatic Let's Encrypt domains, OpenBao secrets.
 
 ## Structure
 
 ```
-├── modules/
-│   └── coolify_image_app/   # Reusable module: GHCR-pulled Coolify app
-├── environments/
-│   ├── production/          # main branch, beskid-lang.org
-│   └── staging/             # staging branch, isolated
-├── docs/
-│   ├── bootstrap.md         # Step-by-step setup guide
-│   ├── deploy-matrix.md     # Service → GHCR → Coolify map
-│   └── openbao-layout.md    # Secret paths and rotation
-└── .github/workflows/
-    └── tofu-plan-apply.yml  # CI: plan on PR, apply on push to main
+modules/
+  beskid_hostname/           # stg.beskid-lang.org, stg-pckg, …
+  openbao_kv/                # KV v2 → env map
+  coolify_ghcr_application/  # arcusis application + envs_bulk
+  coolify_pckg_stack/         # PostgreSQL + pckg app
+  beskid_stack/              # all services per lane
+environments/
+  production/   # git branch main
+  staging/      # git branch stg
+docs/
+  architecture.md
+  deploy-matrix.md
+  openbao-layout.md
+  coolify-import.md
 ```
+
+## Toolchain
+
+From the **superrepo root** (or `just deps-check` in this directory):
+
+```bash
+../scripts/install-deps.sh --check --group infra
+```
+
+Manifest: [`../repo-deps.json`](../repo-deps.json) · [`../scripts/README.md`](../scripts/README.md).
 
 ## Quick start
 
 ```bash
-cd environments/production
-cp terraform.tfvars.example terraform.tfvars
-# edit terraform.tfvars with your Coolify URL and API token
-tofu init
-tofu plan
-tofu apply
+just config-init
+# edit .env + config/*.tfvars
+git checkout main && just plan    # production
+git checkout stg && just plan     # staging
 ```
 
-Full bootstrap: [docs/bootstrap.md](docs/bootstrap.md)
+Manual OpenTofu: [docs/bootstrap.md](docs/bootstrap.md). Local UUIDs: [config/coolify.snapshot.json](config/coolify.snapshot.json).
+
+Bootstrap: [docs/bootstrap.md](docs/bootstrap.md) · Architecture: [docs/architecture.md](docs/architecture.md)
 
 ## Providers
 
 | Provider | Purpose |
 |----------|---------|
-| `SierraJC/coolify` | Manage Coolify apps, servers, environments |
-| `OpenBao/openbao` | Read runtime secrets at apply time |
+| [arcusis/coolify](https://registry.terraform.io/providers/arcusis/coolify/latest/docs) | Applications, PostgreSQL, env bulk |
+| [hashicorp/vault](https://registry.terraform.io/providers/hashicorp/vault/latest/docs) | OpenBao KV reads |
+
+## CI (Dagger)
+
+Release and publish pipelines live in [`dagger/`](dagger/) (TypeScript Dagger module). From the superrepo root:
+
+```bash
+cd beskid_infra/dagger && npm install && dagger functions
+dagger -m beskid_infra/dagger call compiler-rust-gate --source=../..
+```
+
+Optional Just recipes: `just dagger-functions`, `just dagger-gate`. See [dagger/README.md](dagger/README.md).
 
 ## Related
 
-- [Beskid superrepo](https://github.com/Cyber-Nomad-Collective/beskid) — application source and GHCR builds
-- [Coolify MCP](https://github.com/masonator/coolify-mcp) — API bridge for this repo
+- [beskid](https://github.com/Cyber-Nomad-Collective/beskid) — GHCR builds, compose sources
+- [Coolify Let's Encrypt troubleshooting](https://coolify.io/docs/troubleshoot/dns-and-domains/lets-encrypt-not-working)

@@ -8,6 +8,9 @@ tfplan
 # Sensitive values
 terraform.tfvars
 *.auto.tfvars
+config/*.tfvars
+!config/*.tfvars.example
+.env
 
 # Overrides
 override.tf
