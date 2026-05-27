@@ -14,15 +14,11 @@ Built by `scripts/ci/install-coolify-provider.sh` as provider version **`1.1.18-
 
 Upstream already base64-encodes `docker_compose_raw` on POST/PATCH.
 
-## Lock file checksums
+## Lock file
 
-After changing vendored sources, rebuild and refresh `.terraform.lock.hcl`:
+`arcusis/coolify` is **not** listed in `.terraform.lock.hcl` — the Beskid build is installed from the filesystem mirror (`terraform.tofurc.generated`) and Go binaries are not reproducible across machines. Hashicorp/random and vault remain lock-pinned.
 
-```bash
-./scripts/ci/lock-coolify-provider.sh   # install + tofu providers lock (linux_amd64 + darwin_arm64)
-```
-
-CI relies on committed `.terraform.lock.hcl` checksums (re-run `lock-coolify-provider.sh` after vendor edits).
+Optional: `./scripts/ci/lock-coolify-provider.sh` records checksums after `tofu init` for local auditing (not used in CI).
 
 ## Refresh from upstream
 
