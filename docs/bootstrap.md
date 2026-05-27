@@ -64,18 +64,33 @@ cd environments/staging && tofu init && tofu apply
 
 ## 6. GitHub Actions
 
-Repository secrets:
+**Organization or repository variables** (Actions → Variables):
+
+| Variable | Value |
+|----------|-------|
+| `COOLIFY_ENDPOINT` | `https://coolify.bdziam.dev` |
+| `COOLIFY_API_TOKEN` | Coolify API token |
+| `COOLIFY_PROJECT_UUID` | Beskid project UUID (`config/coolify.snapshot.json`) |
+| `COOLIFY_SERVER_UUID` | Target server UUID |
+
+Optional:
+
+| Variable | Purpose |
+|----------|---------|
+| `BESKID_TOFU_APPLY_ENABLED` | Set `true` to run `tofu apply` on push to `main` / `stg` |
+| `OPENBAO_EXPORT_ENABLED` | Set `true` when OpenBao export is configured in CI |
+| `ANSIBLE_PREPARE_HOST` | Set `true` to run host bootstrap before apply |
+
+**Repository secrets** (when using OpenBao in CI):
 
 | Secret | Value |
 |--------|-------|
-| `COOLIFY_ENDPOINT` | `https://coolify.bdziam.dev` |
-| `COOLIFY_API_TOKEN` | API token |
 | `OPENBAO_ADDR` | OpenBao URL |
 | `OPENBAO_TOKEN` | CI token |
-| `COOLIFY_PROJECT_UUID` | Project UUID |
-| `COOLIFY_SERVER_UUID` | Server UUID |
 
-Environments: `staging`, `production` (approval on production).
+Workflows: [`beskid-platform.yml`](../../.github/workflows/beskid-platform.yml) (GHCR + plan), [`container-images.yml`](../../.github/workflows/container-images.yml), [`tofu-plan-apply.yml`](../../.github/workflows/tofu-plan-apply.yml), [`release.yml`](../../.github/workflows/release.yml).
+
+GitHub environments: `staging`, `production` (approval on production apply).
 
 ## 7. GHCR on Coolify server
 

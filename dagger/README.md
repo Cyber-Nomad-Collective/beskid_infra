@@ -51,7 +51,7 @@ dagger call open-vsx-publish --source=../.. --platform=linux-x64 --bin-name=besk
 ## GitHub Actions example
 
 ```yaml
-- uses: dagger/dagger-for-github@v7.2.0
+- uses: dagger/dagger-for-github@v8.4.1
   with:
     version: "0.21.0"
 - run: npm ci
