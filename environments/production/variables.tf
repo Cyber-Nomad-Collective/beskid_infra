@@ -53,7 +53,7 @@ variable "project_uuid" {
 }
 
 variable "manage_coolify_project" {
-  description = "Create the Beskid Coolify project via OpenTofu (true on production only)."
+  description = "Manage coolify_project.beskid (true on production). Run ensure-coolify-project-import.sh after init so an existing project is adopted, not recreated."
   type        = bool
   default     = true
 }

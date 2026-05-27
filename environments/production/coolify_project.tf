@@ -1,4 +1,6 @@
-# Greenfield: OpenTofu owns the Coolify project (legacy Beskid_MANUAL is untouched).
+# Greenfield: OpenTofu manages the Beskid project (legacy Beskid_MANUAL is untouched).
+# CI runs scripts/ci/ensure-coolify-project-import.sh after init so an existing project is
+# imported instead of created again when state was lost or apply retried.
 
 resource "coolify_project" "beskid" {
   count = var.manage_coolify_project ? 1 : 0

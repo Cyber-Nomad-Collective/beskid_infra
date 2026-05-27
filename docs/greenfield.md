@@ -1,6 +1,6 @@
 # Greenfield Coolify deploy
 
-OpenTofu **creates** the Coolify project (`coolify_project.beskid`). The legacy **Beskid_MANUAL** project is not imported or merged.
+OpenTofu **manages** the Coolify project (`coolify_project.beskid`). Before plan/apply, CI runs `scripts/ci/ensure-coolify-project-import.sh`: if a project named **Beskid** already exists, it is **imported** into state so apply does not POST a duplicate. The legacy **Beskid_MANUAL** project is not touched.
 
 ## MCP snapshot (2026-05-27)
 
@@ -21,7 +21,7 @@ OpenTofu **creates** the Coolify project (`coolify_project.beskid`). The legacy 
 | Variable | `COOLIFY_SERVER_UUID` | `ec0cs0cw0ocsok488gc0k80k` |
 | Variable | `COOLIFY_DESTINATION_UUID` | `zss4wkockgw8gok888gscc84` (localhost → **coolify** network) |
 
-Do **not** set `COOLIFY_PROJECT_UUID` — production creates the project; staging resolves it by name in CI.
+Do **not** set `COOLIFY_PROJECT_UUID` — production imports-or-creates by name; staging resolves UUID in CI.
 
 ## What OpenTofu creates (per lane)
 
@@ -37,8 +37,8 @@ On `main` → **production**, on `stg` → **staging**:
 Push to `main` or `stg` → **Beskid platform**:
 
 1. GHCR build (site, auth, tracker, nexus, pckg)
-2. Staging: resolve `Beskid` project UUID via Coolify API
-3. `tofu plan` + `tofu apply`
+2. Production: `tofu init` → import existing **Beskid** project if present → plan/apply
+3. Staging: resolve `Beskid` project UUID via Coolify API → plan/apply
 4. `openbao-init-unseal.sh` — store root token as `OPENBAO_TOKEN`, re-apply for KV seeding
 
 ## Local
@@ -46,8 +46,12 @@ Push to `main` or `stg` → **Beskid platform**:
 ```bash
 cd beskid_infra && just config-init
 export TF_VAR_coolify_api_token="..."
-git checkout main && just plan && just apply
-# Note coolify_project_uuid output; use for staging tfvars or let CI resolve
+export COOLIFY_ENDPOINT="https://coolify.example"
+export COOLIFY_API_TOKEN="..."
+git checkout main
+just init
+../../scripts/ci/ensure-coolify-project-import.sh production
+just plan && just apply
 ```
 
 ## Troubleshooting
@@ -59,5 +63,6 @@ git checkout main && just plan && just apply
 | `Server has multiple destinations` (400) | Set `destination_uuid` (localhost coolify network: `zss4wkockgw8gok888gscc84`) — see Coolify → Destinations |
 | `docker_compose_raw` must be base64 (422) | Use Coolify provider **v1.1.18+** (`scripts/ci/install-coolify-provider.sh`); v1.1.13 sends plain YAML |
 | `vault_kv_secret_v2` deprecated (warning) | Informational until OpenTofu ≥1.10 + ephemeral migration; does not block apply |
+| Duplicate **Beskid** projects in Coolify | Delete extras in the UI; keep one UUID, run `ensure-coolify-project-import.sh` so state matches |
 | `templatefile` / colon in interpolation | Only `${openbao_version}` / `${openbao_fqdn}` in compose — no shell `${VAR:-default}` anywhere in the file (including comments); pass defaults in Terraform |
 | Literal `$` in compose for Coolify | Escape as `$${` in YAML processed by `templatefile()` |
