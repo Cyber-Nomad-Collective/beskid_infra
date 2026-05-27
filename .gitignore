@@ -1,0 +1,26 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+
+# Sensitive values
+terraform.tfvars
+*.auto.tfvars
+
+# Overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI
+.terraformrc
+terraform.rc
+crash.log
+crash.*.log
+
+# OS
+.DS_Store
+Thumbs.db

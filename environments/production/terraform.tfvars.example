@@ -1,0 +1,7 @@
+# Sensitive values — copy to terraform.tfvars and fill in.
+# NEVER commit terraform.tfvars to git.
+
+# coolify_url     = "https://coolify.your-domain.com"
+# coolify_api_token = "tcp-..."
+# openbao_addr    = "https://bao.your-domain.com:8200"
+# openbao_token   = "hvs...."

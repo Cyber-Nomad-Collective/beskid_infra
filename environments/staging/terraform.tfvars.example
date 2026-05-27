@@ -1,0 +1,3 @@
+# Staging variables — copy to terraform.tfvars and fill in.
+project_uuid = "tosg8kc80g8go00sgcswsccg"
+server_uuid  = "ec0cs0cw0ocsok488gc0k80k"
