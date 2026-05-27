@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Bundle VS Code extension and publish to Open VSX (port of ci/open_vsx.py).
+# Bundle VS Code extension and publish to Open VSX.
 set -euo pipefail
 
 platform="${1:?platform}"
 bin_name="${2:?bin_name}"
 token="${3:?ovsx token}"
 
-cd /src/beskid_vscode
+repo_root="${BESKID_REPO_ROOT:-/src}"
+
+cd "$repo_root/beskid_vscode"
 
 previous_version=""
 restore_version() {
@@ -38,7 +40,10 @@ case "$icon" in
 esac
 
 target=""
-if target="$(/src/beskid_infra/dagger/scripts/resolve-extension-version.sh)"; then
+if target="$(
+  cd "$repo_root"
+  bash "$repo_root/beskid_infra/dagger/scripts/resolve-extension-version.sh"
+)"; then
   if [[ ! "$target" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
     echo "Derived extension version \`$target\` is not valid semver." >&2
     exit 1

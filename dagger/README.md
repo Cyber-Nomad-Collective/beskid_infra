@@ -1,6 +1,6 @@
 # Beskid CI (Dagger)
 
-TypeScript Dagger module for Beskid aggregate and submodule CI. **All Dagger code lives here** (`beskid_infra/dagger/`), not under `ci/dagger/`.
+TypeScript Dagger module for Beskid aggregate and submodule CI. **All Dagger code lives here** (`beskid_infra/dagger/`).
 
 The superrepo root [`dagger.json`](../../dagger.json) points at this directory.
 

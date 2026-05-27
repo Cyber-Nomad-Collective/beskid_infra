@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Resolve extension semver from git tags / GITHUB_* (port of ci/open_vsx.py).
+# Resolve extension semver from git tags / GITHUB_*.
 set -euo pipefail
 
 ref_name="${GITHUB_REF_NAME:-}"

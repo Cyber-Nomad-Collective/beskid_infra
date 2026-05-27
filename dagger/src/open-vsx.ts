@@ -50,6 +50,7 @@ function bunPublishContainer(
       ])
       .withDirectory("/src", source)
       .withWorkdir("/src")
+      .withEnvVariable("BESKID_REPO_ROOT", "/src")
       .withEnvVariable("OVSX_TOKEN", token)
       .withFile(`/src/${serverDir}/${binName}`, lspBin)
       .withNewFile(
