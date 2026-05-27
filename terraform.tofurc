@@ -1,4 +1,10 @@
-# arcusis/coolify is on the Terraform Registry (terraform.io hostname).
+# Use filesystem mirror for arcusis/coolify (installed by scripts/ci/install-coolify-provider.sh in CI).
 provider_installation {
-  direct {}
+  filesystem_mirror {
+    path    = "/home/runner/.terraform.d/plugins"
+    include = ["registry.terraform.io/arcusis/coolify"]
+  }
+  direct {
+    exclude = ["registry.terraform.io/arcusis/coolify"]
+  }
 }
