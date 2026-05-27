@@ -8,9 +8,10 @@ resource "coolify_project" "beskid" {
 }
 
 locals {
+  # arcusis/coolify exposes the project UUID as `.id` (not `.uuid`).
   coolify_project_uuid = coalesce(
     var.project_uuid,
-    try(coolify_project.beskid[0].uuid, null),
+    try(coolify_project.beskid[0].id, null),
   )
 }
 

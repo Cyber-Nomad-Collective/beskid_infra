@@ -1,8 +1,8 @@
 # OpenBao on Coolify (Traefik terminates TLS; listener is plain HTTP on 8200).
-# Coolify sets SERVICE_FQDN_OPENBAO_8200 for the public hostname.
+# Rendered via templatefile() — use ${var} placeholders only (no shell ${VAR:-default}).
 services:
   openbao:
-    image: quay.io/openbao/openbao:${OPENBAO_VERSION:-2.1.0}
+    image: quay.io/openbao/openbao:${openbao_version}
     restart: unless-stopped
     cap_add:
       - IPC_LOCK

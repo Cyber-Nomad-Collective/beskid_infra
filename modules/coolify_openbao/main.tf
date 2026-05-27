@@ -2,7 +2,7 @@
 
 locals {
   compose = templatefile("${path.module}/docker-compose.openbao.yml", {
-    OPENBAO_VERSION = var.openbao_version
+    openbao_version = var.openbao_version
     openbao_fqdn    = var.domains
   })
 }

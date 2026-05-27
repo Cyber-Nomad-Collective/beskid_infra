@@ -49,4 +49,10 @@ git checkout main && just plan && just apply
 # Note coolify_project_uuid output; use for staging tfvars or let CI resolve
 ```
 
-Legacy import (old project only): [coolify-import.md](coolify-import.md).
+## Troubleshooting
+
+| Error | Fix |
+|-------|-----|
+| `no attribute named "uuid"` on `coolify_project` | Use `.id` — arcusis provider UUID is the Terraform `id` attribute |
+| `templatefile` / colon in interpolation | Compose templates use `${openbao_version}` vars only; no shell `${VAR:-default}` — pass defaults in Terraform |
+| Literal `$` in compose for Coolify | Escape as `$${` in YAML processed by `templatefile()` |
