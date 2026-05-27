@@ -22,7 +22,7 @@ After changing vendored sources, rebuild and refresh `.terraform.lock.hcl`:
 ./scripts/ci/lock-coolify-provider.sh   # install + tofu providers lock (linux_amd64 + darwin_arm64)
 ```
 
-CI builds `linux_amd64` only and runs `tofu providers lock -platform=linux_amd64` before `tofu init`.
+CI relies on committed `.terraform.lock.hcl` checksums (re-run `lock-coolify-provider.sh` after vendor edits).
 
 ## Refresh from upstream
 
