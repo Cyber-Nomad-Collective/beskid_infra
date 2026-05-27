@@ -65,7 +65,7 @@ variable "coolify_project_name" {
 
 variable "coolify_project_description" {
   type    = string
-  default = "Beskid platform — OpenTofu greenfield (site, auth, OpenBao, …)"
+  default = "Beskid platform"
 }
 
 variable "server_uuid" {
@@ -88,9 +88,9 @@ variable "enable_services" {
   default = {
     site    = true
     auth    = true
-    tracker = false
-    nexus   = false
-    pckg    = false
+    tracker = true
+    nexus   = true
+    pckg    = true
   }
 }
 

@@ -30,7 +30,7 @@ Project `tosg8kc80g8go00sgcswsccg` · Server `ec0cs0cw0ocsok488gc0k80k`.
 
 ## GHCR
 
-Built by `.github/workflows/container-images.yml` in the `beskid` superrepo (and per-service repos when split).
+Built by `.github/workflows/container-images.yml` in the `beskid` superrepo (matrix: site, auth, tracker, nexus, pckg).
 
 ## DNS
 

@@ -12,10 +12,10 @@ resource "vault_kv_secret_v2" "tofu_lane" {
   name  = "beskid/tofu/${var.openbao_lane}"
 
   data_json = jsonencode({
-    coolify_endpoint      = var.coolify_endpoint
-    coolify_api_token     = var.coolify_api_token
-    coolify_project_uuid  = var.project_uuid
-    coolify_server_uuid   = var.server_uuid
+    coolify_endpoint     = var.coolify_endpoint
+    coolify_api_token    = var.coolify_api_token
+    coolify_project_uuid = var.project_uuid
+    coolify_server_uuid  = var.server_uuid
   })
 }
 

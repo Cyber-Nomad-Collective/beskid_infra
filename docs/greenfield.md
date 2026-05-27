@@ -29,13 +29,13 @@ On `main` → **production**, on `stg` → **staging**:
 1. **`coolify_project.beskid`** (production only)
 2. Coolify **environment** (`production` / `staging`)
 3. **OpenBao** Compose service
-4. **site** + **auth** GHCR apps (extend via `enable_services`)
+4. **site**, **auth**, **tracker**, **nexus**, and **pckg** GHCR apps (toggle via `enable_services`)
 
 ## Pipeline
 
-Push to `main` or `stg` → **Beskid platform (site + auth)**:
+Push to `main` or `stg` → **Beskid platform**:
 
-1. GHCR build
+1. GHCR build (site, auth, tracker, nexus, pckg)
 2. Staging: resolve `Beskid` project UUID via Coolify API
 3. `tofu plan` + `tofu apply`
 4. `openbao-init-unseal.sh` — store root token as `OPENBAO_TOKEN`, re-apply for KV seeding

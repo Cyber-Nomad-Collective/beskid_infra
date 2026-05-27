@@ -25,14 +25,14 @@ module "secrets" {
 }
 
 resource "coolify_database_postgresql" "this" {
-  project_uuid     = var.project_uuid
-  server_uuid      = var.server_uuid
-  environment_name = var.environment_name
-  name             = var.database_name
-  postgres_db      = var.postgres_db
-  postgres_user    = var.postgres_user
+  project_uuid      = var.project_uuid
+  server_uuid       = var.server_uuid
+  environment_name  = var.environment_name
+  name              = var.database_name
+  postgres_db       = var.postgres_db
+  postgres_user     = var.postgres_user
   postgres_password = var.postgres_password
-  instant_deploy   = var.instant_deploy
+  instant_deploy    = var.instant_deploy
 }
 
 resource "coolify_application" "app" {

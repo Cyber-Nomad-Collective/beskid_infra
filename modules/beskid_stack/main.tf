@@ -52,8 +52,12 @@ module "apps" {
   openbao_secret_path = "beskid/${local.cfg.openbao_lane}/${each.value.openbao_service}"
 
   static_env = merge(
-    each.key == "auth" ? { AUTH_HUB_PUBLIC_URL = module.hostname_auth.url } : {},
-    each.key == "tracker" ? { TRACKER_PUBLIC_URL = module.hostnames[each.key].url } : {},
+    contains(["auth", "tracker", "nexus"], each.key) ? { AUTH_HUB_PUBLIC_URL = module.hostname_auth.url } : {},
+    each.key == "tracker" ? {
+      TRACKER_PUBLIC_URL = module.hostnames[each.key].url
+      TRACKER_DATA_DIR   = "/app/beskid_tracker/data/runtime"
+    } : {},
+    each.key == "nexus" ? { GITNEXUS_HOME = "/data/gitnexus" } : {},
     lookup(var.service_static_env, each.key, {}),
   )
 
@@ -85,7 +89,10 @@ module "pckg" {
   openbao_enabled     = var.openbao_enabled
   openbao_mount       = var.openbao_mount
   openbao_secret_path = "beskid/${local.cfg.openbao_lane}/pckg"
-  postgres_password   = var.pckg_postgres_password
+  postgres_password = coalesce(
+    var.pckg_postgres_password,
+    try(random_password.pckg_postgres[0].result, null),
+  )
 
   manage_env     = var.manage_coolify_env
   auto_deploy    = var.auto_deploy

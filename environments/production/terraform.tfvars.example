@@ -4,7 +4,7 @@ coolify_endpoint = "https://coolify.bdziam.dev"
 
 manage_coolify_project      = true
 coolify_project_name        = "Beskid"
-coolify_project_description = "Beskid platform — OpenTofu greenfield"
+coolify_project_description = "Beskid platform"
 
 server_uuid = "ec0cs0cw0ocsok488gc0k80k"
 
@@ -18,7 +18,7 @@ seed_openbao_secrets = false
 enable_services = {
   site    = true
   auth    = true
-  tracker = false
-  nexus   = false
-  pckg    = false
+  tracker = true
+  nexus   = true
+  pckg    = true
 }

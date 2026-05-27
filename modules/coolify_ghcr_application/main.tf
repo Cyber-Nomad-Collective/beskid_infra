@@ -20,10 +20,10 @@ resource "coolify_application" "this" {
   ports_exposes              = tostring(var.expose_port)
   domains                    = var.domains
 
-  description              = var.description
-  is_force_https_enabled   = true
-  is_auto_deploy_enabled   = var.auto_deploy
-  instant_deploy           = var.instant_deploy
+  description            = var.description
+  is_force_https_enabled = true
+  is_auto_deploy_enabled = var.auto_deploy
+  instant_deploy         = var.instant_deploy
 }
 
 resource "coolify_envs_bulk" "this" {

@@ -12,7 +12,7 @@ deploy_openbao     = true
 enable_services = {
   site    = true
   auth    = true
-  tracker = false
-  nexus   = false
-  pckg    = false
+  tracker = true
+  nexus   = true
+  pckg    = true
 }

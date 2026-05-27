@@ -60,11 +60,11 @@ variable "manage_environment" {
 variable "enable_services" {
   type = map(bool)
   default = {
-    site    = false
+    site    = true
     auth    = true
-    tracker = false
-    nexus   = false
-    pckg    = false
+    tracker = true
+    nexus   = true
+    pckg    = true
   }
 }
 
