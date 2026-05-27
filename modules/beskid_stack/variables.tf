@@ -66,11 +66,6 @@ variable "openbao_mount" {
   default = "secret"
 }
 
-variable "openbao_mount" {
-  type    = string
-  default = "secret"
-}
-
 variable "manage_coolify_env" {
   description = "Push env vars via coolify_envs_bulk (disables UI-only vars on apply)."
   type        = bool
