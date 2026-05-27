@@ -1,0 +1,10 @@
+# arcusis/coolify is published on the Terraform Registry, not registry.opentofu.org.
+provider_installation {
+  network_mirror {
+    url     = "https://registry.terraform.io/"
+    include = ["registry.terraform.io/*/*"]
+  }
+  direct {
+    exclude = ["registry.terraform.io/*/*"]
+  }
+}
