@@ -1,0 +1,94 @@
+---
+- name: Assert supported OS family
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family == "Debian"
+    fail_msg: "This playbook currently supports Debian/Ubuntu only (Coolify recommended)."
+
+- name: Install base packages (Debian)
+  ansible.builtin.apt:
+    name: "{{ base_packages + ['ufw', 'python3', 'python3-apt'] }}"
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Ensure UFW enabled (Debian)
+  ansible.builtin.ufw:
+    state: enabled
+  when: ansible_os_family == "Debian" and firewall_manage
+
+- name: Allow inbound TCP ports (Debian/UFW)
+  ansible.builtin.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ firewall_open_tcp_ports }}"
+  when: ansible_os_family == "Debian" and firewall_manage
+
+- name: Disable swap now
+  ansible.builtin.command: swapoff -a
+  when: swap_disable and (ansible_swaptotal_mb | int) > 0
+  changed_when: true
+
+- name: Comment swap entries in /etc/fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(?!#)(.*\s+swap\s+.*)$'
+    replace: '# \1'
+  when: swap_disable
+
+- name: Check docker presence
+  ansible.builtin.command: docker --version
+  register: docker_version
+  changed_when: false
+  failed_when: false
+
+- name: Install Docker using official convenience script (idempotent)
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -fsSL https://get.docker.com | sh
+  when: docker_install and docker_version.rc != 0
+
+- name: Ensure docker service running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+  when: docker_install
+
+- name: Create deploy user
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    groups: "{{ deploy_user_groups }}"
+    append: true
+    shell: /bin/bash
+    create_home: true
+    state: present
+  when: create_deploy_user
+
+- name: Detect Coolify installed by data directory
+  ansible.builtin.stat:
+    path: "{{ coolify_data_dir }}"
+  register: coolify_data
+
+- name: Detect Coolify containers (best-effort)
+  ansible.builtin.shell: |
+    set -euo pipefail
+    docker ps -a --format '{{"{{"}}.Names{{"}}"}}' | grep -E '^coolify(-|$)' -n || true
+  register: coolify_containers
+  changed_when: false
+  failed_when: false
+  when: docker_install
+
+- name: Set fact coolify_installed
+  ansible.builtin.set_fact:
+    coolify_installed: "{{ coolify_data.stat.exists or (coolify_containers.stdout | length > 0) }}"
+
+- name: Install Coolify (only if not installed)
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -fsSL "{{ coolify_install_script_url }}" | bash
+  args:
+    creates: "{{ coolify_data_dir }}"
+  when: coolify_install and not coolify_installed
+

@@ -1,0 +1,8 @@
+---
+- name: Prepare Coolify host for OpenTofu-driven deployments
+  hosts: coolify_hosts
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: coolify_host

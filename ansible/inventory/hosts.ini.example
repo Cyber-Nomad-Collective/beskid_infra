@@ -1,0 +1,3 @@
+[coolify_hosts]
+# Use a real IP/hostname here. Example:
+# coolify-01 ansible_host=191.96.53.21 ansible_user=root

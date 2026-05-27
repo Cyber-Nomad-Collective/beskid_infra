@@ -1,0 +1,40 @@
+---
+# Coolify host bootstrap defaults
+coolify_install: false
+coolify_install_script_url: "https://cdn.coollabs.io/coolify/install.sh"
+
+coolify_data_dir: "/data/coolify"
+
+# Firewall
+firewall_manage: true
+firewall_open_tcp_ports:
+  - 22
+  - 80
+  - 443
+  - 8000
+
+# Swap
+swap_disable: true
+
+# Docker
+docker_install: true
+
+# Users
+create_deploy_user: true
+deploy_user: "deploy"
+deploy_user_groups:
+  - sudo
+  - docker
+
+# SSH
+ssh_hardening: true
+ssh_password_authentication: "no"
+ssh_permit_root_login: "prohibit-password"
+
+# Packages
+base_packages:
+  - ca-certificates
+  - curl
+  - git
+  - jq
+  - openssl
