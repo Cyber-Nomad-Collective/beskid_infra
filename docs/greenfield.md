@@ -54,5 +54,5 @@ git checkout main && just plan && just apply
 | Error | Fix |
 |-------|-----|
 | `no attribute named "uuid"` on `coolify_project` | Use `.id` — arcusis provider UUID is the Terraform `id` attribute |
-| `templatefile` / colon in interpolation | Compose templates use `${openbao_version}` vars only; no shell `${VAR:-default}` — pass defaults in Terraform |
+| `templatefile` / colon in interpolation | Only `${openbao_version}` / `${openbao_fqdn}` in compose — no shell `${VAR:-default}` anywhere in the file (including comments); pass defaults in Terraform |
 | Literal `$` in compose for Coolify | Escape as `$${` in YAML processed by `templatefile()` |

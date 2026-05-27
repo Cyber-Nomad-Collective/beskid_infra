@@ -1,5 +1,5 @@
 # OpenBao on Coolify (Traefik terminates TLS; listener is plain HTTP on 8200).
-# Rendered via templatefile() — use ${var} placeholders only (no shell ${VAR:-default}).
+# Rendered via templatefile() — only ${openbao_version} and ${openbao_fqdn}; pass defaults in Terraform.
 services:
   openbao:
     image: quay.io/openbao/openbao:${openbao_version}
