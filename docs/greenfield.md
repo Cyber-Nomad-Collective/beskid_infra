@@ -19,6 +19,7 @@ OpenTofu **creates** the Coolify project (`coolify_project.beskid`). The legacy 
 | Secret | `OPENBAO_UNSEAL_KEY` | Optional |
 | Variable | `COOLIFY_ENDPOINT` | `https://coolify.bdziam.dev` |
 | Variable | `COOLIFY_SERVER_UUID` | `ec0cs0cw0ocsok488gc0k80k` |
+| Variable | `COOLIFY_DESTINATION_UUID` | `zss4wkockgw8gok888gscc84` (localhost → **coolify** network) |
 
 Do **not** set `COOLIFY_PROJECT_UUID` — production creates the project; staging resolves it by name in CI.
 
@@ -55,5 +56,6 @@ git checkout main && just plan && just apply
 |-------|-----|
 | `no attribute named "uuid"` on `coolify_project` | Use `.id` — arcusis provider UUID is the Terraform `id` attribute |
 | `Environment with this name already exists` (409) | Coolify creates a default `production` environment with each new project — set `manage_environment = false` on production |
+| `Server has multiple destinations` (400) | Set `destination_uuid` (localhost coolify network: `zss4wkockgw8gok888gscc84`) — see Coolify → Destinations |
 | `templatefile` / colon in interpolation | Only `${openbao_version}` / `${openbao_fqdn}` in compose — no shell `${VAR:-default}` anywhere in the file (including comments); pass defaults in Terraform |
 | Literal `$` in compose for Coolify | Escape as `$${` in YAML processed by `templatefile()` |

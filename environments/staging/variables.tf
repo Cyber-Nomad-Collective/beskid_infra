@@ -52,6 +52,11 @@ variable "server_uuid" {
   type = string
 }
 
+variable "destination_uuid" {
+  description = "Coolify destination for server (localhost → coolify network)."
+  type        = string
+}
+
 variable "manage_environment" {
   type    = bool
   default = true

@@ -8,6 +8,7 @@ coolify_project_name        = "Beskid"
 coolify_project_description = "Beskid platform — OpenTofu greenfield"
 
 server_uuid = "ec0cs0cw0ocsok488gc0k80k"
+destination_uuid = "zss4wkockgw8gok888gscc84"
 
 manage_environment = false
 deploy_openbao     = true

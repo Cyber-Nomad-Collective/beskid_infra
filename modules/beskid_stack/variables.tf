@@ -16,6 +16,11 @@ variable "server_uuid" {
   type = string
 }
 
+variable "destination_uuid" {
+  description = "Coolify destination UUID on server (localhost default: coolify Docker network)."
+  type        = string
+}
+
 variable "coolify_environment_name" {
   description = "Existing Coolify environment name when manage_environment=false."
   type        = string

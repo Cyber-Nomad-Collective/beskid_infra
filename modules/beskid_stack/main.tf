@@ -38,10 +38,11 @@ module "apps" {
 
   app_name         = "beskid-${each.key}${local.cfg.name_suffix}"
   description      = each.value.description
-  project_uuid     = var.project_uuid
-  server_uuid      = var.server_uuid
-  environment_name = local.environment_name
-  ghcr_image       = each.value.ghcr_image
+  project_uuid       = var.project_uuid
+  server_uuid        = var.server_uuid
+  destination_uuid   = var.destination_uuid
+  environment_name   = local.environment_name
+  ghcr_image         = each.value.ghcr_image
   image_tag        = coalesce(var.image_tag_override, local.cfg.image_tag)
   expose_port      = each.value.port
 
@@ -82,6 +83,7 @@ module "pckg" {
   database_name       = "beskid-pckg-db${local.cfg.name_suffix}"
   project_uuid        = var.project_uuid
   server_uuid         = var.server_uuid
+  destination_uuid    = var.destination_uuid
   environment_name    = local.environment_name
   image_tag           = coalesce(var.image_tag_override, local.cfg.image_tag)
   auth_hub_public_url = module.hostname_auth.url

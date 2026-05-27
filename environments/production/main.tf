@@ -13,6 +13,7 @@ module "stack" {
   environment              = "production"
   project_uuid             = local.coolify_project_uuid
   server_uuid              = var.server_uuid
+  destination_uuid         = var.destination_uuid
   manage_environment       = var.manage_environment
   coolify_environment_name = var.coolify_environment_name
   base_domain              = var.base_domain

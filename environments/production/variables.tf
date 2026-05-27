@@ -72,6 +72,11 @@ variable "server_uuid" {
   type = string
 }
 
+variable "destination_uuid" {
+  description = "Coolify destination for server (localhost → coolify network). See Coolify → Destinations."
+  type        = string
+}
+
 variable "manage_environment" {
   description = "Create a Coolify environment resource. Leave false for production — Coolify creates a default production environment when the project is created."
   type        = bool

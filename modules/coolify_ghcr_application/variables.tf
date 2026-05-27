@@ -15,6 +15,11 @@ variable "server_uuid" {
   type = string
 }
 
+variable "destination_uuid" {
+  description = "Coolify destination on server (required when server has multiple destinations)."
+  type        = string
+}
+
 variable "environment_name" {
   type = string
 }

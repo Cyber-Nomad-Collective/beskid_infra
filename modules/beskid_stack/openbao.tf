@@ -11,9 +11,10 @@ module "openbao" {
   count  = var.deploy_openbao ? 1 : 0
   source = "../coolify_openbao"
 
-  project_uuid     = var.project_uuid
-  server_uuid      = var.server_uuid
-  environment_name = local.environment_name
+  project_uuid       = var.project_uuid
+  server_uuid        = var.server_uuid
+  destination_uuid   = var.destination_uuid
+  environment_name   = local.environment_name
   app_name         = "beskid-openbao${local.cfg.name_suffix}"
   domains          = module.hostname_openbao.domains
   instant_deploy   = var.instant_deploy

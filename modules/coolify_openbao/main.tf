@@ -11,6 +11,7 @@ resource "coolify_service" "this" {
   type             = "compose"
   project_uuid     = var.project_uuid
   server_uuid      = var.server_uuid
+  destination_uuid = var.destination_uuid
   environment_name = var.environment_name
   name             = var.app_name
   description      = var.description

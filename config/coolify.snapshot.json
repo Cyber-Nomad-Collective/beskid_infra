@@ -9,7 +9,10 @@
     "ip": "host.docker.internal",
     "public_ipv4": "191.96.53.21",
     "proxy_type": "CADDY",
-    "is_reachable": true
+    "is_reachable": true,
+    "destination_uuid": "zss4wkockgw8gok888gscc84",
+    "destination_name": "coolify",
+    "destination_network": "coolify"
   },
   "project": {
     "name": "Beskid",
