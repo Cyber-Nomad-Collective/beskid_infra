@@ -14,6 +14,16 @@ Built by `scripts/ci/install-coolify-provider.sh` as provider version **`1.1.18-
 
 Upstream already base64-encodes `docker_compose_raw` on POST/PATCH.
 
+## Lock file checksums
+
+After changing vendored sources, rebuild and refresh `.terraform.lock.hcl`:
+
+```bash
+./scripts/ci/lock-coolify-provider.sh   # install + tofu providers lock (linux_amd64 + darwin_arm64)
+```
+
+CI builds `linux_amd64` only and runs `tofu providers lock -platform=linux_amd64` before `tofu init`.
+
 ## Refresh from upstream
 
 ```bash

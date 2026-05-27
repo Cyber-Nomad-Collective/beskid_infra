@@ -54,7 +54,7 @@ Bootstrap: [docs/bootstrap.md](docs/bootstrap.md) · Architecture: [docs/archite
 | arcusis/coolify **1.1.18-beskid** (vendored) | Applications, compose services, `urls` / `destination_uuid` — build via `../scripts/ci/install-coolify-provider.sh` |
 | [hashicorp/vault](https://registry.terraform.io/providers/hashicorp/vault/latest/docs) | OpenBao KV reads |
 
-Vendored fork: [`vendor/terraform-provider-coolify/VENDOR.md`](vendor/terraform-provider-coolify/VENDOR.md).
+Vendored fork: [`vendor/terraform-provider-coolify/VENDOR.md`](vendor/terraform-provider-coolify/VENDOR.md). After provider changes: `./scripts/ci/lock-coolify-provider.sh`.
 
 ## CI (Dagger)
 
