@@ -1,10 +1,12 @@
 # OpenBao — Coolify Docker Compose service (platform dependency for all apps).
+# Custom domain: coolify_service.urls (Coolify requires scheme + :8200 for expose port 8200).
 
 locals {
   compose = templatefile("${path.module}/docker-compose.openbao.yml", {
     openbao_version = var.openbao_version
-    openbao_fqdn    = var.domains
   })
+  # Coolify Edit Domains / urls API: full URL with port (Traefik routes to container :8200).
+  public_url = "https://${var.domains}:${var.expose_port}"
 }
 
 resource "coolify_service" "this" {
@@ -18,4 +20,11 @@ resource "coolify_service" "this" {
 
   docker_compose_raw = local.compose
   instant_deploy     = var.instant_deploy
+
+  urls = [
+    {
+      name = var.compose_service_name
+      url  = local.public_url
+    },
+  ]
 }

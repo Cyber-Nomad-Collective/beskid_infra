@@ -61,8 +61,9 @@ just plan && just apply
 | `no attribute named "uuid"` on `coolify_project` | Use `.id` — arcusis provider UUID is the Terraform `id` attribute |
 | `Environment with this name already exists` (409) | Coolify creates a default `production` environment with each new project — set `manage_environment = false` on production |
 | `Server has multiple destinations` (400) | Set `destination_uuid` (localhost coolify network: `zss4wkockgw8gok888gscc84`) — see Coolify → Destinations |
-| `docker_compose_raw` must be base64 (422) | Use Coolify provider **v1.1.18+** (`scripts/ci/install-coolify-provider.sh`); v1.1.13 sends plain YAML |
+| `docker_compose_raw` must be base64 (422) | Use vendored provider **1.1.18-beskid** (`scripts/ci/install-coolify-provider.sh`) |
+| OpenBao domain / sslip.io instead of `bao.*` | Set `coolify_service.urls` (hostname + `:8200`); compose uses `SERVICE_FQDN_OPENBAO_8200` without a hostname value — see `modules/coolify_openbao` |
 | `vault_kv_secret_v2` deprecated (warning) | Informational until OpenTofu ≥1.10 + ephemeral migration; does not block apply |
 | Duplicate **Beskid** projects in Coolify | Delete extras in the UI; keep one UUID, run `ensure-coolify-project-import.sh` so state matches |
-| `templatefile` / colon in interpolation | Only `${openbao_version}` / `${openbao_fqdn}` in compose — no shell `${VAR:-default}` anywhere in the file (including comments); pass defaults in Terraform |
+| `templatefile` / colon in interpolation | OpenBao compose only uses `${openbao_version}`; domain is set via `coolify_service.urls`, not `SERVICE_FQDN_*` hostname values |
 | Literal `$` in compose for Coolify | Escape as `$${` in YAML processed by `templatefile()` |

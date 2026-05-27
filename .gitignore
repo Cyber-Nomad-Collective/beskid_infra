@@ -21,6 +21,7 @@ override.tf.json
 # CLI
 .terraformrc
 terraform.rc
+terraform.tofurc.generated
 crash.log
 crash.*.log
 

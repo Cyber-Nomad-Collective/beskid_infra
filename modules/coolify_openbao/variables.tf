@@ -26,8 +26,20 @@ variable "description" {
 }
 
 variable "domains" {
-  description = "Public hostname for Coolify (Let's Encrypt via Traefik)."
+  description = "Public hostname (no scheme). Passed to coolify_service.urls with expose_port."
   type        = string
+}
+
+variable "expose_port" {
+  description = "Container port exposed for OpenBao; included in Coolify urls (required by Coolify UI for :8200 services)."
+  type        = number
+  default     = 8200
+}
+
+variable "compose_service_name" {
+  description = "Docker Compose service key; must match SERVICE_FQDN_<NAME>_PORT in compose."
+  type        = string
+  default     = "openbao"
 }
 
 variable "openbao_version" {

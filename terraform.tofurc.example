@@ -1,7 +1,7 @@
-# Use filesystem mirror for arcusis/coolify (installed by scripts/ci/install-coolify-provider.sh in CI).
+# Copy to terraform.tofurc or run scripts/ci/install-coolify-provider.sh (writes terraform.tofurc.generated).
 provider_installation {
   filesystem_mirror {
-    path    = "/home/runner/.terraform.d/plugins"
+    path    = "$HOME/.terraform.d/plugins"
     include = ["registry.terraform.io/arcusis/coolify"]
   }
   direct {

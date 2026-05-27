@@ -4,7 +4,7 @@ terraform {
   required_providers {
     coolify = {
       source  = "registry.terraform.io/arcusis/coolify"
-      version = ">= 0.3.0"
+      version = "1.1.18-beskid"
     }
     vault = {
       source  = "hashicorp/vault"
