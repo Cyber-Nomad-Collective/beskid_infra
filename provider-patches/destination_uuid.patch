@@ -1,16 +1,16 @@
 --- a/internal/resources/service.go
 +++ b/internal/resources/service.go
-@@ -10,6 +10,7 @@ func NewServiceResource() resource.Resource {
- 		{Name: "project_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, Description: "UUID of the project."},
- 		{Name: "server_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, Description: "UUID of the server."},
- 		{Name: "environment_name", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, Description: "Name of the environment."},
-+		{Name: "destination_uuid", Kind: kindString, Optional: true, Send: true, ForceNew: true, SkipAPIRead: true, Description: "Coolify destination UUID (required when server has multiple destinations)."},
+@@ -14,6 +14,7 @@ func NewServiceResource() resource.Resource {
+ 		{Name: "project_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, SkipUpdate: true, Description: "UUID of the project."},
+ 		{Name: "server_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, SkipUpdate: true, Description: "UUID of the server."},
+ 		{Name: "environment_name", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, SkipUpdate: true, Description: "Name of the environment."},
++		{Name: "destination_uuid", Kind: kindString, Optional: true, Send: true, ForceNew: true, SkipAPIRead: true, SkipUpdate: true, Description: "Coolify destination UUID (required when server has multiple destinations)."},
  		stringField("name", false, true, false),
  		stringField("description", false, true, false),
  		boolField("instant_deploy", false, true, false),
 --- a/internal/resources/application.go
 +++ b/internal/resources/application.go
-@@ -18,6 +18,7 @@ func NewApplicationResource() resource.Resource {
+@@ -24,6 +24,7 @@ func NewApplicationResource() resource.Resource {
  			{Name: "project_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, Description: "UUID of the project to deploy into."},
  			{Name: "server_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, Description: "UUID of the server to deploy on."},
  			{Name: "environment_name", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true, Description: "Name of the environment (e.g. production, staging)."},
@@ -20,7 +20,7 @@
  			stringField("git_branch", false, true, false),
 --- a/internal/resources/database_postgresql.go
 +++ b/internal/resources/database_postgresql.go
-@@ -8,6 +8,7 @@ func NewPostgreSQLDatabaseResource() resource.Resource {
+@@ -6,6 +6,7 @@ func NewPostgreSQLDatabaseResource() resource.Resource {
  		{Name: "server_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true},
  		{Name: "project_uuid", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true},
  		{Name: "environment_name", Kind: kindString, Required: true, Send: true, ForceNew: true, SkipAPIRead: true},
