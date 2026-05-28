@@ -5,6 +5,7 @@ set -euo pipefail
 OPENBAO_ADDR="${OPENBAO_ADDR:-https://secrets.bdziam.dev}"
 OPENBAO_MOUNT="${OPENBAO_MOUNT:-secret}"
 OPENBAO_LANE="${OPENBAO_LANE:-production}"
+IMAGE_TAG_DEFAULT="${IMAGE_TAG_DEFAULT:-}"
 PCKG_POSTGRES_PASSWORD="${PCKG_POSTGRES_PASSWORD:-}"
 
 export BAO_ADDR="${OPENBAO_ADDR}"
@@ -39,6 +40,18 @@ print(''.join(secrets.choice(alphabet) for _ in range(48)))
 PY
 }
 
+lane_image_tag() {
+  if [[ -n "${IMAGE_TAG_DEFAULT}" ]]; then
+    printf '%s' "${IMAGE_TAG_DEFAULT}"
+    return
+  fi
+  case "${OPENBAO_LANE}" in
+    production) printf 'main' ;;
+    staging) printf 'staging' ;;
+    *) printf 'latest' ;;
+  esac
+}
+
 ensure_value() {
   local path="$1"
   local key="$2"
@@ -60,6 +73,10 @@ auth_hub_secret="$(ensure_value "beskid/${OPENBAO_LANE}/auth" "AUTH_HUB_SECRET")
 tracker_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/tracker" "SESSION_SECRET")"
 nexus_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/nexus" "SESSION_SECRET")"
 pckg_postgres_secret="$(ensure_value "beskid/${OPENBAO_LANE}/pckg" "POSTGRES_PASSWORD" "${PCKG_POSTGRES_PASSWORD}")"
+site_image_tag="$(ensure_value "beskid/${OPENBAO_LANE}/site" "IMAGE_TAG" "$(lane_image_tag)")"
+
+bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/site" \
+  IMAGE_TAG="${site_image_tag}"
 
 bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/auth" \
   SESSION_SECRET="${auth_session_secret}" \
