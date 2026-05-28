@@ -1,5 +1,5 @@
 # OpenBao on Coolify (Traefik terminates TLS; listener is plain HTTP on 8200).
-# Rendered via templatefile() — only ${openbao_version}; custom domain via coolify_service.urls.
+# Rendered via templatefile() using image version + fqdn variables.
 services:
   openbao:
     image: quay.io/openbao/openbao:${openbao_version}
@@ -7,7 +7,7 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      - SERVICE_FQDN_OPENBAO_8200
+      SERVICE_FQDN_OPENBAO_8200: ${domain}
       OPENBAO_DISABLE_MLOCK: "true"
       OPENBAO_LOCAL_CONFIG: |
         ui = true

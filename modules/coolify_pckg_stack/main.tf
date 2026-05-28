@@ -44,14 +44,15 @@ resource "coolify_application" "app" {
   environment_name = var.environment_name
   name             = var.app_name
 
-  docker_registry_image_name = "${var.ghcr_image}:${var.image_tag}"
+  docker_registry_image_name = var.ghcr_image
   ports_exposes              = "8082"
-  domains                    = module.hostname.domains
+  domains                    = "https://${module.hostname.domains}"
 
   description            = "Beskid package registry (${var.environment})"
   is_force_https_enabled = true
   is_auto_deploy_enabled = var.auto_deploy
   instant_deploy         = var.instant_deploy
+  force_domain_override  = true
 
   depends_on = [coolify_database_postgresql.this]
 }
@@ -73,14 +74,14 @@ resource "coolify_envs_bulk" "app" {
 
 resource "coolify_application_storage" "packages" {
   application_uuid = coolify_application.app.id
-  type             = "volume"
+  type             = "persistent"
   name             = "${var.app_name}-packages"
   mount_path       = "/app/packages"
 }
 
 resource "coolify_application_storage" "data" {
   application_uuid = coolify_application.app.id
-  type             = "volume"
+  type             = "persistent"
   name             = "${var.app_name}-data"
   mount_path       = "/app/data"
 }

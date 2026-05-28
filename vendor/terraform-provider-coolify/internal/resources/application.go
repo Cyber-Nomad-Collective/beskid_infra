@@ -37,6 +37,7 @@ func NewApplicationResource() resource.Resource {
 			stringField("name", false, true, false),
 			stringField("description", false, true, false),
 			stringField("domains", false, true, false),
+			boolField("force_domain_override", false, true, false),
 			stringField("install_command", false, true, false),
 			stringField("build_command", false, true, false),
 			stringField("start_command", false, true, false),

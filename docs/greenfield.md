@@ -69,3 +69,4 @@ just plan && just apply
 | Duplicate **Beskid** projects in Coolify | Delete extras in the UI; keep one UUID, run `ensure-coolify-project-import.sh` so state matches |
 | `templatefile` / colon in interpolation | OpenBao compose only uses `${openbao_version}`; domain is set via `coolify_service.urls`, not `SERVICE_FQDN_*` hostname values |
 | Literal `$` in compose for Coolify | Escape as `$${` in YAML processed by `templatefile()` |
+| `doesn't match any of the checksums` for `arcusis/coolify` on Linux CI | Do **not** commit `arcusis/coolify` in `.terraform.lock.hcl` — mirror install only; run `scripts/ci/ensure-coolify-lock-open.sh` before `tofu init` (CI and `just plan` do this automatically) |

@@ -9,6 +9,6 @@ output "url" {
 }
 
 output "domains" {
-  description = "Alias for host — passed to coolify_application.domains."
+  description = "Alias for host — passed to Coolify resources."
   value       = local.host
 }

@@ -21,11 +21,22 @@ func NewDatabaseStorageResource() resource.Resource {
 func storageResource(parentType, parentPath string, requiresResourceUUID bool) resource.Resource {
 	fields := []resourceField{
 		stringField(parentType+"_uuid", true, false, false),
-		stringField("type", true, false, false),
 		stringField("mount_path", true, false, false),
 		stringField("name", false, true, false),
 		stringField("host_path", false, true, false),
-		boolField("is_readonly", false, true, false),
+	}
+	// Coolify application storages still expose these fields in state, but
+	// API create/update still requires `type`, but rejects `is_readonly`.
+	if parentType == "application" {
+		fields = append(fields,
+			resourceField{Name: "type", Kind: kindString, Required: true, Send: true},
+			resourceField{Name: "is_readonly", Kind: kindBool, Optional: true, Send: false},
+		)
+	} else {
+		fields = append(fields,
+			stringField("type", true, false, false),
+			boolField("is_readonly", false, true, false),
+		)
 	}
 	if requiresResourceUUID {
 		// Optional — Coolify assigns to the first sub-service when omitted

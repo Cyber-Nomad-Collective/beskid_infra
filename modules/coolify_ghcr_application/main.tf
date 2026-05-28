@@ -17,14 +17,15 @@ resource "coolify_application" "this" {
   environment_name = var.environment_name
   name             = var.app_name
 
-  docker_registry_image_name = "${var.ghcr_image}:${var.image_tag}"
+  docker_registry_image_name = var.ghcr_image
   ports_exposes              = tostring(var.expose_port)
-  domains                    = var.domains
+  domains                    = "https://${var.domains}"
 
   description            = var.description
   is_force_https_enabled = true
   is_auto_deploy_enabled = var.auto_deploy
   instant_deploy         = var.instant_deploy
+  force_domain_override  = true
 }
 
 resource "coolify_envs_bulk" "this" {
@@ -39,7 +40,7 @@ resource "coolify_application_storage" "volume" {
   for_each = var.storage_volumes
 
   application_uuid = coolify_application.this.id
-  type             = "volume"
+  type             = "persistent"
   name             = each.value.name
   mount_path       = each.value.mount_path
   is_readonly      = try(each.value.readonly, false)

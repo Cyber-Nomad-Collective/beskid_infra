@@ -81,6 +81,9 @@ _tf-init:
     #!/usr/bin/env bash
     set -euo pipefail
     "{{superrepo}}/scripts/ci/install-coolify-provider.sh"
+    "{{superrepo}}/scripts/ci/ensure-coolify-lock-open.sh" \
+      "{{root}}/environments/production/.terraform.lock.hcl" \
+      "{{root}}/environments/staging/.terraform.lock.hcl"
     export TF_CLI_CONFIG_FILE="{{root}}/terraform.tofurc.generated"
     source "{{lib_dir}}/git-tofu-env.sh"
     lane="$(beskid_tofu_env_from_git)"

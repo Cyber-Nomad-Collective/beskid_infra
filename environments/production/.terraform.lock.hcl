@@ -79,6 +79,6 @@ provider "registry.terraform.io/arcusis/coolify" {
   version     = "1.1.18-beskid"
   constraints = "1.1.18-beskid"
   hashes = [
-    "h1:fxzdgjbUSPFxVcHBqKAdH3gK1X9kf9UJvGU1Nrtt83s=",
+    "h1:UBrswvyOUFngxYC4XsVXkDsMOl+JdOIyyZfcX48a6JM=",
   ]
 }
