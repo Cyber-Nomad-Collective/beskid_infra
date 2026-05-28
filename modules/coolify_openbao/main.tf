@@ -4,7 +4,6 @@
 locals {
   compose = templatefile("${path.module}/docker-compose.openbao.yml", {
     openbao_version = var.openbao_version
-    domain          = var.domains
   })
 }
 
@@ -19,4 +18,11 @@ resource "coolify_service" "this" {
 
   docker_compose_raw = local.compose
   instant_deploy     = var.instant_deploy
+  urls = [
+    {
+      name = var.compose_service_name
+      url  = "https://${var.domains}:${var.expose_port}"
+    }
+  ]
+  force_domain_override = true
 }

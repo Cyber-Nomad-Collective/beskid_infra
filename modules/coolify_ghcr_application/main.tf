@@ -19,7 +19,7 @@ resource "coolify_application" "this" {
 
   docker_registry_image_name = var.ghcr_image
   ports_exposes              = tostring(var.expose_port)
-  domains                    = "https://${var.domains}"
+  domains                    = "https://${var.domains}:${var.expose_port}"
 
   description            = var.description
   is_force_https_enabled = true

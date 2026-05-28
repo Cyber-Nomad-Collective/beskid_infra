@@ -25,10 +25,10 @@ module "secrets" {
 }
 
 resource "coolify_database_postgresql" "this" {
-  project_uuid       = var.project_uuid
-  server_uuid        = var.server_uuid
-  destination_uuid   = var.destination_uuid
-  environment_name   = var.environment_name
+  project_uuid      = var.project_uuid
+  server_uuid       = var.server_uuid
+  destination_uuid  = var.destination_uuid
+  environment_name  = var.environment_name
   name              = var.database_name
   postgres_db       = var.postgres_db
   postgres_user     = var.postgres_user
@@ -46,7 +46,7 @@ resource "coolify_application" "app" {
 
   docker_registry_image_name = var.ghcr_image
   ports_exposes              = "8082"
-  domains                    = "https://${module.hostname.domains}"
+  domains                    = "https://${module.hostname.domains}:8082"
 
   description            = "Beskid package registry (${var.environment})"
   is_force_https_enabled = true

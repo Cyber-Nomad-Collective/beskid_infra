@@ -88,7 +88,19 @@ _tf-init:
     source "{{lib_dir}}/git-tofu-env.sh"
     lane="$(beskid_tofu_env_from_git)"
     cd "{{root}}/environments/${lane}"
-    tofu init -input=false
+    if [[ -n "${TF_BACKEND_PG_HOST:-}" && -n "${TF_BACKEND_PG_PORT:-}" && -n "${TF_BACKEND_PG_DATABASE:-}" && -n "${TF_BACKEND_PG_USER:-}" && -n "${TF_BACKEND_PG_PASSWORD:-}" ]]; then
+      schema_prefix="${TF_BACKEND_PG_SCHEMA_PREFIX:-beskid_infra}"
+      sslmode="${TF_BACKEND_PG_SSLMODE:-require}"
+      conn_str="postgres://${TF_BACKEND_PG_USER}:${TF_BACKEND_PG_PASSWORD}@${TF_BACKEND_PG_HOST}:${TF_BACKEND_PG_PORT}/${TF_BACKEND_PG_DATABASE}?sslmode=${sslmode}"
+      cat > backend.auto.hcl <<EOF
+conn_str = "${conn_str}"
+schema_name = "${schema_prefix}_${lane}"
+EOF
+      tofu init -input=false -backend-config=backend.auto.hcl
+    else
+      echo "WARNING: TF_BACKEND_PG_* not set, initializing without backend for local-only use." >&2
+      tofu init -input=false -backend=false
+    fi
 
 _tf-plan:
     #!/usr/bin/env bash
