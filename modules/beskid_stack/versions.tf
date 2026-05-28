@@ -4,11 +4,11 @@ terraform {
   required_providers {
     coolify = {
       source  = "registry.terraform.io/arcusis/coolify"
-      version = "1.1.18-beskid"
+      version = "1.1.19-beskid"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = ">= 4.0"
+      version = "~> 4.8"
     }
     random = {
       source  = "hashicorp/random"

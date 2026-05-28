@@ -9,6 +9,11 @@ module "secrets" {
   static_env  = merge({ IMAGE_TAG = var.image_tag }, var.static_env)
 }
 
+locals {
+  # Attach persistent storage before first deploy (instant_deploy races storage POST).
+  defer_instant_deploy = length(var.storage_volumes) > 0
+}
+
 resource "coolify_application" "this" {
   type             = "dockerimage"
   project_uuid     = var.project_uuid
@@ -24,7 +29,7 @@ resource "coolify_application" "this" {
   description            = var.description
   is_force_https_enabled = true
   is_auto_deploy_enabled = var.auto_deploy
-  instant_deploy         = var.instant_deploy
+  instant_deploy         = var.instant_deploy && !local.defer_instant_deploy
   force_domain_override  = true
 }
 
@@ -44,4 +49,18 @@ resource "coolify_application_storage" "volume" {
   name             = each.value.name
   mount_path       = each.value.mount_path
   is_readonly      = try(each.value.readonly, false)
+
+  depends_on = [coolify_application.this]
+}
+
+resource "coolify_deploy" "after_storage" {
+  count = var.instant_deploy && local.defer_instant_deploy ? 1 : 0
+
+  resource_uuid = coolify_application.this.id
+
+  depends_on = [
+    coolify_application.this,
+    coolify_envs_bulk.this,
+    coolify_application_storage.volume,
+  ]
 }

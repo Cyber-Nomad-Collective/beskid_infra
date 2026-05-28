@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -33,7 +35,13 @@ func (r *envsBulkResource) Metadata(_ context.Context, req resource.MetadataRequ
 func (r *envsBulkResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"id":            schema.StringAttribute{Computed: true},
+			"id": schema.StringAttribute{
+				Computed:    true,
+				Description: "Synthetic ID: resource_type/resource_uuid.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"resource_type": schema.StringAttribute{Required: true, Description: "Type: application, service, or database."},
 			"resource_uuid": schema.StringAttribute{Required: true},
 			"variables":     schema.MapAttribute{Required: true, ElementType: types.StringType},
@@ -62,7 +70,7 @@ func (r *envsBulkResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	plan.ID = types.StringValue(plan.ResourceType.ValueString() + "/" + plan.ResourceUUID.ValueString())
+	r.ensureComputedID(&plan)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
@@ -90,6 +98,7 @@ func (r *envsBulkResource) Read(ctx context.Context, req resource.ReadRequest, r
 			state.Variables = m
 		}
 	}
+	r.ensureComputedID(&state)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
@@ -104,6 +113,7 @@ func (r *envsBulkResource) Update(ctx context.Context, req resource.UpdateReques
 		resp.Diagnostics.AddError("Unable to bulk-update environment variables", err.Error())
 		return
 	}
+	r.ensureComputedID(&plan)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
@@ -120,6 +130,21 @@ func (r *envsBulkResource) Delete(ctx context.Context, req resource.DeleteReques
 
 func (r *envsBulkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func envsBulkSyntheticID(resourceType, resourceUUID string) string {
+	return resourceType + "/" + resourceUUID
+}
+
+func (r *envsBulkResource) ensureComputedID(model *envsBulkModel) {
+	if model.ResourceType.IsNull() || model.ResourceType.IsUnknown() ||
+		model.ResourceUUID.IsNull() || model.ResourceUUID.IsUnknown() {
+		return
+	}
+	model.ID = types.StringValue(envsBulkSyntheticID(
+		model.ResourceType.ValueString(),
+		model.ResourceUUID.ValueString(),
+	))
 }
 
 func (r *envsBulkResource) sendBulk(ctx context.Context, model envsBulkModel) error {

@@ -51,7 +51,7 @@ resource "coolify_application" "app" {
   description            = "Beskid package registry (${var.environment})"
   is_force_https_enabled = true
   is_auto_deploy_enabled = var.auto_deploy
-  instant_deploy         = var.instant_deploy
+  instant_deploy         = false
   force_domain_override  = true
 
   depends_on = [coolify_database_postgresql.this]
@@ -77,6 +77,8 @@ resource "coolify_application_storage" "packages" {
   type             = "persistent"
   name             = "${var.app_name}-packages"
   mount_path       = "/app/packages"
+
+  depends_on = [coolify_application.app]
 }
 
 resource "coolify_application_storage" "data" {
@@ -84,4 +86,20 @@ resource "coolify_application_storage" "data" {
   type             = "persistent"
   name             = "${var.app_name}-data"
   mount_path       = "/app/data"
+
+  depends_on = [coolify_application.app]
+}
+
+resource "coolify_deploy" "after_storage" {
+  count = var.instant_deploy ? 1 : 0
+
+  resource_uuid = coolify_application.app.id
+
+  depends_on = [
+    coolify_database_postgresql.this,
+    coolify_application.app,
+    coolify_envs_bulk.app,
+    coolify_application_storage.packages,
+    coolify_application_storage.data,
+  ]
 }
