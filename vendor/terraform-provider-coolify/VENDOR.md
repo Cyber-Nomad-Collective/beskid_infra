@@ -2,7 +2,7 @@
 
 Shallow copy of [arcusis/terraform-provider-coolify](https://github.com/arcusis/terraform-provider-coolify) **v1.1.18** (no `.git` in this tree).
 
-Built by `scripts/ci/install-coolify-provider.sh` as provider version **`1.1.19-beskid`**.
+Built by `scripts/ci/install-coolify-provider.sh` as provider version **`1.1.20-beskid`**.
 
 ## Beskid changes (vs upstream v1.1.18)
 
@@ -11,6 +11,7 @@ Built by `scripts/ci/install-coolify-provider.sh` as provider version **`1.1.19-
 | `destination_uuid` on create (multi-destination servers) | `service.go`, `application.go`, `database_postgresql.go` |
 | `urls` + `force_domain_override` on `coolify_service` (compose custom domains) | `service.go`, `project.go` (`kindURLs`) |
 | `coolify_envs_bulk` computed `id` on update/read (fixes unknown-after-apply) | `envs_bulk.go` |
+| Application/database PATCH omits create-only fields (fixes 422 on update) | `application.go`, `database_postgresql.go` |
 | Provider version string | `main.go` |
 
 Upstream already base64-encodes `docker_compose_raw` on POST/PATCH.

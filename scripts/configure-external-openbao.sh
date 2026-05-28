@@ -2,7 +2,12 @@
 set -euo pipefail
 
 : "${OPENBAO_TOKEN:?Set OPENBAO_TOKEN for external OpenBao}"
-OPENBAO_ADDR="${OPENBAO_ADDR:-https://secrets.bdziam.dev}"
+_openbao_addr_raw="${OPENBAO_ADDR:-${VAULT_ADDR:-https://secrets.bdziam.dev}}"
+if [[ "${_openbao_addr_raw}" != http://* && "${_openbao_addr_raw}" != https://* ]]; then
+  _openbao_addr_raw="https://${_openbao_addr_raw}"
+fi
+OPENBAO_ADDR="${_openbao_addr_raw%/}"
+unset _openbao_addr_raw
 OPENBAO_MOUNT="${OPENBAO_MOUNT:-secret}"
 OPENBAO_LANE="${OPENBAO_LANE:-production}"
 IMAGE_TAG_DEFAULT="${IMAGE_TAG_DEFAULT:-}"

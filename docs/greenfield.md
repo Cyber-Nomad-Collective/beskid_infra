@@ -63,10 +63,11 @@ just plan && just apply
 | `no attribute named "uuid"` on `coolify_project` | Use `.id` — arcusis provider UUID is the Terraform `id` attribute |
 | `Environment with this name already exists` (409) | Coolify creates a default `production` environment with each new project — set `manage_environment = false` on production |
 | `Server has multiple destinations` (400) | Set `destination_uuid` (localhost coolify network: `zss4wkockgw8gok888gscc84`) — see Coolify → Destinations |
-| `docker_compose_raw` must be base64 (422) | Use vendored provider **1.1.19-beskid** (`scripts/ci/install-coolify-provider.sh`) |
+| `docker_compose_raw` must be base64 (422) | Use vendored provider **1.1.20-beskid** (`scripts/ci/install-coolify-provider.sh`) |
 | OpenBao domain / sslip.io instead of `bao.*` | Set `coolify_service.urls` (hostname + `:8200`); compose uses `SERVICE_FQDN_OPENBAO_8200` without a hostname value — see `modules/coolify_openbao` |
 | `vault_kv_secret_v2` deprecated (warning) | Vault provider pinned `~> 4.8` until Coolify env maps support ephemeral secrets |
-| `coolify_envs_bulk` unknown `id` after apply | Rebuild provider **1.1.19-beskid** (`FORCE_COOLIFY_PROVIDER_BUILD=1`) |
+| `coolify_envs_bulk` unknown `id` after apply | Rebuild provider **1.1.20-beskid** (`FORCE_COOLIFY_PROVIDER_BUILD=1`) |
+| Application PATCH 422 (immutable fields) | Provider **1.1.20-beskid** omits create-only fields on update |
 | `coolify_application_storage` HTTP 500 | On the Coolify host: `docker exec coolify php artisan migrate --force`; ensure Coolify is current; re-run apply (import script adopts existing volumes) |
 | Duplicate **Beskid** projects in Coolify | Delete extras in the UI; keep one UUID, run `ensure-coolify-project-import.sh` so state matches |
 | `templatefile` / colon in interpolation | OpenBao compose only uses `${openbao_version}`; domain is set via `coolify_service.urls`, not `SERVICE_FQDN_*` hostname values |

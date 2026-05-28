@@ -9,7 +9,7 @@ import (
 )
 
 // Beskid fork: destination_uuid, service urls (Coolify compose domains API).
-var version = "1.1.19-beskid"
+var version = "1.1.20-beskid"
 
 func main() {
 	err := providerserver.Serve(context.Background(), provider.New(version), providerserver.ServeOpts{

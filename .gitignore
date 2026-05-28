@@ -10,6 +10,7 @@ terraform.tfvars
 *.auto.tfvars
 config/*.tfvars
 !config/*.tfvars.example
+config/openbao-secrets.env
 .env
 
 # Overrides

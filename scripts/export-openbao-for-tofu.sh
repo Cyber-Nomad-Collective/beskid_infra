@@ -13,7 +13,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/git-tofu-env.sh
 source "${SCRIPT_DIR}/lib/git-tofu-env.sh"
 
-: "${VAULT_ADDR:?Set VAULT_ADDR (OpenBao API URL)}"
+_vault_addr_raw="${VAULT_ADDR:?Set VAULT_ADDR (OpenBao API URL, include https://)}"
+if [[ "${_vault_addr_raw}" != http://* && "${_vault_addr_raw}" != https://* ]]; then
+  _vault_addr_raw="https://${_vault_addr_raw}"
+fi
+export VAULT_ADDR="${_vault_addr_raw%/}"
+unset _vault_addr_raw
 : "${OPENBAO_KV_MOUNT:=secret}"
 
 if [[ -z "${BESKID_TOFU_ENV:-}" ]]; then

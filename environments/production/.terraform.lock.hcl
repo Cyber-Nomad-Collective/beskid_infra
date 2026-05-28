@@ -66,8 +66,8 @@ provider "registry.opentofu.org/hashicorp/vault" {
 }
 
 provider "registry.terraform.io/arcusis/coolify" {
-  version     = "1.1.19-beskid"
-  constraints = "1.1.19-beskid"
+  version     = "1.1.20-beskid"
+  constraints = "1.1.20-beskid"
   hashes = [
     "h1:VNEB16ZQY8F6ZW/IKdS7SpfVb9Gcks5CGTHIRV7Ncog=",
   ]

@@ -76,25 +76,34 @@ secret/
 
 ## Bootstrap
 
+Use **`scripts/seed-openbao-from-gh.sh`** (preferred): pulls GitHub **variables** via `gh`, merges **secrets** from `config/openbao-secrets.env` (GitHub CLI cannot read secret values).
+
 ```bash
-export VAULT_ADDR="https://bao.example.com:8200"
-export VAULT_TOKEN="..."
+cd beskid_infra
+cp config/openbao-secrets.env.example config/openbao-secrets.env
+# Edit: OPENBAO_TOKEN, COOLIFY_API_TOKEN (from GitHub Actions secrets UI)
 
-vault secrets enable -path=secret kv-v2 2>/dev/null || true
+export BAO_ADDR="https://secrets.bdziam.dev"   # must include https://
+export OPENBAO_TOKEN="s...."
 
-vault kv put secret/beskid/production/auth \
-  SESSION_SECRET="$(openssl rand -base64 32)" \
-  IMAGE_TAG="main"
+chmod +x scripts/seed-openbao-from-gh.sh
+./scripts/seed-openbao-from-gh.sh --check
+./scripts/seed-openbao-from-gh.sh
+```
 
-vault kv put secret/beskid/staging/auth \
-  SESSION_SECRET="$(openssl rand -base64 32)" \
-  IMAGE_TAG="staging"
+`bao login -address=secrets.bdziam.dev` fails with `unsupported protocol scheme ""` — always use `https://` or `bao login` after `export BAO_ADDR=https://secrets.bdziam.dev`.
 
-vault kv put secret/beskid/tofu/production \
+Manual put (equivalent to what the seed script writes for tofu):
+
+```bash
+export BAO_ADDR="https://secrets.bdziam.dev"
+export BAO_TOKEN="..."
+
+bao kv put secret/beskid/tofu/production \
   coolify_endpoint="https://coolify.bdziam.dev" \
   coolify_api_token="tcp-..." \
-  coolify_project_uuid="tosg8kc80g8go00sgcswsccg" \
-  coolify_server_uuid="ec0cs0cw0ocsok488gc0k80k"
+  coolify_server_uuid="ec0cs0cw0ocsok488gc0k80k" \
+  coolify_destination_uuid="zss4wkockgw8gok888gscc84"
 ```
 
 ## OpenTofu
