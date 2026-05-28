@@ -61,35 +61,10 @@ variable "enable_services" {
   }
 }
 
-variable "deploy_openbao" {
-  description = "Deploy OpenBao on Coolify before other services."
-  type        = bool
-  default     = true
-}
-
-variable "coolify_endpoint" {
-  description = "Coolify base URL (for OpenBao bootstrap KV)."
-  type        = string
-  default     = ""
-}
-
-variable "coolify_api_token" {
-  description = "Coolify API token (for OpenBao bootstrap KV)."
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
 variable "openbao_enabled" {
   description = "Read per-service secrets from OpenBao KV at apply time."
   type        = bool
   default     = true
-}
-
-variable "seed_openbao_secrets" {
-  description = "Write initial KV entries (requires vault provider token)."
-  type        = bool
-  default     = false
 }
 
 variable "openbao_mount" {

@@ -27,22 +27,10 @@ variable "base_domain" {
   default = "beskid-lang.org"
 }
 
-variable "deploy_openbao" {
-  description = "Deploy OpenBao on Coolify before site/auth/…"
-  type        = bool
-  default     = true
-}
-
 variable "openbao_enabled" {
   description = "Read per-service KV at apply time (requires initialized OpenBao + openbao_token)."
   type        = bool
   default     = true
-}
-
-variable "seed_openbao_secrets" {
-  description = "Write bootstrap KV paths (set true when openbao_token is available)."
-  type        = bool
-  default     = false
 }
 
 variable "project_uuid" {

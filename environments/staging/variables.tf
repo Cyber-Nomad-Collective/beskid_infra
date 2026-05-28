@@ -26,19 +26,9 @@ variable "base_domain" {
   default = "beskid-lang.org"
 }
 
-variable "deploy_openbao" {
-  type    = bool
-  default = true
-}
-
 variable "openbao_enabled" {
   type    = bool
   default = true
-}
-
-variable "seed_openbao_secrets" {
-  type    = bool
-  default = false
 }
 
 variable "project_uuid" {

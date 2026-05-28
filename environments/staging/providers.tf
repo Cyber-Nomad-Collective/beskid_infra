@@ -4,7 +4,7 @@ provider "coolify" {
 }
 
 provider "vault" {
-  address          = coalesce(var.openbao_address, module.openbao_hostname.url)
+  address          = var.openbao_address
   token            = var.openbao_token
   skip_child_token = true
 }

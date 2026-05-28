@@ -3,16 +3,16 @@ output "coolify_environment_name" {
 }
 
 output "openbao_url" {
-  description = "Public OpenBao API URL."
-  value       = var.deploy_openbao ? module.openbao[0].url : null
+  description = "Configured external OpenBao API URL."
+  value       = null
 }
 
 output "openbao_service_id" {
-  value = var.deploy_openbao ? module.openbao[0].service_id : null
+  value = null
 }
 
 output "openbao_host" {
-  value = module.hostname_openbao.host
+  value = null
 }
 
 output "auth_hub_public_url" {
@@ -22,7 +22,6 @@ output "auth_hub_public_url" {
 output "public_urls" {
   value = merge(
     { for k, m in module.hostnames : k => m.url },
-    var.deploy_openbao ? { bao = module.hostname_openbao.url } : {},
     length(module.pckg) > 0 ? { pckg = module.pckg[0].public_url } : {},
   )
 }
@@ -30,7 +29,6 @@ output "public_urls" {
 output "hosts" {
   value = merge(
     { for k, m in module.hostnames : k => m.host },
-    var.deploy_openbao ? { bao = module.hostname_openbao.host } : {},
     length(module.pckg) > 0 ? { pckg = module.pckg[0].host } : {},
   )
 }

@@ -112,7 +112,7 @@ _tf-plan:
       source "{{root}}/scripts/export-openbao-for-tofu.sh"
     elif [[ -n "${COOLIFY_API_TOKEN:-}" ]]; then
       export TF_VAR_coolify_api_token="${COOLIFY_API_TOKEN}"
-      export TF_VAR_openbao_address="${VAULT_ADDR:-}"
+      export TF_VAR_openbao_address="${OPENBAO_ADDR:-https://secrets.bdziam.dev}"
     fi
     cd "{{root}}/environments/${lane}"
     tofu plan -input=false -var-file="{{config_dir}}/${lane}.tfvars" -out=tfplan
@@ -125,7 +125,7 @@ _tf-apply:
       source "{{root}}/scripts/export-openbao-for-tofu.sh"
     elif [[ -n "${COOLIFY_API_TOKEN:-}" ]]; then
       export TF_VAR_coolify_api_token="${COOLIFY_API_TOKEN}"
-      export TF_VAR_openbao_address="${VAULT_ADDR:-}"
+      export TF_VAR_openbao_address="${OPENBAO_ADDR:-https://secrets.bdziam.dev}"
     fi
     cd "{{root}}/environments/${lane}"
     tofu apply -input=false -auto-approve tfplan

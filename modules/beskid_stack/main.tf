@@ -31,18 +31,13 @@ module "apps" {
   for_each = local.enabled_ghcr_services
   source   = "../coolify_ghcr_application"
 
-  depends_on = [
-    module.openbao,
-    module.openbao_bootstrap,
-  ]
-
   app_name         = "beskid-${each.key}${local.cfg.name_suffix}"
   description      = each.value.description
-  project_uuid       = var.project_uuid
-  server_uuid        = var.server_uuid
-  destination_uuid   = var.destination_uuid
-  environment_name   = local.environment_name
-  ghcr_image         = each.value.ghcr_image
+  project_uuid     = var.project_uuid
+  server_uuid      = var.server_uuid
+  destination_uuid = var.destination_uuid
+  environment_name = local.environment_name
+  ghcr_image       = each.value.ghcr_image
   image_tag        = coalesce(var.image_tag_override, local.cfg.image_tag)
   expose_port      = each.value.port
 
@@ -71,11 +66,6 @@ module "apps" {
 module "pckg" {
   count  = try(var.enable_services["pckg"], false) ? 1 : 0
   source = "../coolify_pckg_stack"
-
-  depends_on = [
-    module.openbao,
-    module.openbao_bootstrap,
-  ]
 
   environment         = var.environment
   base_domain         = var.base_domain

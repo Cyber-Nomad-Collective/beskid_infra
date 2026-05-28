@@ -1,6 +1,7 @@
 # Copy to config/staging.tfvars (gitignored)
 
 coolify_endpoint = "https://coolify.bdziam.dev"
+openbao_address  = "https://secrets.bdziam.dev"
 
 # UUID from production output or: scripts/ci/resolve-coolify-project-uuid.sh
 # project_uuid = "..."
@@ -8,7 +9,6 @@ coolify_endpoint = "https://coolify.bdziam.dev"
 server_uuid = "ec0cs0cw0ocsok488gc0k80k"
 
 manage_environment = true
-deploy_openbao     = true
 
 enable_services = {
   site    = true
