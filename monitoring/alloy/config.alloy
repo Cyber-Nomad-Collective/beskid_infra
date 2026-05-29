@@ -1,0 +1,150 @@
+// Grafana Alloy — scrape Beskid platform /metrics and ship Docker logs to Loki.
+
+prometheus.remote_write "prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+discovery.docker "beskid_containers" {
+  host = "unix:///var/run/docker.sock"
+  filter {
+    name   = "label"
+    values = ["coolify.projectName=beskid"]
+  }
+}
+
+discovery.relabel "beskid_metrics" {
+  targets = discovery.docker.beskid_containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_serviceName"]
+    target_label  = "service"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_resourceName"]
+    target_label  = "resource"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_projectName"]
+    target_label  = "project"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_environmentName"]
+    target_label  = "environment"
+  }
+
+  // Drop non-instrumented services
+  rule {
+    source_labels = ["service"]
+    regex         = "site|postgres"
+    action        = "drop"
+  }
+
+  // Map container IP + service name → scrape address
+  rule {
+    source_labels = ["__meta_docker_network_ip", "service"]
+    separator     = ";"
+    regex         = "(.+);auth"
+    replacement   = "$1:8090"
+    target_label  = "__address__"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_network_ip", "service"]
+    separator     = ";"
+    regex         = "(.+);tracker"
+    replacement   = "$1:3000"
+    target_label  = "__address__"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_network_ip", "service"]
+    separator     = ";"
+    regex         = "(.+);nexus"
+    replacement   = "$1:8452"
+    target_label  = "__address__"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_network_ip", "service"]
+    separator     = ";"
+    regex         = "(.+);pckg"
+    replacement   = "$1:8082"
+    target_label  = "__address__"
+  }
+
+  rule {
+    target_label = "__metrics_path__"
+    replacement  = "/metrics"
+  }
+}
+
+prometheus.scrape "beskid" {
+  targets         = discovery.relabel.beskid_metrics.output
+  forward_to      = [prometheus.remote_write.prometheus.receiver]
+  scrape_interval = "30s"
+  scrape_timeout  = "10s"
+}
+
+discovery.relabel "beskid_logs" {
+  targets = discovery.docker.beskid_containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_serviceName"]
+    target_label  = "service"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_resourceName"]
+    target_label  = "resource"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_projectName"]
+    target_label  = "project"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_coolify_environmentName"]
+    target_label  = "environment"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container"
+  }
+}
+
+loki.source.docker "beskid" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.relabel.beskid_logs.output
+  forward_to       = [loki.process.beskid.receiver]
+  refresh_interval = "5s"
+}
+
+loki.process "beskid" {
+  forward_to = [loki.write.default.receiver]
+
+  stage.json {
+    expressions = {
+      level = "level",
+      msg   = "msg",
+    }
+  }
+
+  stage.labels {
+    values = {
+      level = "",
+    }
+  }
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

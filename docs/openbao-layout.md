@@ -62,6 +62,8 @@ Compose deploy reads **auth**, **tracker**, **nexus**, and **pckg** from OpenBao
 | `POSTGRES_PASSWORD` | yes |
 | `POSTGRES_DB`, `POSTGRES_USER` | recommended |
 | `AUTH_HUB_PUBLIC_URL` | yes |
+| `PCKG_PUBLIC_URL` | recommended |
+| `GITHUB_SYNC_TOKEN` | recommended |
 | `IMAGE_TAG` | yes |
 
 ## Bootstrap

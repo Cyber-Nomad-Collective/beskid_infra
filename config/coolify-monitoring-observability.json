@@ -1,0 +1,10 @@
+{
+  "lane": "production",
+  "service_name": "beskid-observability",
+  "grafana_service_name": "beskid-monitoring",
+  "grafana_service_uuid": "o143swr9kk3ph7d7r72lqnvb",
+  "platform_service_uuid": "s4ir1ovgqtubarqeql3gf3pz",
+  "environment_name": "production",
+  "project_name": "Beskid",
+  "notes": "Deploy compose/monitoring as a Coolify compose service. Join the Grafana network (o143swr9kk3ph7d7r72lqnvb) so Grafana can reach prometheus:9090 and loki:3100."
+}

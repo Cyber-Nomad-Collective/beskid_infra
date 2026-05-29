@@ -1,0 +1,8 @@
+# Prometheus receives metrics from Grafana Alloy via remote_write.
+# Alloy scrapes Beskid platform containers discovered via Docker labels.
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+scrape_configs: []

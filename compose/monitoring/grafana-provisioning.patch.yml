@@ -1,0 +1,36 @@
+# Grafana provisioning overlay for Coolify Beskid Monitoring
+#
+# Mount into the Grafana container:
+#   ../../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+#   ../../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+#
+# Also set:
+#   GF_SERVER_ROOT_URL=https://monitor.beskid-lang.org
+#
+# Join the beskid-observability Docker network so prometheus:9090 and loki:3100 resolve.
+name: beskid-monitoring-grafana-provisioning
+
+services:
+  grafana:
+    image: grafana/grafana-oss
+    environment:
+      GF_SERVER_ROOT_URL: https://monitor.beskid-lang.org
+      GF_SERVER_DOMAIN: monitor.beskid-lang.org
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgresql
+      GF_DATABASE_USER: ${SERVICE_USER_POSTGRES}
+      GF_DATABASE_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      GF_DATABASE_NAME: ${POSTGRES_DB:-grafana}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ../../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  grafana-data:

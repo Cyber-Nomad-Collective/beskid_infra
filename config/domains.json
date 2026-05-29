@@ -5,7 +5,8 @@
       "auth": { "host": "auth.beskid-lang.org", "port": 8090 },
       "tracker": { "host": "tracker.beskid-lang.org", "port": 3000 },
       "nexus": { "host": "nexus.beskid-lang.org", "port": 8452 },
-      "pckg": { "host": "pckg.beskid-lang.org", "port": 8082 }
+      "pckg": { "host": "pckg.beskid-lang.org", "port": 8082 },
+      "monitor": { "host": "monitor.beskid-lang.org", "port": 3000 }
     },
     "public_urls": {
       "AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",

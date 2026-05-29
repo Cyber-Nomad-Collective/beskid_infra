@@ -50,4 +50,4 @@ Point each hostname to the Coolify server IP. Let's Encrypt via Coolify proxy �
 
 Push to `main` → **Beskid platform** → GHCR build → `coolify-compose-deploy.yml` (OpenBao sync + compose deploy).
 
-See [deploy-compose.md](deploy-compose.md).
+See [deploy-compose.md](deploy-compose.md) and [observability.md](observability.md).

@@ -45,7 +45,7 @@ services:
     volumes:
       - tracker-data:/app/beskid_tracker/data/runtime
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/ || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/api/health || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -63,7 +63,7 @@ services:
     volumes:
       - nexus-data:/data/gitnexus
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8452/ || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8452/api/health || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -96,6 +96,11 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       HTTP_PORTS: ${HTTP_PORTS:-8082}
       AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+      PCKG_PUBLIC_URL: ${PCKG_PUBLIC_URL:-https://pckg.beskid-lang.org}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-beskid-pckg}
+      OTEL_RESOURCE_ATTRIBUTES: ${OTEL_RESOURCE_ATTRIBUTES:-deployment.environment=production}
+      GITHUB_SYNC_TOKEN: ${GITHUB_SYNC_TOKEN:-}
+      PCKG_PAIRING_APPROVER_LOGIN: ${PCKG_PAIRING_APPROVER_LOGIN:-}
       HttpClient__InternalBaseAddress: ${HTTP_CLIENT_INTERNAL_BASE_ADDRESS:-http://127.0.0.1:8082}
       ConnectionStrings__DefaultConnection: Host=${PCKG_DB_HOST:-postgres};Port=${PCKG_DB_PORT:-5432};Database=${POSTGRES_DB:-pckgdb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
       Pckg__Database__AutoMigrateOnStartup: ${PCKG_AUTO_MIGRATE_ON_STARTUP:-true}
