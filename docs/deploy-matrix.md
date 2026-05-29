@@ -1,7 +1,7 @@
 # Deploy matrix
 
-| Service | GHCR image | production (`main`) | staging (`stg`) | Port |
-|---------|-----------|---------------------|-----------------|------|
+| Service | GHCR image | production (`main`) | staging (`stg`, phase 2) | Port |
+|---------|-----------|---------------------|--------------------------|------|
 | **site** | `beskid-site` | `beskid-lang.org` | `stg.beskid-lang.org` | 80 |
 | **auth** | `beskid-auth` | `auth.beskid-lang.org` | `stg-auth.beskid-lang.org` | 8090 |
 | **tracker** | `beskid-tracker` | `tracker.beskid-lang.org` | `stg-tracker.beskid-lang.org` | 3000 |
@@ -10,31 +10,31 @@
 
 Image tags: `main` on production, `staging` on staging.
 
-## Git branch → OpenTofu
+## Git branch → deploy
 
-| Branch | Environment root | Coolify env | OpenBao `secret/beskid/tofu/` |
-|--------|------------------|-------------|-------------------------------|
-| `main` | `environments/production` | `production` | `production` |
-| `stg` | `environments/staging` | `staging` | `staging` |
+| Branch | Compose root | Coolify env | OpenBao `secret/beskid/` |
+|--------|--------------|-------------|--------------------------|
+| `main` | `compose/production/` | `production` | `production/{service}` |
+| `stg` | (phase 2) `compose/staging/` | `staging` | `staging/{service}` |
 
-## Coolify (existing production UUIDs)
+## Coolify (production compose service)
 
-| App | UUID | Import |
-|-----|------|--------|
-| beskid site | `rsso488sscg80kookoo00sk4` | `module.stack.module.apps["site"]` |
-| Pckg (legacy compose) | `fotldmgwdsxttpde914u8ktr` | migrate to `module.stack.module.pckg` |
-| Nexus | `rc7pssssk5i3vqjrt1anx4y3` | `module.stack.module.apps["nexus"]` |
-| Tracker | `s8voih0gwkrftklgsmxqglo4` | `module.stack.module.apps["tracker"]` |
+| Resource | Notes |
+|----------|--------|
+| Compose service | `beskid-platform-production` — UUID in `config/coolify-production.json` |
+| Project | **Beskid** — UUID in `config/coolify.snapshot.json` |
+| Server | `localhost` — `ec0cs0cw0ocsok488gc0k80k` |
+| Destination | coolify network — `zss4wkockgw8gok888gscc84` |
 
-Project `tosg8kc80g8go00sgcswsccg` · Server `ec0cs0cw0ocsok488gc0k80k`.
+Legacy per-app UUIDs (decommission after cutover): see `config/coolify.snapshot.json` → `legacy_applications`.
 
 ## GHCR
 
-Built by `.github/workflows/container-images.yml` in the `beskid` superrepo (matrix: site, auth, tracker, nexus, pckg).
+Built by `.github/workflows/container-images.yml` in the `beskid` superrepo.
 
 ## DNS
 
-Point each hostname (or `*.beskid-lang.org` + single-level subdomains) to the Coolify server IP. Let's Encrypt via Coolify proxy — ports 80/443 open.
+Point each hostname to the Coolify server IP. Let's Encrypt via Coolify proxy — ports 80/443 open.
 
 ## Volumes
 
@@ -43,5 +43,11 @@ Point each hostname (or `*.beskid-lang.org` + single-level subdomains) to the Co
 | auth | `auth-data` | `/app/site/auth/data/runtime` |
 | tracker | `tracker-data` | `/app/beskid_tracker/data/runtime` |
 | nexus | `nexus-data` | `/data/gitnexus` |
-| pckg | `*-packages`, `*-data` | `/app/packages`, `/app/data` |
-| pckg DB | Coolify PostgreSQL resource | — |
+| pckg | `pckg_packages`, `pckg_data` | `/app/packages`, `/app/data` |
+| pckg DB | `pckg_pg_data` | Postgres data (in-compose) |
+
+## CI
+
+Push to `main` → **Beskid platform** → GHCR build → `coolify-compose-deploy.yml` (OpenBao sync + compose deploy).
+
+See [deploy-compose.md](deploy-compose.md).

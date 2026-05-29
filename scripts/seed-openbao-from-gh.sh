@@ -15,8 +15,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-# shellcheck source=lib/git-tofu-env.sh
-source "${SCRIPT_DIR}/lib/git-tofu-env.sh"
+# shellcheck source=lib/deploy-lane.sh
+source "${SCRIPT_DIR}/lib/deploy-lane.sh"
 
 REPO="${GH_REPO:-Cyber-Nomad-Collective/beskid}"
 OPENBAO_MOUNT="${OPENBAO_MOUNT:-secret}"
@@ -133,7 +133,9 @@ gh_secret_hint() {
 kv_get() {
   local path="$1"
   local key="$2"
-  bao kv get -format=json "${OPENBAO_MOUNT}/${path}" 2>/dev/null | jq -r --arg k "${key}" '.data.data[$k] // empty'
+  local raw
+  raw="$(bao kv get -format=json "${OPENBAO_MOUNT}/${path}" 2>/dev/null)" || return 0
+  jq -r --arg k "${key}" '.data.data[$k] // empty' <<<"${raw}"
 }
 
 kv_has_path() {
@@ -171,13 +173,6 @@ audit_lane() {
   report_key "beskid/${lane}/nexus" "SESSION_SECRET" "no"
   report_key "beskid/${lane}/pckg" "POSTGRES_PASSWORD" "no"
 
-  echo "=== secret/beskid/tofu/${lane} (OpenTofu / local) ==="
-  report_key "beskid/tofu/${lane}" "coolify_endpoint"
-  report_key "beskid/tofu/${lane}" "coolify_api_token"
-  report_key "beskid/tofu/${lane}" "coolify_server_uuid" "no"
-  report_key "beskid/tofu/${lane}" "coolify_destination_uuid" "no"
-  report_key "beskid/tofu/${lane}" "coolify_project_uuid" "no"
-
   echo "=== secret/beskid/ci/build ==="
   report_key "beskid/ci/build" "NODE_AUTH_TOKEN" "no"
   report_key "beskid/ci/build" "OVSX_TOKEN" "no"
@@ -192,48 +187,6 @@ seed_lane_services() {
   staging) export IMAGE_TAG_DEFAULT="staging" ;;
   esac
   "${SCRIPT_DIR}/configure-external-openbao.sh"
-}
-
-seed_tofu_lane() {
-  local lane="$1"
-  local path="beskid/tofu/${lane}"
-
-  local endpoint server dest project token
-  endpoint="$(gh_var COOLIFY_ENDPOINT)"
-  server="$(gh_var COOLIFY_SERVER_UUID)"
-  dest="$(gh_var COOLIFY_DESTINATION_UUID)"
-  token="${COOLIFY_API_TOKEN:-}"
-  project=""
-
-  [[ -z "${endpoint}" ]] && endpoint="https://coolify.bdziam.dev"
-
-  if [[ -z "${token}" ]]; then
-    echo "COOLIFY_API_TOKEN not set (add to ${SECRETS_FILE})." >&2
-    echo "  GitHub has secret name COOLIFY_API_TOKEN: $(gh_secret_hint COOLIFY_API_TOKEN)" >&2
-    return 1
-  fi
-
-  project="$(kv_get "${path}" "coolify_project_uuid")"
-  if [[ -z "${project}" ]]; then
-    superrepo="$(cd "${ROOT}/.." && pwd)"
-    if [[ -f "${superrepo}/scripts/ci/resolve-coolify-project-uuid.sh" ]]; then
-      project="$(
-        COOLIFY_ENDPOINT="${endpoint}" COOLIFY_API_TOKEN="${token}" \
-          "${superrepo}/scripts/ci/resolve-coolify-project-uuid.sh" --optional 2>/dev/null || true
-      )"
-    fi
-  fi
-
-  local -a args=(
-    "coolify_endpoint=${endpoint}"
-    "coolify_api_token=${token}"
-  )
-  [[ -n "${server}" ]] && args+=("coolify_server_uuid=${server}")
-  [[ -n "${dest}" ]] && args+=("coolify_destination_uuid=${dest}")
-  [[ -n "${project}" ]] && args+=("coolify_project_uuid=${project}")
-
-  bao kv put "${OPENBAO_MOUNT}/${path}" "${args[@]}"
-  echo "Wrote ${OPENBAO_MOUNT}/${path} ($((${#args[@]})) keys)"
 }
 
 seed_ci_build() {
@@ -279,7 +232,6 @@ apply_lane() {
   local lane="$1"
   echo "--- Seeding lane: ${lane} ---"
   seed_lane_services "${lane}"
-  seed_tofu_lane "${lane}"
   patch_auth_github "${lane}"
 }
 
@@ -289,7 +241,7 @@ if [[ "${ALL_LANES}" == "true" ]]; then
 elif [[ -n "${LANE}" ]]; then
   lanes=("${LANE}")
 else
-  lanes=("$(beskid_tofu_env_from_git)")
+  lanes=("$(beskid_deploy_lane_production)")
 fi
 
 echo "OpenBao: ${OPENBAO_ADDR}  mount: ${OPENBAO_MOUNT}  repo: ${REPO}"
@@ -327,4 +279,4 @@ done
 echo
 echo "Done. Verify:"
 echo "  BAO_ADDR='${OPENBAO_ADDR}' ./scripts/seed-openbao-from-gh.sh --check --lane ${lanes[0]}"
-echo "  source ./scripts/export-openbao-for-tofu.sh   # needs VAULT_ADDR with https://"
+echo "  just sync-env-prod   # OpenBao → Coolify compose env (after deploy)"

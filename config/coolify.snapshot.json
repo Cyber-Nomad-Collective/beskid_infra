@@ -1,39 +1,21 @@
 {
-  "_comment": "Coolify inventory via MCP 2026-05-27. Greenfield: OpenTofu creates project Beskid.",
-  "coolify_version": "4.0.0-beta.473",
-  "coolify_endpoint": "https://coolify.bdziam.dev",
-  "coolify_api_path": "/api/v1",
-  "server": {
-    "uuid": "ec0cs0cw0ocsok488gc0k80k",
-    "name": "localhost",
-    "ip": "host.docker.internal",
-    "public_ipv4": "191.96.53.21",
-    "proxy_type": "CADDY",
-    "is_reachable": true,
-    "destination_uuid": "zss4wkockgw8gok888gscc84",
-    "destination_name": "coolify",
-    "destination_network": "coolify"
-  },
-  "project": {
+  "project_beskid": {
     "name": "Beskid",
-    "uuid": null,
-    "managed_by": "opentofu",
-    "note": "Created by coolify_project.beskid on first production apply"
+    "uuid": "tosg8kc80g8go00sgcswsccg"
   },
-  "legacy_project": {
-    "name": "Beskid_MANUAL",
-    "uuid": "tosg8kc80g8go00sgcswsccg",
-    "description": "Deprecated — not imported; left in Coolify UI only"
+  "server_localhost": {
+    "name": "localhost",
+    "uuid": "ec0cs0cw0ocsok488gc0k80k"
   },
-  "other_projects": [
-    { "name": "External", "uuid": "zoosc0g8gg40w0w8cgck8cs0" },
-    { "name": "Bloq", "uuid": "dok4sc00wowc8wgcgk4w4gks" },
-    { "name": "Tools", "uuid": "fkwockcw40oocw404gs0sw44" }
-  ],
-  "dns_on_server": [
-    "bao.beskid-lang.org",
-    "beskid-lang.org",
-    "auth.beskid-lang.org",
-    "cdn.beskid-lang.org"
-  ]
+  "destination_coolify_network": {
+    "name": "coolify",
+    "uuid": "zss4wkockgw8gok888gscc84"
+  },
+  "legacy_applications": {
+    "site": "rsso488sscg80kookoo00sk4",
+    "auth": "beskid-auth",
+    "tracker": "s8voih0gwkrftklgsmxqglo4",
+    "nexus": "rc7pssssk5i3vqjrt1anx4y3",
+    "pckg": "fotldmgwdsxttpde914u8ktr"
+  }
 }

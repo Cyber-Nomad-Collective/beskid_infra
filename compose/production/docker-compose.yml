@@ -1,0 +1,126 @@
+# Beskid platform — production lane (Coolify compose service).
+# Secrets: OpenBao → coolify-sync-env-from-openbao.sh → Coolify service env.
+# Optional services: set COMPOSE_PROFILES=tracker,nexus,pckg on the Coolify service.
+name: beskid-platform-production
+
+services:
+  site:
+    image: ghcr.io/cyber-nomad-collective/beskid-site:${IMAGE_TAG:-main}
+    restart: unless-stopped
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  auth:
+    image: ghcr.io/cyber-nomad-collective/beskid-auth:${IMAGE_TAG:-main}
+    restart: unless-stopped
+    expose:
+      - "8090"
+    environment:
+      AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+    volumes:
+      - auth-data:/app/site/auth/data/runtime
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8090/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  tracker:
+    profiles: [tracker]
+    image: ghcr.io/cyber-nomad-collective/beskid-tracker:${IMAGE_TAG:-main}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+      TRACKER_PUBLIC_URL: ${TRACKER_PUBLIC_URL:-https://tracker.beskid-lang.org}
+      TRACKER_DATA_DIR: /app/beskid_tracker/data/runtime
+    volumes:
+      - tracker-data:/app/beskid_tracker/data/runtime
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  nexus:
+    profiles: [nexus]
+    image: ghcr.io/cyber-nomad-collective/beskid-nexus:${IMAGE_TAG:-main}
+    restart: unless-stopped
+    expose:
+      - "8452"
+    environment:
+      AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+      GITNEXUS_HOME: /data/gitnexus
+    volumes:
+      - nexus-data:/data/gitnexus
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8452/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  postgres:
+    profiles: [pckg]
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pckgdb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - pckg_pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-pckgdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  pckg:
+    profiles: [pckg]
+    image: ghcr.io/cyber-nomad-collective/beskid-pckg:${IMAGE_TAG:-main}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      HTTP_PORTS: ${HTTP_PORTS:-8082}
+      AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+      HttpClient__InternalBaseAddress: ${HTTP_CLIENT_INTERNAL_BASE_ADDRESS:-http://127.0.0.1:8082}
+      ConnectionStrings__DefaultConnection: Host=${PCKG_DB_HOST:-postgres};Port=${PCKG_DB_PORT:-5432};Database=${POSTGRES_DB:-pckgdb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
+      Pckg__Database__AutoMigrateOnStartup: ${PCKG_AUTO_MIGRATE_ON_STARTUP:-true}
+      Storage__ArtifactsRootPath: /app/packages
+      Captcha__RecaptchaV3SiteKey: ${CAPTCHA_RECAPTCHA_V3_SITE_KEY:-}
+      Captcha__RecaptchaEnterpriseProjectId: ${CAPTCHA_RECAPTCHA_ENTERPRISE_PROJECT_ID:-}
+      Captcha__RecaptchaEnterpriseApiKey: ${CAPTCHA_RECAPTCHA_ENTERPRISE_API_KEY:-}
+      Captcha__MinimumScore: ${CAPTCHA_RECAPTCHA_MINIMUM_SCORE:-0.5}
+    expose:
+      - "8082"
+    volumes:
+      - pckg_packages:/app/packages
+      - pckg_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health/ready"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  auth-data:
+  tracker-data:
+  nexus-data:
+  pckg_pg_data:
+  pckg_packages:
+  pckg_data:

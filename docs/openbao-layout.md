@@ -1,11 +1,11 @@
 # OpenBao secret layout
 
-Runtime secrets live in OpenBao KV v2. **OpenBao itself** is deployed by `modules/coolify_openbao` (Coolify Compose) before site/auth. OpenTofu reads KV at apply time and pushes to Coolify via `coolify_envs_bulk`.
+Runtime secrets live in OpenBao KV v2 at **`https://secrets.bdziam.dev`**. CI and local deploy sync them into the Coolify compose service via [`scripts/coolify-sync-env-from-openbao.sh`](../scripts/coolify-sync-env-from-openbao.sh).
 
-| Lane | OpenBao URL |
-|------|-------------|
-| production | `https://bao.beskid-lang.org` |
-| staging | `https://stg-bao.beskid-lang.org` |
+| Lane | KV prefix |
+|------|-----------|
+| production | `secret/beskid/production/{service}` |
+| staging | `secret/beskid/staging/{service}` |
 
 ## Path hierarchy
 
@@ -14,9 +14,6 @@ secret/
   beskid/
     production/   site, auth, tracker, nexus, pckg
     staging/      site, auth, tracker, nexus, pckg
-    tofu/
-      production/   git branch main
-      staging/      git branch stg
     ci/
       build/        NODE_AUTH_TOKEN, OVSX_TOKEN
 ```
@@ -34,7 +31,7 @@ secret/
 
 | Key | Required |
 |-----|----------|
-| `AUTH_HUB_PUBLIC_URL` | yes (TF sets from hostname; patch if overriding) |
+| `AUTH_HUB_PUBLIC_URL` | yes (also set in `coolify-production.json` static_env) |
 | `SESSION_SECRET` | yes |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | yes* |
 | `IMAGE_TAG` | yes |
@@ -45,7 +42,7 @@ secret/
 |-----|----------|
 | `AUTH_HUB_PUBLIC_URL` | yes |
 | `SESSION_SECRET` | yes |
-| `TRACKER_PUBLIC_URL` | yes (TF sets from hostname) |
+| `TRACKER_PUBLIC_URL` | yes |
 | `GITHUB_SYNC_TOKEN` | recommended |
 
 ### nexus
@@ -60,61 +57,41 @@ secret/
 
 | Key | Required |
 |-----|----------|
-| `ConnectionStrings__Default` | yes (or components via `PCKG_DB_*` + TF) |
-| `POSTGRES_PASSWORD` | yes (or TF-managed DB password) |
+| `POSTGRES_PASSWORD` | yes |
+| `POSTGRES_DB`, `POSTGRES_USER` | recommended |
 | `AUTH_HUB_PUBLIC_URL` | yes |
 | `IMAGE_TAG` | yes |
 
-### tofu/{environment} (CI / local)
-
-| Key | Required |
-|-----|----------|
-| `coolify_endpoint` | yes (base URL, no `/api/v1`) |
-| `coolify_api_token` | yes |
-| `coolify_project_uuid` | optional |
-| `coolify_server_uuid` | optional |
-
 ## Bootstrap
-
-Use **`scripts/seed-openbao-from-gh.sh`** (preferred): pulls GitHub **variables** via `gh`, merges **secrets** from `config/openbao-secrets.env` (GitHub CLI cannot read secret values).
 
 ```bash
 cd beskid_infra
 cp config/openbao-secrets.env.example config/openbao-secrets.env
-# Edit: OPENBAO_TOKEN, COOLIFY_API_TOKEN (from GitHub Actions secrets UI)
-
-export BAO_ADDR="https://secrets.bdziam.dev"   # must include https://
+export BAO_ADDR="https://secrets.bdziam.dev"
 export OPENBAO_TOKEN="s...."
 
-chmod +x scripts/seed-openbao-from-gh.sh
-./scripts/seed-openbao-from-gh.sh --check
-./scripts/seed-openbao-from-gh.sh
+just seed-openbao-all
+just seed-openbao-check
 ```
 
-`bao login -address=secrets.bdziam.dev` fails with `unsupported protocol scheme ""` — always use `https://` or `bao login` after `export BAO_ADDR=https://secrets.bdziam.dev`.
+`bao login` requires `BAO_ADDR` with `https://`.
 
-Manual put (equivalent to what the seed script writes for tofu):
+## Coolify sync
+
+After OpenBao is populated:
 
 ```bash
-export BAO_ADDR="https://secrets.bdziam.dev"
-export BAO_TOKEN="..."
-
-bao kv put secret/beskid/tofu/production \
-  coolify_endpoint="https://coolify.bdziam.dev" \
-  coolify_api_token="tcp-..." \
-  coolify_server_uuid="ec0cs0cw0ocsok488gc0k80k" \
-  coolify_destination_uuid="zss4wkockgw8gok888gscc84"
+just sync-env-prod    # PATCH /api/v1/services/{uuid}/envs/bulk
+just deploy-prod      # optional: update compose + redeploy
 ```
 
-## OpenTofu
-
-Provider: `hashicorp/vault` with `address = var.openbao_address`. Module `openbao_kv` reads `secret/beskid/<lane>/<service>`.
-
-Disable reads during bootstrap: `openbao_enabled = false` and set env only in Coolify UI temporarily.
+Which services are read is configured in `config/coolify-production.json` → `openbao_services`.
 
 ## Rotation
 
 ```bash
-vault kv patch secret/beskid/production/auth SESSION_SECRET="$(openssl rand -base64 32)"
-cd environments/production && tofu apply
+bao kv patch secret/beskid/production/auth SESSION_SECRET="$(openssl rand -base64 32)"
+just sync-env-prod
 ```
+
+Redeploy the compose service if containers need a full restart.

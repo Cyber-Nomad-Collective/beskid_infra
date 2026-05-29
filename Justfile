@@ -1,7 +1,7 @@
-# Beskid infra — OpenTofu deploy (branch → environment: main=production, stg=staging).
+# Beskid infra — Coolify Compose deploy (production first).
 #
 #   just config-init
-#   git checkout main && just plan
+#   just deploy-prod
 
 set dotenv-load := true
 set shell := ["bash", "-euo", "pipefail", "-c"]
@@ -9,7 +9,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 root := justfile_directory()
 superrepo := root + "/.."
 config_dir := root + "/config"
-lib_dir := root + "/scripts/lib"
+compose_prod := root + "/compose/production"
 
 default:
     @just --list
@@ -48,167 +48,33 @@ deps-beskid:
 
 # --- setup ---
 
-check-tfvars env:
-    @test -f "{{config_dir}}/{{env}}.tfvars" || (echo "Missing config/{{env}}.tfvars — run: just config-init" >&2; exit 1)
+config-init:
+    @test -f "{{root}}/.env" || cp "{{root}}/.env.example" "{{root}}/.env"
+    @test -f "{{compose_prod}}/.env" || cp "{{compose_prod}}/.env.example" "{{compose_prod}}/.env"
+    @echo "Created .env and compose/production/.env"
 
 check:
-    #!/usr/bin/env bash
-    source "{{lib_dir}}/git-tofu-env.sh"
-    lane="$(beskid_tofu_env_from_git)" || exit 1
-    just check-tfvars "${lane}"
-    command -v tofu >/dev/null || { echo "Install OpenTofu (just deps-install)" >&2; exit 1; }
+    command -v jq >/dev/null || { echo "Install jq (just deps-install)" >&2; exit 1; }
+    command -v curl >/dev/null || { echo "Install curl" >&2; exit 1; }
+    test -f "{{config_dir}}/coolify-production.json"
 
-config-init:
-    @for e in production staging; do \
-      test -f "{{config_dir}}/$${e}.tfvars" || cp "{{config_dir}}/$${e}.tfvars.example" "{{config_dir}}/$${e}.tfvars"; \
-    done
-    @test -f "{{root}}/.env" || cp "{{root}}/.env.example" "{{root}}/.env"
-    @echo "Created config/{production,staging}.tfvars and .env"
+compose-config:
+    cd "{{compose_prod}}" && docker compose --env-file .env config
 
-mcp-snapshot-hint:
-    @echo "Update config/coolify.snapshot.json via Coolify MCP (see config/README.md)"
-
-export-openbao:
-    #!/usr/bin/env bash
-    source "{{root}}/scripts/export-openbao-for-tofu.sh"
-
-_lane:
-    #!/usr/bin/env bash
-    source "{{lib_dir}}/git-tofu-env.sh"
-    beskid_tofu_env_from_git
-
-_tf-init:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    "{{superrepo}}/scripts/ci/install-coolify-provider.sh"
-    "{{superrepo}}/scripts/ci/ensure-coolify-lock-open.sh" \
-      "{{root}}/environments/production/.terraform.lock.hcl" \
-      "{{root}}/environments/staging/.terraform.lock.hcl"
-    export TF_CLI_CONFIG_FILE="{{root}}/terraform.tofurc.generated"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    lane="$(beskid_tofu_env_from_git)"
-    cd "{{root}}/environments/${lane}"
-    if [[ -n "${TF_BACKEND_PG_HOST:-}" && -n "${TF_BACKEND_PG_PORT:-}" && -n "${TF_BACKEND_PG_DATABASE:-}" && -n "${TF_BACKEND_PG_USER:-}" && -n "${TF_BACKEND_PG_PASSWORD:-}" ]]; then
-      schema_prefix="${TF_BACKEND_PG_SCHEMA_PREFIX:-beskid_infra}"
-      sslmode="${TF_BACKEND_PG_SSLMODE:-require}"
-      conn_str="postgres://${TF_BACKEND_PG_USER}:${TF_BACKEND_PG_PASSWORD}@${TF_BACKEND_PG_HOST}:${TF_BACKEND_PG_PORT}/${TF_BACKEND_PG_DATABASE}?sslmode=${sslmode}"
-      cat > backend.auto.hcl <<EOF
-conn_str = "${conn_str}"
-schema_name = "${schema_prefix}_${lane}"
-EOF
-      tofu init -input=false -backend-config=backend.auto.hcl
-    else
-      echo "WARNING: TF_BACKEND_PG_* not set, initializing without backend for local-only use." >&2
-      tofu init -input=false -backend=false
-    fi
-
-_tf-plan:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    export TF_CLI_CONFIG_FILE="{{root}}/terraform.tofurc.generated"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    lane="$(beskid_tofu_env_from_git)"
-    if [[ -n "${VAULT_ADDR:-}" ]]; then
-      source "{{root}}/scripts/export-openbao-for-tofu.sh"
-    elif [[ -n "${COOLIFY_API_TOKEN:-}" ]]; then
-      export TF_VAR_coolify_api_token="${COOLIFY_API_TOKEN}"
-      export TF_VAR_openbao_address="${OPENBAO_ADDR:-https://secrets.bdziam.dev}"
-    fi
-    cd "{{root}}/environments/${lane}"
-    tofu plan -input=false -var-file="{{config_dir}}/${lane}.tfvars" -out=tfplan
-
-_tf-apply:
-    #!/usr/bin/env bash
-    source "{{lib_dir}}/git-tofu-env.sh"
-    lane="$(beskid_tofu_env_from_git)"
-    if [[ -n "${VAULT_ADDR:-}" ]]; then
-      source "{{root}}/scripts/export-openbao-for-tofu.sh"
-    elif [[ -n "${COOLIFY_API_TOKEN:-}" ]]; then
-      export TF_VAR_coolify_api_token="${COOLIFY_API_TOKEN}"
-      export TF_VAR_openbao_address="${OPENBAO_ADDR:-https://secrets.bdziam.dev}"
-    fi
-    cd "{{root}}/environments/${lane}"
-    tofu apply -input=false -auto-approve tfplan
-
-# Branch-selected (main → production, stg → staging)
-
-init: check
-    just _tf-init
-
-plan: check
-    just _tf-plan
-
-apply: check
-    just _tf-apply
-
-deploy: check
-    just plan
-    @echo ">>> apply in 5s (Ctrl+C to abort)"
-    @sleep 5
-    just apply
-
-# Explicit lanes (current branch must match)
-
-init-prod:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    test -f "{{config_dir}}/production.tfvars"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    beskid_assert_tofu_env production
-    just _tf-init
-
-plan-prod:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    test -f "{{config_dir}}/production.tfvars"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    beskid_assert_tofu_env production
-    just _tf-plan
-
-apply-prod:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    test -f "{{config_dir}}/production.tfvars"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    beskid_assert_tofu_env production
-    just _tf-apply
+sync-env-prod:
+    "{{root}}/scripts/coolify-sync-env-from-openbao.sh" --lane production
 
 deploy-prod:
-    just plan-prod
-    @sleep 5
-    just apply-prod
+    "{{root}}/scripts/coolify-deploy-compose.sh" --lane production
 
-init-staging:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    test -f "{{config_dir}}/staging.tfvars"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    beskid_assert_tofu_env staging
-    just _tf-init
+deploy-prod-no-sync:
+    "{{root}}/scripts/coolify-deploy-compose.sh" --lane production --no-sync
 
-plan-staging:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    test -f "{{config_dir}}/staging.tfvars"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    beskid_assert_tofu_env staging
-    just _tf-plan
+seed-openbao-all:
+    "{{root}}/scripts/seed-openbao-from-gh.sh" --lane production
 
-apply-staging:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    test -f "{{config_dir}}/staging.tfvars"
-    source "{{lib_dir}}/git-tofu-env.sh"
-    beskid_assert_tofu_env staging
-    just _tf-apply
+seed-openbao-check:
+    "{{root}}/scripts/seed-openbao-from-gh.sh" --lane production --check
 
-deploy-staging:
-    just plan-staging
-    @sleep 5
-    just apply-staging
-
-output:
-    #!/usr/bin/env bash
-    source "{{lib_dir}}/git-tofu-env.sh"
-    lane="$(beskid_tofu_env_from_git)"
-    cd "{{root}}/environments/${lane}" && tofu output
+openbao-check-prod:
+    "{{root}}/scripts/coolify-sync-env-from-openbao.sh" --lane production --check

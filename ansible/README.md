@@ -1,6 +1,6 @@
 # Ansible: bootstrap Coolify host
 
-This directory contains an **idempotent** playbook that prepares a Linux server to run Coolify and accept later OpenTofu-driven configuration.
+This directory contains an **idempotent** playbook that prepares a Linux server to run Coolify and accept later Compose-driven configuration.
 
 ## What it does
 
@@ -36,4 +36,4 @@ Coolify installer script: `https://cdn.coollabs.io/coolify/install.sh` (used whe
 
 ## Notes
 
-- This playbook focuses on bootstrapping the host. It does **not** configure Coolify apps/domains; that is done via OpenTofu (`beskid_infra/environments/*`).
+- This playbook focuses on bootstrapping the host. It does **not** configure Coolify apps/domains; that is done via Compose deploy ([`docs/deploy-compose.md`](../docs/deploy-compose.md)).

@@ -1,5 +1,0 @@
-# Build artifacts
-terraform-provider-coolify
-*.exe
-.terraform/
-.terraform.lock.hcl

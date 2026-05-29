@@ -1,0 +1,19 @@
+{
+  "lane": "production",
+  "service_name": "beskid-platform-production",
+  "service_uuid": "s4ir1ovgqtubarqeql3gf3pz",
+  "environment_name": "production",
+  "project_name": "Beskid",
+  "openbao_lane": "production",
+  "openbao_services": [
+    "site",
+    "auth"
+  ],
+  "compose_profiles": "",
+  "static_env": {
+    "IMAGE_TAG": "main",
+    "AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
+    "TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org",
+    "COMPOSE_PROFILES": ""
+  }
+}
