@@ -83,5 +83,5 @@ coolify_envs_bulk_patch() {
   local items
   items="$(jq -c '[to_entries[] | {key: .key, value: (.value|tostring)}]' "${json_env_file}")"
   coolify_patch_json "/api/v1/${resource_type}s/${resource_uuid}/envs/bulk" \
-    "{\"data\": ${items}}"
+    "{\"data\": ${items}}" >/dev/null
 }

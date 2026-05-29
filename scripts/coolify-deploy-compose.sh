@@ -122,8 +122,17 @@ if [[ -z "${service_uuid}" || "${service_uuid}" == "null" ]]; then
   service_uuid="$(echo "${response}" | jq -r '.uuid // .id')"
 else
   echo "Updating Coolify compose service: ${service_uuid}"
-  update_body="$(echo "${create_body}" | jq 'del(.instant_deploy)')"
-  coolify_patch_json "/api/v1/services/${service_uuid}" "${update_body}" >/dev/null
+  # PATCH allows compose + urls only (not project_uuid / server_uuid / environment_name).
+  update_body="$(jq -n \
+    --arg compose "${compose_b64}" \
+    --argjson urls "${coolify_urls}" \
+    '{
+      docker_compose_raw: $compose,
+      urls: $urls,
+      force_domain_override: true
+    }')"
+  patch_response="$(coolify_patch_json "/api/v1/services/${service_uuid}" "${update_body}")"
+  echo "Domains: $(echo "${patch_response}" | jq -r '.domains // [] | join(", ")')"
 fi
 
 if [[ -z "${service_uuid}" || "${service_uuid}" == "null" ]]; then

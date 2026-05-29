@@ -67,6 +67,7 @@ Not automated on `stg` yet. See [compose/staging/README.md](../compose/staging/R
 | Issue | Fix |
 |-------|-----|
 | `docker_compose_raw` 422 | Compose file must be valid YAML; API expects base64 body (handled by `coolify-deploy-compose.sh`) |
+| PATCH service 422 (`project_uuid` not allowed) | Update sends only `docker_compose_raw`, `urls`, `force_domain_override` — not create-only fields |
 | `Server has multiple destinations` | Set `COOLIFY_DESTINATION_UUID` (see `config/coolify.snapshot.json`) |
 | Service not found | Run `just deploy-prod` once; set `service_uuid` in config |
 | Auth OAuth redirect mismatch | `AUTH_HUB_PUBLIC_URL` must match Coolify domain on **auth** service |
