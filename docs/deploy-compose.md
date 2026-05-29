@@ -38,16 +38,9 @@ Production and staging Coolify URLs (`https://host:port`) live in [`config/domai
 
 See [compose/production/README.md](../compose/production/README.md) for the full table and volume adoption from legacy per-app resources.
 
-## Enable optional services
+## Compose profiles
 
-Edit `config/coolify-production.json`:
-
-```json
-"openbao_services": ["site", "auth", "tracker"],
-"compose_profiles": "tracker"
-```
-
-Seed OpenBao for new services, then `just sync-env-prod` and `just deploy-prod`.
+Production runs the full stack via `compose_profiles: "tracker,nexus,pckg"` in [`config/coolify-production.json`](../config/coolify-production.json). OpenBao paths must exist for every entry in `openbao_services` (`auth`, `tracker`, `nexus`, `pckg`). Seed with `just seed-openbao-all`, then CI syncs env and redeploys.
 
 ## Local commands
 
@@ -72,3 +65,4 @@ Not automated on `stg` yet. See [compose/staging/README.md](../compose/staging/R
 | Service not found | Run `just deploy-prod` once; set `service_uuid` in config |
 | Auth OAuth redirect mismatch | `AUTH_HUB_PUBLIC_URL` must match Coolify domain on **auth** service |
 | Duplicate routes | Remove legacy `beskid-site`, `beskid-auth`, … **applications** after cutover |
+| Degraded / `No such container: tracker-…` | Set `compose_profiles` to `tracker,nexus,pckg` and sync OpenBao for all `openbao_services`, then redeploy. |

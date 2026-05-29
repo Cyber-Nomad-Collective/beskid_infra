@@ -5,15 +5,12 @@
   "environment_name": "production",
   "project_name": "Beskid",
   "openbao_lane": "production",
-  "openbao_services": [
-    "auth"
-  ],
-  "compose_profiles": "",
+  "openbao_services": ["auth", "tracker", "nexus", "pckg"],
+  "compose_profiles": "tracker,nexus,pckg",
   "domains_lane": "production",
   "static_env": {
     "IMAGE_TAG": "main",
     "AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
-    "TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org",
-    "COMPOSE_PROFILES": ""
+    "TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org"
   }
 }

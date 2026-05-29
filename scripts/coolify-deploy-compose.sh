@@ -83,6 +83,8 @@ if [[ ! -f "${DOMAINS_FILE}" ]]; then
   echo "Missing ${DOMAINS_FILE}" >&2
   exit 1
 fi
+compose_profiles="$(jq -r '.compose_profiles // ""' "${CONFIG}")"
+echo "Compose profiles: ${compose_profiles:-<none>}"
 coolify_urls="$(coolify_urls_from_domains "${DOMAINS_FILE}" "${LANE}")"
 echo "Coolify domains (${LANE}): $(echo "${coolify_urls}" | jq -r '.[].url' | paste -sd', ' -)"
 

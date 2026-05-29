@@ -11,11 +11,14 @@
     "name": "coolify",
     "uuid": "zss4wkockgw8gok888gscc84"
   },
-  "legacy_applications": {
-    "site": "rsso488sscg80kookoo00sk4",
-    "auth": "beskid-auth",
-    "tracker": "s8voih0gwkrftklgsmxqglo4",
-    "nexus": "rc7pssssk5i3vqjrt1anx4y3",
-    "pckg": "fotldmgwdsxttpde914u8ktr"
+  "compose_service": {
+    "name": "beskid-platform-production",
+    "uuid": "s4ir1ovgqtubarqeql3gf3pz"
+  },
+  "legacy_removed_2026_05_29": {
+    "beskid-site": "l2056jt8tfcanm6wooxn4p2w",
+    "beskid-auth": "henysbd1j452gwcq38sunqne",
+    "beskid-tofu-state-db": "len9tfpswmz5j6n028iaiqtj",
+    "beskid-pckg-db": "br4ffoqwrdky3uy960mvdmyl"
   }
 }

@@ -30,13 +30,9 @@ Staging uses the `stg-` hostname pattern (site apex: `stg.beskid-lang.org`):
 
 See [`compose/staging/README.md`](../staging/README.md) when staging compose is enabled.
 
-## Optional services
+## Compose profiles
 
-Default production enables **site** and **auth** only. To enable tracker, nexus, or pckg:
-
-1. Set `compose_profiles` in [`config/coolify-production.json`](../../config/coolify-production.json) (e.g. `tracker,nexus,pckg`).
-2. Add matching OpenBao paths under `secret/beskid/production/{tracker,nexus,pckg}`.
-3. Run `just sync-env-prod` then `just deploy-prod`.
+Production enables **site**, **auth**, **tracker**, **nexus**, and **pckg** (with Postgres) via `compose_profiles: tracker,nexus,pckg` in [`config/coolify-production.json`](../../config/coolify-production.json). OpenBao must be seeded for `auth`, `tracker`, `nexus`, and `pckg` (`just seed-openbao-all`).
 
 ## Volumes
 
