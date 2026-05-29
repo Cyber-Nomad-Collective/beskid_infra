@@ -84,6 +84,7 @@ if [[ -n "${OPENBAO_TOKEN}" ]]; then
     if ! bao kv get -format=json "${path}" >/dev/null 2>&1; then
       if [[ "${CHECK_ONLY}" == "true" ]]; then
         echo "MISSING: ${path}" >&2
+        echo "  Seed: cd beskid_infra && just seed-openbao-all   (or: bao kv put ${path} IMAGE_TAG=main)" >&2
         exit 1
       fi
       echo "Skip missing OpenBao path: ${path}" >&2

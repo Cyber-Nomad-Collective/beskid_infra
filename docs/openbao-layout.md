@@ -24,8 +24,10 @@ secret/
 
 | Key | Required |
 |-----|----------|
-| `IMAGE_TAG` | yes (`main` / `staging`) |
+| `IMAGE_TAG` | yes (`main` / `staging`) — also set in `coolify-production.json` `static_env` |
 | `PUBLIC_GISCUS_*` | no |
+
+Compose deploy reads **auth** from OpenBao by default; `site` KV is optional if `IMAGE_TAG` is in `static_env`. Run `just seed-openbao-all` to create `secret/beskid/production/site` when adding Giscus keys.
 
 ### auth
 

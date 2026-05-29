@@ -6,7 +6,6 @@
   "project_name": "Beskid",
   "openbao_lane": "production",
   "openbao_services": [
-    "site",
     "auth"
   ],
   "compose_profiles": "",
