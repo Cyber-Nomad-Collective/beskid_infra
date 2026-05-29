@@ -10,6 +10,7 @@
     "auth"
   ],
   "compose_profiles": "",
+  "domains_lane": "production",
   "static_env": {
     "IMAGE_TAG": "main",
     "AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",

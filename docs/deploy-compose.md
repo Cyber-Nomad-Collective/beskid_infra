@@ -34,7 +34,9 @@ After first create, commit `service_uuid` in [`config/coolify-production.json`](
 
 ## Domains and volumes
 
-See [compose/production/README.md](../compose/production/README.md) for FQDN mapping and volume adoption from legacy per-app resources.
+Production and staging Coolify URLs (`https://host:port`) live in [`config/domains.json`](../config/domains.json). `coolify-deploy-compose.sh` sends them as the Coolify `urls` array on create/update.
+
+See [compose/production/README.md](../compose/production/README.md) for the full table and volume adoption from legacy per-app resources.
 
 ## Enable optional services
 

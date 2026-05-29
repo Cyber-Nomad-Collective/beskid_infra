@@ -9,6 +9,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # shellcheck source=lib/coolify-api.sh
 source "${SCRIPT_DIR}/lib/coolify-api.sh"
+# shellcheck source=lib/domains.sh
+source "${SCRIPT_DIR}/lib/domains.sh"
+
+DOMAINS_FILE="${ROOT}/config/domains.json"
 
 LANE="production"
 CONFIG="${ROOT}/config/coolify-production.json"
@@ -75,6 +79,13 @@ fi
 project_uuid="$(coolify_resolve_project_uuid)"
 compose_b64="$(coolify_compose_b64 "${COMPOSE_FILE}")"
 
+if [[ ! -f "${DOMAINS_FILE}" ]]; then
+  echo "Missing ${DOMAINS_FILE}" >&2
+  exit 1
+fi
+coolify_urls="$(coolify_urls_from_domains "${DOMAINS_FILE}" "${LANE}")"
+echo "Coolify domains (${LANE}): $(echo "${coolify_urls}" | jq -r '.[].url' | paste -sd', ' -)"
+
 if [[ "${SYNC_ENV}" == "true" ]]; then
   "${SCRIPT_DIR}/coolify-sync-env-from-openbao.sh" --config "${CONFIG}" --lane "${LANE}" || {
     echo "Env sync failed (continuing if service exists)..." >&2
@@ -92,12 +103,15 @@ create_body="$(jq -n \
   --arg env "${environment_name}" \
   --arg dest "${COOLIFY_DESTINATION_UUID}" \
   --arg compose "${compose_b64}" \
+  --argjson urls "${coolify_urls}" \
   '{
     name: $name,
     project_uuid: $project,
     server_uuid: $server,
     environment_name: $env,
     docker_compose_raw: $compose,
+    urls: $urls,
+    force_domain_override: true,
     instant_deploy: true
   }
   | if ($dest | length) > 0 then . + {destination_uuid: $dest} else . end')"
