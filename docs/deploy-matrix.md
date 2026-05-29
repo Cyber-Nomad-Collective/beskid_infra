@@ -7,6 +7,7 @@
 | **tracker** | `beskid-tracker` | `tracker.beskid-lang.org` | `stg-tracker.beskid-lang.org` | 3000 |
 | **nexus** | `beskid-nexus` | `nexus.beskid-lang.org` | `stg-nexus.beskid-lang.org` | 8452 |
 | **pckg** | `beskid-pckg` | `pckg.beskid-lang.org` | `stg-pckg.beskid-lang.org` | 8082 |
+| **Grafana** | (Coolify **Beskid Monitoring**) | `monitor.beskid-lang.org` | — | 3000 |
 
 Image tags: `main` on production, `staging` on staging.
 
