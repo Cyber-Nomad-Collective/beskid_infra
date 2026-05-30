@@ -171,6 +171,7 @@ audit_lane() {
   report_key "beskid/${lane}/auth" "GITHUB_CLIENT_SECRET" "no"
   report_key "beskid/${lane}/tracker" "SESSION_SECRET" "no"
   report_key "beskid/${lane}/nexus" "SESSION_SECRET" "no"
+  report_key "beskid/${lane}/nexus" "OPENROUTER_API_KEY" "no"
   report_key "beskid/${lane}/pckg" "POSTGRES_PASSWORD" "no"
 
   echo "=== secret/beskid/ci/build ==="

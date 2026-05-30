@@ -80,6 +80,15 @@ nexus_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/nexus" "SESSION_SEC
 pckg_postgres_secret="$(ensure_value "beskid/${OPENBAO_LANE}/pckg" "POSTGRES_PASSWORD" "${PCKG_POSTGRES_PASSWORD}")"
 site_image_tag="$(ensure_value "beskid/${OPENBAO_LANE}/site" "IMAGE_TAG" "$(lane_image_tag)")"
 
+bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/nexus" \
+  SESSION_SECRET="${nexus_session_secret}"
+
+if [[ -n "${OPENROUTER_API_KEY:-}" ]]; then
+  bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/nexus" \
+    OPENROUTER_API_KEY="${OPENROUTER_API_KEY}"
+  echo "Patched OPENROUTER_API_KEY on ${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/nexus"
+fi
+
 bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/site" \
   IMAGE_TAG="${site_image_tag}"
 
@@ -89,9 +98,6 @@ bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/auth" \
 
 bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/tracker" \
   SESSION_SECRET="${tracker_session_secret}"
-
-bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/nexus" \
-  SESSION_SECRET="${nexus_session_secret}"
 
 bao kv put "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/pckg" \
   POSTGRES_PASSWORD="${pckg_postgres_secret}"

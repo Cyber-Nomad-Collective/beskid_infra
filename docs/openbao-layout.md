@@ -54,6 +54,9 @@ Compose deploy reads **auth**, **tracker**, **nexus**, and **pckg** from OpenBao
 | `GITNEXUS_HOME` | yes (`/data/gitnexus`) |
 | `AUTH_HUB_PUBLIC_URL` | yes |
 | `SESSION_SECRET` | yes |
+| `OPENROUTER_API_KEY` | no (enables server-side code-doc maintenance) |
+| `NEXUS_DOC_MODEL` | no |
+| `NEXUS_SPEC_ROOT` | no (path to platform-spec MDX for spec link index) |
 
 ### pckg
 
