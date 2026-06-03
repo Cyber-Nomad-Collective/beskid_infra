@@ -45,7 +45,8 @@ Compose deploy reads **auth**, **tracker**, **nexus**, and **pckg** from OpenBao
 | `AUTH_HUB_PUBLIC_URL` | yes |
 | `SESSION_SECRET` | yes |
 | `TRACKER_PUBLIC_URL` | yes |
-| `GITHUB_SYNC_TOKEN` | recommended |
+| `GITHUB_SYNC_TOKEN` | recommended (autopair via GitHub API) |
+| `TRACKER_PAIRING_APPROVER_LOGIN` | recommended (autopair without sync token; same pattern as pckg `PCKG_PAIRING_APPROVER_LOGIN`) |
 
 ### nexus
 

@@ -39,9 +39,19 @@ services:
     expose:
       - "3000"
     environment:
+      NODE_ENV: production
+      PORT: "3000"
       AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET}
+      GITHUB_REPO_OWNER: ${GITHUB_REPO_OWNER:-Cyber-Nomad-Collective}
+      GITHUB_REPO_NAME: ${GITHUB_REPO_NAME:-beskid}
+      GITHUB_SYNC_TOKEN: ${GITHUB_SYNC_TOKEN:-}
+      TRACKER_PAIRING_APPROVER_LOGIN: ${TRACKER_PAIRING_APPROVER_LOGIN:-}
+      GITHUB_PUBLIC_READ_TOKEN: ${GITHUB_PUBLIC_READ_TOKEN:-}
       TRACKER_PUBLIC_URL: ${TRACKER_PUBLIC_URL:-https://tracker.beskid-lang.org}
       TRACKER_DATA_DIR: /app/beskid_tracker/data/runtime
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+      ISSUES_SYNC_DISABLED: ${ISSUES_SYNC_DISABLED:-}
     volumes:
       - tracker-data:/app/beskid_tracker/data/runtime
     healthcheck:
