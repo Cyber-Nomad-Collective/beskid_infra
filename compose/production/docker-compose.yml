@@ -42,7 +42,6 @@ services:
       NODE_ENV: production
       PORT: "3000"
       AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
-      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET}
       GITHUB_REPO_OWNER: ${GITHUB_REPO_OWNER:-Cyber-Nomad-Collective}
       GITHUB_REPO_NAME: ${GITHUB_REPO_NAME:-beskid}
       GITHUB_SYNC_TOKEN: ${GITHUB_SYNC_TOKEN:-}
