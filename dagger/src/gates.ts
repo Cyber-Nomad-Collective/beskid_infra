@@ -42,6 +42,8 @@ export async function compilerRustGate(source: Directory): Promise<string> {
       "--workspace",
       "--exclude",
       "beskid_e2e_tests",
+      "--",
+      "--test-threads=1",
     ])
     .stdout()
 }
