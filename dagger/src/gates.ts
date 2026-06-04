@@ -30,6 +30,7 @@ export async function compilerRustGate(source: Directory): Promise<string> {
     .withEnvVariable("RUST_MIN_STACK", RUST_MIN_STACK)
 
   await ctr
+    .withExec(["rustup", "component", "add", "clippy"])
     .withExec([
       "cargo",
       "clippy",
