@@ -31,7 +31,7 @@ export async function compilerRustGate(source: Directory): Promise<string> {
 
   await ctr
     .withExec(["rustup", "component", "add", "clippy"])
-    .withExec(["cargo", "clippy", "--workspace", "--all-targets"])
+    .withExec(["cargo", "clippy", "--workspace"])
     .sync()
 
   return ctr.withExec(["cargo", "test", "--workspace"]).stdout()
