@@ -77,6 +77,7 @@ Compiler-only jobs sparse-checkout this module from the [beskid](https://github.
 | `BESKID_VSCODE_SUBMODULE_TOKEN` | Submodule init (private extension) |
 | `BESKID_PCKG_API_KEY` | `package-publish` (`--pckg-api-key=env:BESKID_PCKG_API_KEY`) |
 | `GH_TOKEN` | `versioning.create-github-release` |
+| `COMPILER_RELEASE_TOKEN` | `scripts/ci/compiler-release-publish.sh` (`gh release` on `beskid_compiler`; falls back to `COMPILER_SUBMODULE_TOKEN`) |
 
 ## Daggerverse modules in use
 
