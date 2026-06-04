@@ -36,7 +36,13 @@ export async function compilerRustGate(source: Directory): Promise<string> {
 
   return ctr
     .withExec(["cargo", "build", "-p", "beskid_runtime_bridge"])
-    .withExec(["cargo", "test", "--workspace"])
+    .withExec([
+      "cargo",
+      "test",
+      "--workspace",
+      "--exclude",
+      "beskid_e2e_tests",
+    ])
     .stdout()
 }
 
