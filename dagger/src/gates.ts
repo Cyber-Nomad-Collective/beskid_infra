@@ -22,17 +22,26 @@ export async function resolveCompilerTree(source: Directory): Promise<Directory>
  */
 export async function compilerRustGate(source: Directory): Promise<string> {
   const compiler = await resolveCompilerTree(source)
-  // Reuse shared Daggerverse Rust module for linting.
-  await (dag as any).rust(compiler).clippy()
-
-  return dag
+  const ctr = dag
     .container()
     .from(RUST_IMAGE)
     .withMountedDirectory("/src", compiler)
     .withWorkdir("/src")
     .withEnvVariable("RUST_MIN_STACK", RUST_MIN_STACK)
-    .withExec(["cargo", "test", "--workspace"])
-    .stdout()
+
+  await ctr
+    .withExec([
+      "cargo",
+      "clippy",
+      "--workspace",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings",
+    ])
+    .sync()
+
+  return ctr.withExec(["cargo", "test", "--workspace"]).stdout()
 }
 
 /**
