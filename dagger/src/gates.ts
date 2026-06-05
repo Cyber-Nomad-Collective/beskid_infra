@@ -43,7 +43,7 @@ export async function compilerRustGate(source: Directory): Promise<string> {
     .sync()
 
   return ctr
-    .withExec(["cargo", "build", "-p", "beskid_runtime_bridge"])
+    .withExec(["bash", "scripts/ensure-runtime-bridge.sh"])
     .withExec([
       "cargo",
       "test",
