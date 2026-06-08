@@ -11,6 +11,8 @@ The Beskid platform runs as **one Coolify compose service** per environment. Sou
 
 OpenTofu and the vendored Coolify Terraform provider are **removed**.
 
+Service URL and secret matrix: [deploy-matrix.md](deploy-matrix.md).
+
 ## Prerequisites
 
 - Coolify project **Beskid**, environment **production**
