@@ -12,8 +12,8 @@ Runtime secrets live in OpenBao KV v2 at **`https://secrets.bdziam.dev`**. CI an
 ```
 secret/
   beskid/
-    production/   site, auth, tracker, nexus, pckg
-    staging/      site, auth, tracker, nexus, pckg
+    production/   site, auth, platform-spec, tracker, nexus, pckg
+    staging/      site, auth, platform-spec, tracker, nexus, pckg
     ci/
       build/        NODE_AUTH_TOKEN, OVSX_TOKEN
 ```
@@ -27,7 +27,7 @@ secret/
 | `IMAGE_TAG` | yes (`main` / `staging`) — also set in `coolify-production.json` `static_env` |
 | `PUBLIC_GISCUS_*` | no |
 
-Compose deploy reads **auth**, **tracker**, **nexus**, and **pckg** from OpenBao (`openbao_services` in `coolify-production.json`). `site` KV is optional if `IMAGE_TAG` is in `static_env`. Run `just seed-openbao-all` before the first full-stack deploy.
+Compose deploy reads **auth**, **platform-spec**, **tracker**, **nexus**, and **pckg** from OpenBao (`openbao_services` in `coolify-production.json`). `site` KV is optional if `IMAGE_TAG` is in `static_env`. Run `just seed-openbao-all` before the first full-stack deploy.
 
 ### auth
 
@@ -37,6 +37,22 @@ Compose deploy reads **auth**, **tracker**, **nexus**, and **pckg** from OpenBao
 | `SESSION_SECRET` | yes |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | yes* |
 | `IMAGE_TAG` | yes |
+
+### platform-spec
+
+| Key | Required |
+|-----|----------|
+| `AUTH_HUB_PUBLIC_URL` | yes |
+| `SESSION_SECRET` | yes |
+| `PLATFORM_SPEC_PUBLIC_URL` | yes (`https://spec.beskid-lang.org`) |
+| `MEMGRAPH_URI` | yes (`bolt://memgraph:7687` in compose) |
+| `GITHUB_SYNC_TOKEN` | yes (git clone sync + PR workflow) |
+| `GITHUB_WEBHOOK_SECRET` | recommended (PR merge webhook) |
+| `SPEC_GIT_REPO_URL` | recommended (`https://github.com/Cyber-Nomad-Collective/beskid`) |
+| `SPEC_GIT_REF` | optional (default `main`) |
+| `SPEC_SYNC_MODE` | optional (`json` or `mdx-legacy`) |
+| `PLATFORM_SPEC_MODERATOR_LOGINS` | recommended (comma-separated GitHub logins) |
+| `PLATFORM_SPEC_PAIRING_APPROVER_LOGIN` | recommended |
 
 ### tracker
 

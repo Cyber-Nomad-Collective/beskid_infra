@@ -21,6 +21,8 @@ Coolify **Domains** use explicit ports (`https://<host>:<port>`). App-facing `*_
 | --- | --- | --- | --- | --- |
 | **site** | `beskid-site` | 80 | `https://beskid-lang.org:80` | `https://beskid-lang.org` |
 | **auth** | `beskid-auth` | 8090 | `https://auth.beskid-lang.org:8090` | `AUTH_HUB_PUBLIC_URL=https://auth.beskid-lang.org` |
+| **platform-spec** | `beskid-platform-spec` | 8460 | `https://spec.beskid-lang.org:8460` | `PLATFORM_SPEC_PUBLIC_URL=https://spec.beskid-lang.org` |
+| **memgraph** | `memgraph/memgraph-mage` | 7687 | internal only | `MEMGRAPH_URI=bolt://memgraph:7687` |
 | **tracker** | `beskid-tracker` | 3000 | `https://tracker.beskid-lang.org:3000` | `TRACKER_PUBLIC_URL=https://tracker.beskid-lang.org` |
 | **nexus** | `beskid-nexus` | 8452 | `https://nexus.beskid-lang.org:8452` | (pairing `publicUrl`) |
 | **pckg** | `beskid-pckg` | 8082 | `https://pckg.beskid-lang.org:8082` | `PCKG_PUBLIC_URL=https://pckg.beskid-lang.org` |
@@ -49,11 +51,12 @@ OpenBao lane: `secret/beskid/staging/{service}`.
 | --- | --- | --- |
 | site | `secret/beskid/production/site` | optional (`IMAGE_TAG` may be static) |
 | auth | `secret/beskid/production/auth` | yes |
+| platform-spec | `secret/beskid/production/platform-spec` | yes |
 | tracker | `secret/beskid/production/tracker` | yes |
 | nexus | `secret/beskid/production/nexus` | yes |
 | pckg | `secret/beskid/production/pckg` | yes |
 
-`openbao_services` in `coolify-production.json`: `auth`, `tracker`, `nexus`, `pckg`.
+`openbao_services` in `coolify-production.json`: `auth`, `platform-spec`, `tracker`, `nexus`, `pckg`.
 
 ## Shared auth secrets
 
@@ -106,7 +109,7 @@ Production enables tracker, nexus, and pckg via `compose_profiles: tracker,nexus
 
 These steps require production access (OpenBao token, Coolify, GitHub repo admin). Do not mark production-only tracker tasks Done without evidence.
 
-1. `just seed-openbao-check` — all required keys present for `auth`, `tracker`, `nexus`, `pckg`
+1. `just seed-openbao-check` — all required keys present for `auth`, `platform-spec`, `tracker`, `nexus`, `pckg`
 2. `just sync-env-prod` — Coolify env matches OpenBao
 3. Health: `curl` each service `/api/health` or documented health endpoint
 4. Auth: OAuth sign-in on tracker, nexus, and pckg via hub return-path cookie
