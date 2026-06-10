@@ -20,14 +20,29 @@ export async function resolveCompilerTree(source: Directory): Promise<Directory>
 /**
  * `cargo clippy` (deny warnings) then workspace tests under `compiler/`.
  */
+async function mountBeskidBsol(
+  source: Directory,
+  ctr: ReturnType<typeof dag.container>,
+): Promise<ReturnType<typeof dag.container>> {
+  try {
+    const bsol = source.directory("beskid_bsol")
+    await bsol.file("crates/bsol/Cargo.toml").contents()
+    return ctr.withMountedDirectory("/beskid_bsol", bsol)
+  } catch {
+    return ctr
+  }
+}
+
 export async function compilerRustGate(source: Directory): Promise<string> {
   const compiler = await resolveCompilerTree(source)
-  const ctr = dag
+  let ctr = dag
     .container()
     .from(RUST_IMAGE)
     .withMountedDirectory("/src", compiler)
     .withWorkdir("/src")
     .withEnvVariable("RUST_MIN_STACK", RUST_MIN_STACK)
+
+  ctr = await mountBeskidBsol(source, ctr)
 
   await ctr
     .withExec(["rustup", "component", "add", "clippy"])
