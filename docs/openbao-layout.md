@@ -48,7 +48,7 @@ Compose deploy reads **auth**, **platform-spec**, **tracker**, **nexus**, and **
 | `MEMGRAPH_URI` | yes (`bolt://memgraph:7687` in compose) |
 | `GITHUB_SYNC_TOKEN` | yes (git clone sync + PR workflow) |
 | `GITHUB_WEBHOOK_SECRET` | recommended (PR merge webhook) |
-| `SPEC_GIT_REPO_URL` | recommended (`https://github.com/Cyber-Nomad-Collective/beskid`) |
+| `SPEC_GIT_REPO_URL` | recommended (`https://github.com/Cyber-Nomad-Collective/beskid_normative_spec.git`) |
 | `SPEC_GIT_REF` | optional (default `main`) |
 | `SPEC_SYNC_MODE` | optional (`json` or `mdx-legacy`) |
 | `PLATFORM_SPEC_MODERATOR_LOGINS` | recommended (comma-separated GitHub logins) |

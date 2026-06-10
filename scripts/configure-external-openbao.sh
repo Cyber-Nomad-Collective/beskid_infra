@@ -191,9 +191,11 @@ platform_spec_args=(
   "PLATFORM_SPEC_PUBLIC_URL=${platform_spec_public_url}"
   "MEMGRAPH_URI=bolt://memgraph:7687"
   "GITHUB_REPO_OWNER=Cyber-Nomad-Collective"
-  "GITHUB_REPO_NAME=beskid"
+  "GITHUB_REPO_NAME=beskid_normative_spec"
+  "GITHUB_OAUTH_REPO_OWNER=Cyber-Nomad-Collective"
+  "GITHUB_OAUTH_REPO_NAME=beskid"
   "GITHUB_WEBHOOK_SECRET=${github_webhook_secret}"
-  "SPEC_GIT_REPO_URL=https://github.com/Cyber-Nomad-Collective/beskid"
+  "SPEC_GIT_REPO_URL=https://github.com/Cyber-Nomad-Collective/beskid_normative_spec.git"
   "SPEC_GIT_REF=main"
   "SPEC_SYNC_MODE=json"
 )
