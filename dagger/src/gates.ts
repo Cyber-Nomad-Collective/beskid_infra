@@ -51,6 +51,7 @@ export async function compilerRustGate(source: Directory): Promise<string> {
       "clippy",
       "--workspace",
       "--all-targets",
+      "--no-deps",
       "--",
       "-D",
       "warnings",
