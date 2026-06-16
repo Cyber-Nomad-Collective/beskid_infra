@@ -33,6 +33,30 @@ async function mountBeskidBsol(
   }
 }
 
+function compilerPreGateScript(): string {
+  const patterns = [
+    "expr_types",
+    "TypeContext",
+    "types/context/",
+    "type_prefetched_source_path",
+    "seed_definitions_from_source_path",
+  ]
+  const checks = patterns.map(
+    (pattern) =>
+      `if rg -n --glob '*.rs' '${pattern}' crates/ >/dev/null 2>&1; then echo "legacy type-system pattern reintroduced: ${pattern}" >&2; rg -n --glob '*.rs' '${pattern}' crates/ >&2 || true; exit 1; fi`,
+  )
+  return [
+    "set -euo pipefail",
+    "apt-get update -qq",
+    "apt-get install -y -qq --no-install-recommends ripgrep",
+    ...checks,
+    'if [ -f scripts/verify-corelib-tests-parity.sh ]; then',
+    "  bash scripts/verify-corelib-tests-parity.sh",
+    "fi",
+    "echo no legacy type-system patterns in compiler .rs sources",
+  ].join("\n")
+}
+
 export async function compilerRustGate(source: Directory): Promise<string> {
   const compiler = await resolveCompilerTree(source)
   let ctr = dag
@@ -45,6 +69,7 @@ export async function compilerRustGate(source: Directory): Promise<string> {
   ctr = await mountBeskidBsol(source, ctr)
 
   await ctr
+    .withExec(["bash", "-ec", compilerPreGateScript()])
     .withExec(["rustup", "component", "add", "clippy"])
     .withExec([
       "cargo",
@@ -86,4 +111,36 @@ export async function vscodeGate(source: Directory): Promise<string> {
     .withExec(["bun", "install", "--frozen-lockfile"])
     .withExec(["bun", "test"])
     .stdout()
+}
+
+export async function lspCommandContractGate(source: Directory): Promise<string> {
+  const compiler = await resolveCompilerTree(source)
+  const vscode = source.directory("beskid_vscode")
+
+  const rustOut = await dag
+    .container()
+    .from(RUST_IMAGE)
+    .withMountedDirectory("/src", compiler)
+    .withWorkdir("/src")
+    .withExec([
+      "cargo",
+      "test",
+      "-p",
+      "beskid_lsp",
+      "project_explorer_command_contract_matches_snapshot",
+      "--",
+      "--nocapture",
+    ])
+    .stdout()
+
+  const vscodeOut = await dag
+    .container()
+    .from(BUN_IMAGE)
+    .withMountedDirectory("/work", vscode)
+    .withWorkdir("/work")
+    .withExec(["bun", "install", "--frozen-lockfile"])
+    .withExec(["bun", "test", "test/lspCommandsContract.test.ts"])
+    .stdout()
+
+  return `${rustOut}\n${vscodeOut}`
 }

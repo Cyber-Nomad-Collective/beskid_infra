@@ -5,6 +5,7 @@ import {
   type Directory,
   type File,
   type Platform,
+  type Secret,
 } from "@dagger.io/dagger";
 
 import { compilerRustGate, resolveCompilerTree } from "./gates.js";
@@ -221,6 +222,95 @@ async function buildReleaseArtifact(
   return ctr.file(releaseBinaryPath(target, packageBinary, runnerOs)).withName(assetName);
 }
 
+function releaseStreamConfig(stream: string): {
+  versionFile: string;
+  immutableTag: (v: string) => string;
+  rollingTag: string;
+  immutableName: (v: string) => string;
+  rollingName: string;
+  assetGlob: string;
+} {
+  switch (stream) {
+    case "cli":
+      return {
+        versionFile: "cli-version.txt",
+        immutableTag: (v) => `cli-v${v}`,
+        rollingTag: "cli-latest",
+        immutableName: (v) => `Beskid CLI v${v}`,
+        rollingName: "Beskid CLI (rolling)",
+        assetGlob: "beskid-*",
+      };
+    case "lsp":
+      return {
+        versionFile: "lsp-version.txt",
+        immutableTag: (v) => `lsp-v${v}`,
+        rollingTag: "lsp-latest",
+        immutableName: (v) => `Beskid LSP v${v}`,
+        rollingName: "Beskid LSP (rolling)",
+        assetGlob: "beskid_lsp-*",
+      };
+    default:
+      throw new Error(`Unsupported release stream: ${stream}`);
+  }
+}
+
+async function publishReleaseStream(
+  releaseStream: string,
+  releaseVersion: string,
+  compilerSha: string,
+  assets: Directory,
+  githubToken: Secret,
+): Promise<string> {
+  const cfg = releaseStreamConfig(releaseStream);
+  const repo = "Cyber-Nomad-Collective/beskid_compiler";
+  const immutableTag = cfg.immutableTag(releaseVersion);
+  const immutableBody = `Immutable ${releaseStream.toUpperCase()} release for version \`${releaseVersion}\`.
+
+**Commit:** \`${compilerSha}\`
+
+For the rolling build that tracks \`main\`, use the [${cfg.rollingTag}](https://github.com/${repo}/releases/tag/${cfg.rollingTag}) release instead.`;
+
+  const rollingBody = `Rolling ${releaseStream.toUpperCase()} build.
+
+**Version string:** \`${releaseVersion}\`
+**Commit:** \`${compilerSha}\``;
+
+  const script = [
+    "set -euo pipefail",
+    `printf '%s\\n' '${releaseVersion}' > /assets/${cfg.versionFile}`,
+    `cd /assets`,
+    `immutable_tag='${immutableTag}'`,
+    `rolling_tag='${cfg.rollingTag}'`,
+    `if gh release view "$immutable_tag" --repo '${repo}' >/dev/null 2>&1; then`,
+    `  gh release upload "$immutable_tag" --repo '${repo}' *`,
+    `else`,
+    `  gh release create "$immutable_tag" --repo '${repo}' --target '${compilerSha}' --title '${cfg.immutableName(releaseVersion)}' --notes '${immutableBody.replace(/'/g, "'\\''")}' *`,
+    `fi`,
+    `if gh release view "$rolling_tag" --repo '${repo}' >/dev/null 2>&1; then`,
+    `  gh release upload "$rolling_tag" --repo '${repo}' * --clobber`,
+    `else`,
+    `  gh release create "$rolling_tag" --repo '${repo}' --target '${compilerSha}' --title '${cfg.rollingName}' --notes '${rollingBody.replace(/'/g, "'\\''")}' *`,
+    `fi`,
+    `echo compiler-release-publish: OK (${releaseStream} ${releaseVersion} @ ${compilerSha})`,
+  ].join("\n");
+
+  return dag
+    .container()
+    .from("alpine:3.20")
+    .withExec([
+      "apk",
+      "add",
+      "--no-cache",
+      "git",
+      "ca-certificates",
+      "github-cli",
+    ])
+    .withMountedDirectory("/assets", assets)
+    .withSecretVariable("GH_TOKEN", githubToken)
+    .withExec(["sh", "-ec", script])
+    .stdout();
+}
+
 @object()
 export class CompilerRelease {
   /** Port of `ci.version_job` + `version.resolve_version` (stdout is the version string). */
@@ -288,6 +378,23 @@ export class CompilerRelease {
       runnerOs,
       "beskid_lsp",
       "beskid_lsp",
+    );
+  }
+
+  @func()
+  async publishReleaseStream(
+    releaseStream: string,
+    releaseVersion: string,
+    compilerSha: string,
+    assets: Directory,
+    githubToken: Secret,
+  ): Promise<string> {
+    return publishReleaseStream(
+      releaseStream,
+      releaseVersion,
+      compilerSha,
+      assets,
+      githubToken,
     );
   }
 }

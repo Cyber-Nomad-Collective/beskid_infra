@@ -1,8 +1,11 @@
 import { func, object, type Directory } from "@dagger.io/dagger";
 
-import { compilerRustGate, vscodeGate } from "./gates.js";
+import { compilerRustGate, lspCommandContractGate, vscodeGate } from "./gates.js";
 import { openVsxPublish } from "./open-vsx.js";
 import { resolveCliVersion } from "./compiler-release.js";
+import { corelibGate } from "./corelib-gate.js";
+import { platformLockfileGate, platformSmoke, siteBuildGate } from "./platform-gates.js";
+import { blessFormatFixtures, formatCorpusCheck } from "./dev-tools.js";
 
 export { CompilerRelease } from "./compiler-release.js";
 export { PackagePublish } from "./publish-packages.js";
@@ -16,8 +19,53 @@ export class BeskidCi {
   }
 
   @func()
+  async lspCommandContractGate(source: Directory): Promise<string> {
+    return lspCommandContractGate(source);
+  }
+
+  @func()
   async vscodeGate(source: Directory): Promise<string> {
     return vscodeGate(source);
+  }
+
+  @func()
+  async corelibGate(source: Directory): Promise<string> {
+    return corelibGate(source);
+  }
+
+  @func()
+  async platformLockfileGate(
+    source: Directory,
+    dirs: string[] = [],
+  ): Promise<string> {
+    return platformLockfileGate(source, dirs);
+  }
+
+  @func()
+  async platformSmoke(source: Directory): Promise<string> {
+    return platformSmoke(source);
+  }
+
+  @func()
+  async siteBuildGate(
+    source: Directory,
+    app: string,
+    nodeAuthToken = "",
+  ): Promise<string> {
+    if (app !== "auth" && app !== "platform-spec") {
+      throw new Error("app must be auth or platform-spec");
+    }
+    return siteBuildGate(source, app, nodeAuthToken);
+  }
+
+  @func()
+  async blessFormatFixtures(source: Directory): Promise<string> {
+    return blessFormatFixtures(source);
+  }
+
+  @func()
+  async formatCorpusCheck(source: Directory): Promise<string> {
+    return formatCorpusCheck(source);
   }
 
   @func()

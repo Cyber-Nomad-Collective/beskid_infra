@@ -5,41 +5,33 @@ import {
   type Secret,
 } from "@dagger.io/dagger";
 
+import { corelibGate, corelibPublish } from "./corelib-gate.js";
+import { corelibQuality } from "./corelib-quality.js";
+import { corelibTest } from "./corelib-test.js";
+
 @object()
 export class PackagePublish {
-  /**
-   * Python CI scripts were intentionally removed from centralized CI.
-   * Keep function signatures for compatibility; implementation to be replaced
-   * with native Dagger/CLI publish pipeline.
-   */
   @func()
   async publishCorelib(
-    _source: Directory,
-    _compiler: Directory,
-    _pckgApiKey: Secret,
-    _pckgBaseUrl = "https://pckg.beskid-lang.org",
-    _versionBump = "patch",
+    source: Directory,
+    pckgApiKey: Secret,
+    pckgBaseUrl = "https://pckg.beskid-lang.org",
+    versionBump = "patch",
   ): Promise<string> {
-    throw new Error(
-      "publishCorelib is temporarily disabled: legacy Python publish scripts were removed from centralized CI.",
-    );
+    return corelibPublish(source, pckgApiKey, pckgBaseUrl, versionBump);
   }
 
-  /**
-   * Python CI scripts were intentionally removed from centralized CI.
-   * Keep function signatures for compatibility; implementation to be replaced
-   * with native Dagger/CLI publish pipeline.
-   */
   @func()
   async publishTemplates(
     _source: Directory,
-    _compiler: Directory,
     _pckgApiKey: Secret,
     _pckgBaseUrl = "https://pckg.beskid-lang.org",
     _versionBump = "patch",
   ): Promise<string> {
     throw new Error(
-      "publishTemplates is temporarily disabled: legacy Python publish scripts were removed from centralized CI.",
+      "publishTemplates is not implemented: templates publish pipeline pending.",
     );
   }
 }
+
+export { corelibGate, corelibQuality, corelibTest, corelibPublish };

@@ -18,30 +18,36 @@ dagger functions
 ## Invoke from the superrepo root
 
 ```bash
-dagger -m beskid_infra/dagger call open-vsx-publish \
-  --source=. \
-  --platform=linux-x64 \
-  --bin-name=beskid_lsp
+dagger -m beskid_infra/dagger call corelib-gate --source=.
 ```
 
 Or:
 
 ```bash
 cd beskid_infra/dagger
-dagger call open-vsx-publish --source=../.. --platform=linux-x64 --bin-name=beskid_lsp
+dagger call corelib-gate --source=../..
 ```
 
 ## Objects and functions
 
 | Object | Function | Role |
 |--------|----------|------|
-| `beskid-ci` | `compiler-rust-gate` | `cargo clippy` + `cargo test --workspace` |
+| `beskid-ci` | `compiler-rust-gate` | Parity + legacy-type guards, `cargo clippy`, workspace tests |
+| `beskid-ci` | `lsp-command-contract-gate` | `beskid_lsp` + extension execute-command contract |
+| `beskid-ci` | `corelib-gate` | Corelib manifest quality + `beskid test` (all targets) |
 | `beskid-ci` | `vscode-gate` | `bun test` in `beskid_vscode` |
 | `beskid-ci` | `open-vsx-publish` | Gates, LSP build, VSIX, Open VSX publish |
-| `compiler-release` | `compute-cli-version` | CLI/LSP semver |
+| `beskid-ci` | `platform-lockfile-gate` | `bun install --frozen-lockfile` per directory |
+| `beskid-ci` | `site-build-gate` | Auth or platform-spec prebuild checks |
+| `beskid-ci` | `platform-smoke` | Local/PR aggregate web smoke |
+| `beskid-ci` | `bless-format-fixtures` | Regenerate format test fixtures |
+| `beskid-ci` | `format-corpus-check` | Optional corelib format corpus check |
+| `beskid-ci` | `compute-cli-version` | CLI/LSP semver |
+| `compiler-release` | `compute-cli-version` | CLI/LSP semver (compiler-root `source`) |
 | `compiler-release` | `build-cli-release` | Cross-target `beskid_cli` artifact |
 | `compiler-release` | `build-lsp-release` | Cross-target `beskid_lsp` artifact |
-| `package-publish` | `publish-corelib` | pckg workspace publish |
+| `compiler-release` | `publish-release-stream` | `gh release` for `cli-*` / `lsp-*` streams |
+| `package-publish` | `publish-corelib` | Corelib workspace bundle → pckg |
 | `package-publish` | `publish-templates` | Templates workspace (stub) |
 | `versioning` | `commits-since-last-tag` | Commit count for `path` since latest matching tag |
 | `versioning` | `version-from-tag-and-commit-count` | `MAJOR.MINOR.COUNT` (example `0.2.121`) |
@@ -56,14 +62,8 @@ dagger call open-vsx-publish --source=../.. --platform=linux-x64 --bin-name=besk
     version: "0.21.0"
 - run: npm ci
   working-directory: beskid_infra/dagger
-- name: Open VSX
-  env:
-    OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
-  run: |
-    dagger -m beskid_infra/dagger call open-vsx-publish \
-      --source=. \
-      --platform=linux-x64 \
-      --bin-name=beskid_lsp
+- name: Corelib gate
+  run: dagger -m beskid_infra/dagger call corelib-gate --source=.
 ```
 
 Compiler-only jobs sparse-checkout this module from the [beskid](https://github.com/Cyber-Nomad-Collective/beskid) superrepo and call `compiler-release` with `--compiler-source=.` (compiler repo root).
@@ -75,16 +75,12 @@ Compiler-only jobs sparse-checkout this module from the [beskid](https://github.
 | `OVSX_TOKEN` | `open-vsx-publish` |
 | `COMPILER_SUBMODULE_TOKEN` | Submodule init (private compiler) |
 | `BESKID_VSCODE_SUBMODULE_TOKEN` | Submodule init (private extension) |
-| `BESKID_PCKG_API_KEY` | `package-publish` (`--pckg-api-key=env:BESKID_PCKG_API_KEY`) |
-| `GH_TOKEN` | `versioning.create-github-release` |
-| `COMPILER_RELEASE_TOKEN` | `scripts/ci/compiler-release-publish.sh` (`gh release` on `beskid_compiler`; falls back to `COMPILER_SUBMODULE_TOKEN`) |
+| `BESKID_PCKG_API_KEY` | `package-publish.publish-corelib` |
+| `GH_TOKEN` | `compiler-release.publish-release-stream`, `versioning.create-github-release` |
+| `NODE_AUTH_TOKEN` | `site-build-gate` (GitHub Packages) |
 
 ## Daggerverse modules in use
 
 - Rust helper: [`github.com/purpleclay/daggerverse/rust@225932120f3b39fcb8118c9aeb2e31f3c1b2d3f2`](https://daggerverse.dev/mod/github.com/purpleclay/daggerverse/rust@225932120f3b39fcb8118c9aeb2e31f3c1b2d3f2)
 - Versioning helper: [`github.com/purpleclay/daggerverse/nsv@v0.12.2`](https://daggerverse.dev/mod/github.com/purpleclay/daggerverse/nsv)
 - GitHub CLI helper: [`github.com/camptocamp/daggerverse/github@v0.1.5`](https://daggerverse.dev/mod/github.com/camptocamp/daggerverse/github)
-
-Other useful modules you can adopt later:
-- Conventional-commit semver for monorepos: [`github.com/telchak/daggerverse/semver@v0.2.0`](https://daggerverse.dev/mod/github.com/telchak/daggerverse/semver)
-- Release metadata lookup: [`github.com/jedevc/daggerverse/github-release@v1.0.0`](https://daggerverse.dev/mod/github.com/jedevc/daggerverse/github-release)
