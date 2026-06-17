@@ -13,6 +13,7 @@ const DEFAULT_LOCKFILE_DIRS = [
 export async function platformLockfileGate(
   source: Directory,
   dirs: string[] = [],
+  nodeAuthToken = "",
 ): Promise<string> {
   const targets = dirs.length > 0 ? dirs : DEFAULT_LOCKFILE_DIRS;
   let ctr = dag
@@ -20,6 +21,10 @@ export async function platformLockfileGate(
     .from(BUN_IMAGE)
     .withMountedDirectory("/src", source)
     .withWorkdir("/src");
+
+  if (nodeAuthToken.trim()) {
+    ctr = ctr.withEnvVariable("NODE_AUTH_TOKEN", nodeAuthToken.trim());
+  }
 
   const lines = [
     "set -e",
