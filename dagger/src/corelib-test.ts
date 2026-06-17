@@ -47,6 +47,10 @@ export async function corelibTest(
   let ctr = dag
     .container()
     .from(RUST_IMAGE)
+    // The Alpine-based RUST_IMAGE ships busybox only; the test steps below
+    // invoke `bash` (scripts/ensure-runtime-bridge.sh uses bashisms), so
+    // install it before running them.
+    .withExec(["apk", "add", "--no-cache", "bash"])
     .withMountedDirectory("/src", compiler)
     .withWorkdir("/src")
     .withEnvVariable("RUST_MIN_STACK", RUST_MIN_STACK);
