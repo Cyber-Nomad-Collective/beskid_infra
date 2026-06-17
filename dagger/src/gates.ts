@@ -44,7 +44,9 @@ function compilerPreGateScript(): string {
   )
   return [
     "set -euo pipefail",
-    "apk add --no-cache ripgrep",
+    // Alpine ships busybox sh only; install bash for the parity script below
+    // and the bash-invoked steps that follow this gate.
+    "apk add --no-cache bash ripgrep",
     ...checks,
     'if [ -f scripts/verify-corelib-tests-parity.sh ]; then',
     "  bash scripts/verify-corelib-tests-parity.sh",
@@ -65,7 +67,8 @@ export async function compilerRustGate(source: Directory): Promise<string> {
   ctr = await mountBeskidBsol(source, ctr)
 
   await ctr
-    .withExec(["bash", "-ec", compilerPreGateScript()])
+    // Run via busybox sh: bash is not present until the script's apk add runs.
+    .withExec(["sh", "-ec", compilerPreGateScript()])
     .withExec(["rustup", "component", "add", "clippy"])
     .withExec([
       "cargo",
