@@ -73,6 +73,13 @@ export async function platformSmoke(source: Directory): Promise<string> {
     .withWorkdir("/src");
 
   ctr = ctr
+    // oven/bun is Debian-based but ships without git; the submodule update and
+    // the verify:platform-spec-git-meta --require-git step below both need it.
+    .withExec([
+      "sh",
+      "-ec",
+      "apt-get update && apt-get install -y --no-install-recommends git ca-certificates",
+    ])
     .withExec(["sh", "-ec", "git submodule update --init beskid_web_common"])
     .withExec(["sh", "-ec", "bun install --frozen-lockfile"])
     .withExec(["sh", "-ec", "cd site/website && bun run prebuild"])
