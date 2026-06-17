@@ -60,6 +60,9 @@ export async function corelibPublish(
       "apk",
       "add",
       "--no-cache",
+      // Alpine RUST_IMAGE has no bash; the publish step shells out to
+      // scripts/ensure-runtime-bridge.sh (a bash script) below.
+      "bash",
       "nodejs",
       "ca-certificates",
       "curl",
