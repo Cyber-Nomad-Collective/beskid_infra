@@ -110,8 +110,6 @@ export async function platformSmoke(source: Directory): Promise<string> {
     .withMountedDirectory("/src", source)
     .withWorkdir("/src");
 
-  const lockfile = await platformLockfileGate(source, ["."]);
-
   ctr = ctr
     .withExec(["sh", "-ec", "git submodule update --init beskid_web_common"])
     .withExec(["sh", "-ec", "bun install --frozen-lockfile"])
@@ -121,6 +119,8 @@ export async function platformSmoke(source: Directory): Promise<string> {
       "-ec",
       "cd site/website && bun run verify:platform-spec-git-meta -- --require-git",
     ]);
+
+  const lockfile = await platformLockfileGate(source, ["."]);
 
   const smoke = await ctr.stdout();
   return `${lockfile}\n${smoke}`;
