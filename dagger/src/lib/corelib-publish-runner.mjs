@@ -305,7 +305,7 @@ function shouldSkipRelative(relPosix) {
 
 function buildWorkspaceBundle(workspaceRoot, output) {
   if (existsSync(output)) rmSync(output);
-  execSync(`apt-get update -qq && apt-get install -y -qq zip`, { stdio: "inherit" });
+  execSync(`apk add --no-cache zip`, { stdio: "inherit" });
   const staging = join(workspaceRoot, ".ci-publish-pack");
   if (existsSync(staging)) rmSync(staging, { recursive: true, force: true });
   execSync(`mkdir -p "${staging}"`, { shell: true });
