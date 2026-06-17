@@ -2,49 +2,6 @@ import { dag, type Directory } from "@dagger.io/dagger";
 
 const BUN_IMAGE = "oven/bun:1.2";
 
-const DEFAULT_LOCKFILE_DIRS = [
-  ".",
-  "beskid_tracker",
-  "site/auth",
-  "beskid_nexus/gitnexus",
-  "beskid_nexus/gitnexus-web",
-];
-
-export async function platformLockfileGate(
-  source: Directory,
-  dirs: string[] = [],
-  nodeAuthToken = "",
-): Promise<string> {
-  const targets = dirs.length > 0 ? dirs : DEFAULT_LOCKFILE_DIRS;
-  let ctr = dag
-    .container()
-    .from(BUN_IMAGE)
-    .withMountedDirectory("/src", source)
-    .withWorkdir("/src");
-
-  if (nodeAuthToken.trim()) {
-    ctr = ctr.withEnvVariable("NODE_AUTH_TOKEN", nodeAuthToken.trim());
-  }
-
-  const lines = [
-    "set -e",
-    ...targets.map((dir) => {
-      const safe = dir.replace(/"/g, '\\"');
-      return [
-        `if [ -f "${safe}/package.json" ] && [ -f "${safe}/bun.lock" ]; then`,
-        `  echo "==> verify frozen lockfile: ${safe}"`,
-        `  (cd "${safe}" && bun install --frozen-lockfile >/dev/null)`,
-        `else`,
-        `  echo "skip ${safe} (no package.json or bun.lock)"`,
-        `fi`,
-      ].join("\n");
-    }),
-    'echo "All lockfiles match package.json"',
-  ];
-
-  return ctr.withExec(["sh", "-ec", lines.join("\n")]).stdout();
-}
-
 export async function siteBuildGate(
   source: Directory,
   app: "auth" | "platform-spec",
@@ -125,8 +82,21 @@ export async function platformSmoke(source: Directory): Promise<string> {
       "cd site/website && bun run verify:platform-spec-git-meta -- --require-git",
     ]);
 
-  const lockfile = await platformLockfileGate(source, ["."]);
+  // Inline lockfile verification (moved from platformLockfileGate — the function
+  // was removed because a simple `bun install --frozen-lockfile` doesn't need
+  // Dagger container orchestration; CI workflows now use a direct shell step.)
+  ctr = ctr.withExec([
+    "sh",
+    "-ec",
+    [
+      'if [ -f "package.json" ] && [ -f "bun.lock" ]; then',
+      '  bun install --frozen-lockfile',
+      'else',
+      '  echo "skip root (no package.json or bun.lock)"',
+      "fi",
+    ].join("\n"),
+  ]);
 
   const smoke = await ctr.stdout();
-  return `${lockfile}\n${smoke}`;
+  return smoke;
 }

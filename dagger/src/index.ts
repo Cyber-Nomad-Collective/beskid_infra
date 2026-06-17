@@ -4,7 +4,7 @@ import { compilerRustGate, lspCommandContractGate, vscodeGate } from "./gates.js
 import { openVsxPublish } from "./open-vsx.js";
 import { resolveCliVersion } from "./compiler-release.js";
 import { corelibGate } from "./corelib-gate.js";
-import { platformLockfileGate, platformSmoke, siteBuildGate } from "./platform-gates.js";
+import { platformSmoke, siteBuildGate } from "./platform-gates.js";
 import { blessFormatFixtures, formatCorpusCheck } from "./dev-tools.js";
 
 export { CompilerRelease } from "./compiler-release.js";
@@ -31,14 +31,6 @@ export class BeskidCi {
   @func()
   async corelibGate(source: Directory): Promise<string> {
     return corelibGate(source);
-  }
-
-  @func()
-  async platformLockfileGate(
-    source: Directory,
-    dirs: string[] = [],
-  ): Promise<string> {
-    return platformLockfileGate(source, dirs);
   }
 
   @func()
