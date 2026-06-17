@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@dagger.io/dagger": "0.21.5",
+    "@dagger.io/dagger": "0.21.0",
     "typescript": "^5.8.3"
   },
   "devDependencies": {

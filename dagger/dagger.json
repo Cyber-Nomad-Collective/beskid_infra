@@ -1,6 +1,6 @@
 {
   "name": "beskid-ci",
-  "engineVersion": "v0.21.5",
+  "engineVersion": "v0.21.0",
   "dependencies": [
     {
       "name": "rust",

@@ -5,7 +5,7 @@
     "": {
       "name": "beskid-ci",
       "dependencies": {
-        "@dagger.io/dagger": "0.21.5",
+        "@dagger.io/dagger": "0.21.0",
         "typescript": "^5.8.3",
       },
       "devDependencies": {
@@ -14,7 +14,7 @@
     },
   },
   "packages": {
-    "@dagger.io/dagger": ["@dagger.io/dagger@0.21.5", "", { "dependencies": { "@grpc/grpc-js": "^1.14.3", "@lifeomic/axios-fetch": "^3.1.0", "@opentelemetry/api": "^1.9.1", "@opentelemetry/core": "^2.7.1", "@opentelemetry/exporter-jaeger": "^2.7.1", "@opentelemetry/exporter-trace-otlp-http": "^0.218.0", "@opentelemetry/sdk-metrics": "^2.7.1", "@opentelemetry/sdk-node": "^0.218.0", "@opentelemetry/semantic-conventions": "^1.41.1", "adm-zip": "^0.5.17", "env-paths": "^4.0.0", "execa": "^9.6.1", "graphql": "^16.14.0", "graphql-request": "^7.4.0", "graphql-tag": "^2.12.6", "node-color-log": "^13.0.3", "node-fetch": "^3.3.2", "reflect-metadata": "^0.2.2", "tar": "^7.5.15", "typescript": "^6.0.3" } }, "sha512-xUmNnOg9psFyXFT5CuI3kP5jQ1GmfKodoi9B87dJ2ftyDzEPyy+DkTxWfU4JUXlWpfQd2NrhopOntXsfp8pgIw=="],
+    "@dagger.io/dagger": ["@dagger.io/dagger@0.21.0", "", { "dependencies": { "@grpc/grpc-js": "^1.14.3", "@lifeomic/axios-fetch": "^3.1.0", "@opentelemetry/api": "^1.9.1", "@opentelemetry/core": "^2.7.1", "@opentelemetry/exporter-jaeger": "^2.7.1", "@opentelemetry/exporter-trace-otlp-http": "^0.218.0", "@opentelemetry/sdk-metrics": "^2.7.1", "@opentelemetry/sdk-node": "^0.218.0", "@opentelemetry/semantic-conventions": "^1.41.1", "adm-zip": "^0.5.17", "env-paths": "^4.0.0", "execa": "^9.6.1", "graphql": "^16.14.0", "graphql-request": "^7.4.0", "graphql-tag": "^2.12.6", "node-color-log": "^13.0.3", "node-fetch": "^3.3.2", "reflect-metadata": "^0.2.2", "tar": "^7.5.15", "typescript": "^6.0.3" } }, "sha512-B0bCPvWrKc26I3I+W43nf/Xl6jt5THmO2lYLAZ5KM8SgN310Ua5C1Q/oMQi+T9XZC6xZ3vAeZZ/vKcXZzUwJ+g=="],
 
     "@graphql-typed-document-node/core": ["@graphql-typed-document-node/core@3.2.0", "", { "peerDependencies": { "graphql": "^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0" } }, "sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ=="],
 
