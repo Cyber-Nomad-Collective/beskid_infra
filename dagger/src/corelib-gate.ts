@@ -57,16 +57,9 @@ export async function corelibPublish(
     .container()
     .from(RUST_IMAGE)
     .withExec([
-      "apt-get",
-      "update",
-      "-qq",
-    ])
-    .withExec([
-      "apt-get",
-      "install",
-      "-y",
-      "-qq",
-      "--no-install-recommends",
+      "apk",
+      "add",
+      "--no-cache",
       "nodejs",
       "ca-certificates",
       "curl",

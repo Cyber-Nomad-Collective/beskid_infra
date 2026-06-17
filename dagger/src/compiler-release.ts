@@ -110,14 +110,9 @@ async function gitExec(compiler: Directory, args: string[]): Promise<string> {
       .container()
       .from(RUST_IMAGE)
       .withExec([
-        "apt-get",
-        "update",
-      ])
-      .withExec([
-        "apt-get",
-        "install",
-        "-y",
-        "--no-install-recommends",
+        "apk",
+        "add",
+        "--no-cache",
         "git",
       ])
       .withDirectory("/src", tree)

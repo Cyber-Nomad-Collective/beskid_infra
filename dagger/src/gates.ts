@@ -44,8 +44,7 @@ function compilerPreGateScript(): string {
   )
   return [
     "set -euo pipefail",
-    "apt-get update -qq",
-    "apt-get install -y -qq --no-install-recommends ripgrep",
+    "apk add --no-cache ripgrep",
     ...checks,
     'if [ -f scripts/verify-corelib-tests-parity.sh ]; then',
     "  bash scripts/verify-corelib-tests-parity.sh",
