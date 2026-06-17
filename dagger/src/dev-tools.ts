@@ -1,8 +1,7 @@
 import { dag, type Directory } from "@dagger.io/dagger";
 
 import { resolveCompilerTree } from "./gates.js";
-
-const RUST_IMAGE = "rust:1-bookworm";
+import { RUST_IMAGE } from "./consts.js";
 
 export async function blessFormatFixtures(source: Directory): Promise<string> {
   const compiler = await resolveCompilerTree(source);

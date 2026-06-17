@@ -1,4 +1,5 @@
 import { dag, type Container, type Directory, type File } from "@dagger.io/dagger";
+import { RUST_IMAGE } from "./consts.js";
 
 const CARGO_HOME = "/cargo";
 const CARGO_TARGET_DIR = "/target";
@@ -6,7 +7,7 @@ const CARGO_TARGET_DIR = "/target";
 export function rustCompilerContainer(compiler: Directory): Container {
   return dag
     .container()
-    .from("rust:1-bookworm")
+    .from(RUST_IMAGE)
     .withMountedDirectory("/src", compiler)
     .withWorkdir("/src")
     .withEnvVariable("CARGO_HOME", CARGO_HOME)

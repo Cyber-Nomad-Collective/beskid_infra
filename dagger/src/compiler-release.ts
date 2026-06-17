@@ -9,6 +9,7 @@ import {
 } from "@dagger.io/dagger";
 
 import { compilerRustGate, resolveCompilerTree } from "./gates.js";
+import { RUST_IMAGE } from "./consts.js";
 
 const CARGO_TOML = "crates/beskid_cli/Cargo.toml";
 const SEMVER_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
@@ -34,7 +35,7 @@ async function readPackageVersion(compiler: Directory): Promise<string> {
   const tree = await resolveCompilerTree(compiler);
   const content = await dag
     .container()
-    .from("rust:1-bookworm")
+    .from(RUST_IMAGE)
     .withDirectory("/src", tree)
     .withWorkdir("/src")
     .file(CARGO_TOML)
@@ -107,7 +108,7 @@ async function gitExec(compiler: Directory, args: string[]): Promise<string> {
   try {
     return await dag
       .container()
-      .from("rust:1-bookworm")
+      .from(RUST_IMAGE)
       .withExec([
         "apt-get",
         "update",
@@ -192,7 +193,7 @@ async function buildReleaseArtifact(
 
   let ctr = dag
     .container({ platform })
-    .from("rust:1-bookworm")
+    .from(RUST_IMAGE)
     .withDirectory("/src", compilerTree)
     .withWorkdir("/src");
 

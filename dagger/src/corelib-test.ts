@@ -5,9 +5,7 @@ import {
   discoverProjectManifest,
   resolveCorelibRoot,
 } from "./lib/corelib-manifest.js";
-
-const RUST_IMAGE = "rust:1-bookworm";
-const RUST_MIN_STACK = "67108864";
+import { RUST_IMAGE, RUST_MIN_STACK } from "./consts.js";
 
 async function mountBeskidBsol(
   source: Directory,

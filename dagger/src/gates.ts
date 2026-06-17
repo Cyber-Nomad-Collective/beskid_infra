@@ -1,8 +1,5 @@
 import { dag, Directory } from "@dagger.io/dagger"
-
-const RUST_IMAGE = "rust:1-bookworm"
-const BUN_IMAGE = "oven/bun:1.2"
-const RUST_MIN_STACK = "67108864"
+import { RUST_IMAGE, BUN_IMAGE, RUST_MIN_STACK } from "./consts.js"
 
 /** Superrepo root (`compiler/…`) or an already-mounted `compiler/` tree. */
 export async function resolveCompilerTree(source: Directory): Promise<Directory> {

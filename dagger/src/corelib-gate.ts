@@ -8,9 +8,7 @@ import { corelibQuality } from "./corelib-quality.js";
 import { corelibTest } from "./corelib-test.js";
 import { resolveCompilerTree } from "./gates.js";
 import { resolveCorelibRoot } from "./lib/corelib-manifest.js";
-
-const RUST_IMAGE = "rust:1-bookworm";
-const RUST_MIN_STACK = "67108864";
+import { RUST_IMAGE, RUST_MIN_STACK } from "./consts.js";
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 
 function readPublishRunner(): string {
