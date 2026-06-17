@@ -1,5 +1,31 @@
 import { dag, Directory } from "@dagger.io/dagger"
-import { RUST_IMAGE, BUN_IMAGE, RUST_MIN_STACK } from "./consts.js"
+import {
+  RUST_IMAGE,
+  BUN_IMAGE,
+  RUST_MIN_STACK,
+  CARGO_REGISTRY_DIR,
+  CARGO_REGISTRY_CACHE,
+} from "./consts.js"
+
+/** Target-dir cache shared by the compiler gate and the LSP contract gate
+ *  (same `/src/target` path, run sequentially in the same CI job). */
+const GATE_TARGET_CACHE = "beskid-gate-target"
+
+/**
+ * Mounts the shared cargo registry cache and a target-dir cache onto a Rust
+ * container so downloaded crates and compiled artifacts are reused. These are
+ * within-run wins immediately and persist across CI runs once the
+ * DAGGER_CLOUD_TOKEN secret is configured for the Dagger engine.
+ */
+export function withCargoCaches(
+  ctr: ReturnType<typeof dag.container>,
+  targetDir: string,
+  targetCacheVolume: string,
+): ReturnType<typeof dag.container> {
+  return ctr
+    .withMountedCache(CARGO_REGISTRY_DIR, dag.cacheVolume(CARGO_REGISTRY_CACHE))
+    .withMountedCache(targetDir, dag.cacheVolume(targetCacheVolume))
+}
 
 /** Superrepo root (`compiler/…`) or an already-mounted `compiler/` tree. */
 export async function resolveCompilerTree(source: Directory): Promise<Directory> {
@@ -64,6 +90,7 @@ export async function compilerRustGate(source: Directory): Promise<string> {
     .withWorkdir("/src")
     .withEnvVariable("RUST_MIN_STACK", RUST_MIN_STACK)
 
+  ctr = withCargoCaches(ctr, "/src/target", GATE_TARGET_CACHE)
   ctr = await mountBeskidBsol(source, ctr)
 
   await ctr
@@ -116,11 +143,15 @@ export async function lspCommandContractGate(source: Directory): Promise<string>
   const compiler = await resolveCompilerTree(source)
   const vscode = source.directory("beskid_vscode")
 
-  const rustOut = await dag
-    .container()
-    .from(RUST_IMAGE)
-    .withMountedDirectory("/src", compiler)
-    .withWorkdir("/src")
+  const rustOut = await withCargoCaches(
+    dag
+      .container()
+      .from(RUST_IMAGE)
+      .withMountedDirectory("/src", compiler)
+      .withWorkdir("/src"),
+    "/src/target",
+    GATE_TARGET_CACHE,
+  )
     .withExec([
       "cargo",
       "test",

@@ -1,6 +1,6 @@
 import { dag, type Directory } from "@dagger.io/dagger";
 
-import { resolveCompilerTree } from "./gates.js";
+import { resolveCompilerTree, withCargoCaches } from "./gates.js";
 import {
   discoverProjectManifest,
   resolveCorelibRoot,
@@ -51,6 +51,7 @@ export async function corelibTest(
     .withWorkdir("/src")
     .withEnvVariable("RUST_MIN_STACK", RUST_MIN_STACK);
 
+  ctr = withCargoCaches(ctr, "/src/target", "beskid-corelib-target");
   ctr = await mountBeskidBsol(source, ctr);
 
   if (testTargetsFilter.trim()) {

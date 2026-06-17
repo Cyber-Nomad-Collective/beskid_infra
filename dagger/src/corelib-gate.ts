@@ -6,7 +6,7 @@ import { dag, type Directory, type Secret } from "@dagger.io/dagger";
 
 import { corelibQuality } from "./corelib-quality.js";
 import { corelibTest } from "./corelib-test.js";
-import { resolveCompilerTree } from "./gates.js";
+import { resolveCompilerTree, withCargoCaches } from "./gates.js";
 import { resolveCorelibRoot } from "./lib/corelib-manifest.js";
 import { RUST_IMAGE, RUST_MIN_STACK } from "./consts.js";
 const moduleDir = dirname(fileURLToPath(import.meta.url));
@@ -77,6 +77,7 @@ export async function corelibPublish(
       permissions: 0o755,
     });
 
+  ctr = withCargoCaches(ctr, "/compiler/target", "beskid-corelib-publish-target");
   ctr = await mountBeskidBsol(source, ctr);
 
   return ctr
