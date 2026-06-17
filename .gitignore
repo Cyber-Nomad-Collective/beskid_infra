@@ -30,6 +30,4 @@ crash.*.log
 .DS_Store
 Thumbs.db
 
-# Dagger module uses npm-based runtime — bun.lock causes segfault
-bun.lock
 package-lock.json

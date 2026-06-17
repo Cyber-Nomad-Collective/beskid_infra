@@ -82,9 +82,7 @@ export async function platformSmoke(source: Directory): Promise<string> {
       "cd site/website && bun run verify:platform-spec-git-meta -- --require-git",
     ]);
 
-  // Inline lockfile verification (moved from platformLockfileGate — the function
-  // was removed because a simple `bun install --frozen-lockfile` doesn't need
-  // Dagger container orchestration; CI workflows now use a direct shell step.)
+  // Check root lockfile before smoke tests
   ctr = ctr.withExec([
     "sh",
     "-ec",
