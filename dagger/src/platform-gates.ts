@@ -72,6 +72,15 @@ export async function platformSmoke(source: Directory): Promise<string> {
     .withMountedDirectory("/src", source)
     .withWorkdir("/src");
 
+  // The oven/bun image is Debian-based and ships without git, but platformSmoke
+  // runs `git submodule update` and a `--require-git` metadata check below, which
+  // otherwise fail with "git: not found" (exit 127). Install git first.
+  ctr = ctr.withExec([
+    "sh",
+    "-ec",
+    "apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*",
+  ]);
+
   ctr = ctr
     .withExec(["sh", "-ec", "git submodule update --init beskid_web_common"])
     .withExec(["sh", "-ec", "bun install --frozen-lockfile"])
