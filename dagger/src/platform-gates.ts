@@ -1,6 +1,6 @@
 import { dag, type Directory } from "@dagger.io/dagger";
 
-const BUN_IMAGE = "oven/bun:1.2";
+import { BUN_IMAGE } from "./consts.js";
 
 export async function siteBuildGate(
   source: Directory,
