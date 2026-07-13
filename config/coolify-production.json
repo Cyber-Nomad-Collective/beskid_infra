@@ -9,10 +9,10 @@
   "compose_profiles": "tracker,nexus,pckg",
   "domains_lane": "production",
   "static_env": {
-    "IMAGE_TAG": "main",
     "AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
     "PLATFORM_SPEC_PUBLIC_URL": "https://spec.beskid-lang.org",
     "TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org",
-    "PCKG_PUBLIC_URL": "https://pckg.beskid-lang.org"
+    "PCKG_PUBLIC_URL": "https://pckg.beskid-lang.org",
+    "OTEL_RESOURCE_ATTRIBUTES": "deployment.environment.name=production"
   }
 }

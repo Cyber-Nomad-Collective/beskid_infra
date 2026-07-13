@@ -1,7 +1,7 @@
-# Beskid infra — Coolify Compose deploy (production first).
+# Beskid infra — manifest-driven Coolify delivery support.
 #
 #   just config-init
-#   just deploy-prod
+#   just delivery-contract
 
 set dotenv-load := true
 set shell := ["bash", "-euo", "pipefail", "-c"]
@@ -13,27 +13,6 @@ compose_prod := root + "/compose/production"
 
 default:
     @just --list
-
-# --- Dagger CI (beskid_infra/dagger) ---
-
-dagger-dir := root + "/dagger"
-
-dagger-install:
-    npm ci
-    cd "{{dagger-dir}}"
-
-dagger-functions: dagger-install
-    cd "{{dagger-dir}}" && dagger functions
-
-dagger-gate:
-    cd "{{dagger-dir}}" && dagger call compiler-rust-gate --source="{{superrepo}}"
-
-dagger-open-vsx platform bin_name rust_target="":
-    cd "{{dagger-dir}}" && dagger call open-vsx-publish \
-      --source="{{superrepo}}" \
-      --platform="{{platform}}" \
-      --bin-name="{{bin_name}}" \
-      --rust-target="{{rust_target}}"
 
 # --- toolchain (superrepo) ---
 
@@ -59,22 +38,19 @@ check:
     test -f "{{config_dir}}/coolify-production.json"
 
 compose-config:
-    cd "{{compose_prod}}" && docker compose --env-file .env config
+    cd "{{compose_prod}}" && BESKID_RELEASE_TAG=validation docker compose --env-file .env config
+
+delivery-contract:
+    cd "{{superrepo}}" && bash scripts/ci/test/run-cicd-foundation-tests.sh
 
 sync-env-prod:
-    "{{root}}/scripts/coolify-sync-env-from-openbao.sh" --lane production
+    cd "{{superrepo}}" && scripts/ci/sync-runtime-env.sh production beskid_infra/config/coolify-production.json
 
-deploy-prod:
-    "{{root}}/scripts/coolify-deploy-compose.sh" --lane production
-
-deploy-prod-no-sync:
-    "{{root}}/scripts/coolify-deploy-compose.sh" --lane production --no-sync
+sync-env-staging:
+    cd "{{superrepo}}" && scripts/ci/sync-runtime-env.sh staging beskid_infra/config/coolify-staging.json
 
 seed-openbao-all:
     "{{root}}/scripts/seed-openbao-from-gh.sh" --lane production
 
 seed-openbao-check:
     "{{root}}/scripts/seed-openbao-from-gh.sh" --lane production --check
-
-openbao-check-prod:
-    "{{root}}/scripts/coolify-sync-env-from-openbao.sh" --lane production --check

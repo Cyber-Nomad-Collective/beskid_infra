@@ -1,5 +1,5 @@
 ---
-- name: Prepare Coolify host for OpenTofu-driven deployments
+- name: Prepare Coolify host for manifest-driven deployments
   hosts: coolify_hosts
   become: true
   gather_facts: true

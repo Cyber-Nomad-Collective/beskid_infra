@@ -1,22 +1,14 @@
-# Staging compose (phase 2)
+# Staging lane
 
-Staging (`stg` branch) is not deployed yet. Hostnames and Coolify URLs are defined in [`config/domains.json`](../../config/domains.json) (`staging` lane).
+Staging uses the shared template at `../production/docker-compose.yml`, rendered
+from the exact same release manifest format as production. The renderer changes
+the Compose project name to `beskid-platform-staging` and replaces every Beskid
+image with its immutable digest.
 
-## Domains (staging / `stg`)
+Lane configuration is `../../config/coolify-staging.json`; hostnames are in
+`../../config/domains.json`. Staging must use separate volumes, Postgres data,
+OAuth callbacks, session secrets, Coolify service UUID, and OpenBao prefix from
+production.
 
-| Compose service | Coolify URL |
-|-----------------|-------------|
-| site | `https://stg.beskid-lang.org:80` |
-| auth | `https://stg-auth.beskid-lang.org:8090` |
-| tracker | `https://stg-tracker.beskid-lang.org:3000` |
-| nexus | `https://stg-nexus.beskid-lang.org:8452` |
-| pckg | `https://stg-pckg.beskid-lang.org:8082` |
-
-Site uses `stg.` on the apex; other services use the `stg-` prefix before the service name (same as [deploy-matrix.md](../../docs/deploy-matrix.md)).
-
-## When ready
-
-- Add `compose/staging/docker-compose.yml` (image tag `staging`).
-- Add `config/coolify-staging.json` mirroring production.
-- Wire `.github/workflows/coolify-compose-deploy.yml` for the `stg` branch.
-- Separate Postgres volume and GitHub OAuth app (see superrepo `docs/staging-environment.md`).
+Successful main delivery runs deploy staging automatically. No `stg` branch or
+mutable `staging` image tag participates in deployment.

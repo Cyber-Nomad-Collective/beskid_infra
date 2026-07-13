@@ -1,6 +1,7 @@
 # Production platform compose (Coolify)
 
-Single Coolify **compose** service (`beskid-platform-production`) runs this file. GHCR images are built by the superrepo `container-images` workflow.
+The `beskid-platform-production` Coolify service runs a digest-rendered form of
+this template. GHCR images are built once by `platform-delivery.yml`.
 
 Domains are applied on deploy from [`config/domains.json`](../../config/domains.json) (`production` lane) as Coolify `urls` (`https://<host>:<port>` per compose service).
 
@@ -16,7 +17,7 @@ Domains are applied on deploy from [`config/domains.json`](../../config/domains.
 
 App-facing public URLs in env (no port suffix): `https://auth.beskid-lang.org`, `https://tracker.beskid-lang.org`, etc.
 
-## Staging (`stg`) — reference
+## Staging
 
 Staging uses the `stg-` hostname pattern (site apex: `stg.beskid-lang.org`):
 
@@ -28,7 +29,8 @@ Staging uses the `stg-` hostname pattern (site apex: `stg.beskid-lang.org`):
 | nexus | `https://stg-nexus.beskid-lang.org:8452` |
 | pckg | `https://stg-pckg.beskid-lang.org:8082` |
 
-See [`compose/staging/README.md`](../staging/README.md) when staging compose is enabled.
+See [`compose/staging/README.md`](../staging/README.md). Staging is a separate
+Coolify service consuming the same immutable manifest format.
 
 ## Compose profiles
 
@@ -46,17 +48,10 @@ Production enables **site**, **auth**, **tracker**, **nexus**, and **pckg** (wit
 
 During cutover, attach existing Coolify persistent volumes to these names in the UI when possible.
 
-## Operator cutover
-
-1. Record compose service UUID in `config/coolify-production.json` after first create.
-2. Migrate volumes from legacy per-app resources (see [docs/deploy-compose.md](../../docs/deploy-compose.md)).
-3. Smoke-test auth hub OAuth and site.
-4. Remove legacy `beskid-site`, `beskid-auth`, etc. applications to avoid duplicate routes.
-
 ## Local validation
 
 ```bash
 cd beskid_infra/compose/production
 cp .env.example .env
-docker compose config
+BESKID_RELEASE_TAG=validation docker compose config
 ```

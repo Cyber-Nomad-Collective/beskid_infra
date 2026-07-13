@@ -15,7 +15,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-# shellcheck source=lib/deploy-lane.sh
+# Path is resolved from SCRIPT_DIR above.
+# shellcheck disable=SC1091
 source "${SCRIPT_DIR}/lib/deploy-lane.sh"
 
 REPO="${GH_REPO:-Cyber-Nomad-Collective/beskid}"
@@ -164,7 +165,6 @@ report_key() {
 audit_lane() {
   local lane="$1"
   echo "=== secret/beskid/${lane} (services) ==="
-  report_key "beskid/${lane}/site" "IMAGE_TAG"
   report_key "beskid/${lane}/auth" "SESSION_SECRET"
   report_key "beskid/${lane}/auth" "AUTH_HUB_SECRET" "no"
   report_key "beskid/${lane}/auth" "GITHUB_CLIENT_ID" "no"
@@ -190,11 +190,6 @@ audit_lane() {
 seed_lane_services() {
   local lane="$1"
   export OPENBAO_LANE="${lane}"
-  export IMAGE_TAG_DEFAULT=""
-  case "${lane}" in
-  production) export IMAGE_TAG_DEFAULT="main" ;;
-  staging) export IMAGE_TAG_DEFAULT="staging" ;;
-  esac
   "${SCRIPT_DIR}/configure-external-openbao.sh"
 }
 

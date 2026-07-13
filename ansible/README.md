@@ -20,7 +20,7 @@ cd beskid_infra
 cp ansible/inventory/hosts.ini.example ansible/inventory/hosts.ini
 # edit hosts.ini
 
-ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/prepare-opentofu-host.yml
+ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/prepare-coolify-host.yml
 ```
 
 ## Install Coolify
@@ -28,7 +28,7 @@ ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/prepare-opento
 By default, `coolify_install: false`. To allow installation:
 
 ```bash
-ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/prepare-opentofu-host.yml \
+ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/prepare-coolify-host.yml \
   -e coolify_install=true
 ```
 

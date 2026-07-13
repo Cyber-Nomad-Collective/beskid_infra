@@ -1,14 +1,19 @@
 # beskid_infra scripts
 
+These are bootstrap and OpenBao seed utilities. Deployment orchestration lives in
+the superrepo `scripts/ci/` and GitHub reusable workflows.
+
 | Script | Purpose |
-|--------|---------|
-| [`coolify-deploy-compose.sh`](coolify-deploy-compose.sh) | Create/update production Coolify compose service + redeploy |
-| [`coolify-sync-env-from-openbao.sh`](coolify-sync-env-from-openbao.sh) | OpenBao KV → Coolify service env (bulk PATCH) |
-| [`seed-openbao-from-gh.sh`](seed-openbao-from-gh.sh) | Seed/audit KV from `gh variable` + `config/openbao-secrets.env` |
-| [`configure-external-openbao.sh`](configure-external-openbao.sh) | Service secrets (called by seed script) |
-| [`lib/coolify-api.sh`](lib/coolify-api.sh) | Shared Coolify REST helpers |
-| [`lib/deploy-lane.sh`](lib/deploy-lane.sh) | Production/staging lane names |
+|---|---|
+| [`seed-openbao-from-gh.sh`](seed-openbao-from-gh.sh) | Seed/audit lane KV from approved operator inputs |
+| [`configure-external-openbao.sh`](configure-external-openbao.sh) | Configure per-service OpenBao values |
+| [`openbao-init-unseal.sh`](openbao-init-unseal.sh) | Explicit first-time OpenBao bootstrap |
+| [`lib/deploy-lane.sh`](lib/deploy-lane.sh) | Canonical staging/production lane names |
 
-Coolify project UUID resolution: superrepo [`../../scripts/ci/resolve-coolify-project-uuid.sh`](../../scripts/ci/resolve-coolify-project-uuid.sh).
+Authoritative delivery scripts:
 
-Toolchain: [`../../scripts/install-deps.sh`](../../scripts/install-deps.sh) `--group infra`.
+- `../../scripts/ci/sync-runtime-env.sh`
+- `../../scripts/ci/deploy-release-manifest.sh`
+- `../../scripts/ci/render-release-compose.sh`
+
+Toolchain: `../../scripts/install-deps.sh --group infra`.

@@ -1,6 +1,8 @@
 # OpenBao secret layout
 
-Runtime secrets live in OpenBao KV v2 at **`https://secrets.bdziam.dev`**. CI and local deploy sync them into the Coolify compose service via [`scripts/coolify-sync-env-from-openbao.sh`](../scripts/coolify-sync-env-from-openbao.sh).
+Runtime secrets live in OpenBao KV v2 at **`https://secrets.bdziam.dev`**.
+Platform delivery synchronizes them with the superrepo
+`scripts/ci/sync-runtime-env.sh` before exact-digest deployment.
 
 | Lane | KV prefix |
 |------|-----------|
@@ -24,10 +26,11 @@ secret/
 
 | Key | Required |
 |-----|----------|
-| `IMAGE_TAG` | yes (`main` / `staging`) — also set in `coolify-production.json` `static_env` |
 | `PUBLIC_GISCUS_*` | no |
 
-Compose deploy reads **auth**, **platform-spec**, **tracker**, **nexus**, and **pckg** from OpenBao (`openbao_services` in `coolify-production.json`). `site` KV is optional if `IMAGE_TAG` is in `static_env`. Run `just seed-openbao-all` before the first full-stack deploy.
+Delivery reads **auth**, **platform-spec**, **tracker**, **nexus**, and **pckg**
+from the lane config. Image identity never comes from OpenBao; the signed release
+manifest supplies exact digests.
 
 ### auth
 
@@ -36,7 +39,6 @@ Compose deploy reads **auth**, **platform-spec**, **tracker**, **nexus**, and **
 | `AUTH_HUB_PUBLIC_URL` | yes (also set in `coolify-production.json` static_env) |
 | `SESSION_SECRET` | yes |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | yes* |
-| `IMAGE_TAG` | yes |
 
 ### platform-spec
 
@@ -84,7 +86,6 @@ Compose deploy reads **auth**, **platform-spec**, **tracker**, **nexus**, and **
 | `AUTH_HUB_PUBLIC_URL` | yes |
 | `PCKG_PUBLIC_URL` | recommended |
 | `GITHUB_SYNC_TOKEN` | recommended |
-| `IMAGE_TAG` | yes |
 
 ## Bootstrap
 
@@ -105,11 +106,10 @@ just seed-openbao-check
 After OpenBao is populated:
 
 ```bash
-just sync-env-prod    # PATCH /api/v1/services/{uuid}/envs/bulk
-just deploy-prod      # optional: update compose + redeploy
+just sync-env-prod    # explicit operator-only env synchronization
 ```
 
-Which services are read is configured in `config/coolify-production.json` → `openbao_services`.
+Which services are read is configured by `config/coolify-{lane}.json`.
 
 ## Rotation
 

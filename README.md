@@ -1,34 +1,42 @@
 # beskid_infra
 
-Coolify **Compose** deploy for the Beskid platform (GHCR images, OpenBao secrets, Let's Encrypt domains).
+Declarative lane configuration for manifest-driven Beskid deployments on
+Coolify. Platform images are built once by the superrepo and promoted by exact
+OCI digest; this repository does not contain an alternate deploy engine.
 
-## Quick start
+## Local validation
 
 ```bash
 just config-init
-# .env: COOLIFY_API_TOKEN, OPENBAO_TOKEN (see .env.example)
 just compose-config
-just deploy-prod
+just delivery-contract
 ```
 
-Operator guide: [docs/deploy-compose.md](docs/deploy-compose.md) · OpenBao: [docs/openbao-layout.md](docs/openbao-layout.md) · Hostnames: [docs/deploy-matrix.md](docs/deploy-matrix.md).
+`compose-config` injects a validation-only placeholder because the checked-in
+Compose file deliberately refuses direct mutable-tag deployment.
 
 ## Layout
 
 ```
-compose/production/     # platform docker-compose.yml
-config/                 # coolify-production.json, coolify.snapshot.json
-scripts/                # coolify-deploy-compose.sh, sync-env, seed-openbao
+compose/production/          # shared platform Compose template
+config/coolify-staging.json  # staging OpenBao/static env contract
+config/coolify-production.json
+config/domains.json
+monitoring/                  # Alloy, Prometheus, Loki, Grafana config
+scripts/                     # host bootstrap and OpenBao seed utilities only
 ```
 
-## Deploy flow
+## Delivery ownership
 
-| Step | Tool |
-|------|------|
-| Build images | superrepo `container-images.yml` |
-| Secrets | OpenBao `https://secrets.bdziam.dev` |
-| Sync + deploy | `just deploy-prod` or CI `coolify-compose-deploy.yml` |
+| Layer | Authority |
+|---|---|
+| Standard | `openspec/specs` |
+| Quality/build/manifest | `.github/workflows/platform-delivery.yml` |
+| Staging | successful main delivery manifest |
+| Production | `.github/workflows/promote-production.yml` + protected environment approval |
+| Runtime secrets | OpenBao `secret/beskid/{lane}/{service}` |
+| Runtime state | lane-specific Coolify Compose service and volumes |
 
-CI: push to `main` → **Beskid platform** workflow.
-
-Toolchain: `../scripts/install-deps.sh --group infra` · Dagger: `beskid_infra/dagger/`
+Operator guide: [docs/deploy-compose.md](docs/deploy-compose.md). Secret layout:
+[docs/openbao-layout.md](docs/openbao-layout.md). Service matrix:
+[docs/deploy-matrix.md](docs/deploy-matrix.md).

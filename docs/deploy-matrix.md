@@ -6,9 +6,9 @@ Canonical reference for the **beskid-platform-production** compose service: publ
 
 | Layer | Responsibility |
 | --- | --- |
-| **GitHub Actions** (`container-images.yml`) | Build and push `ghcr.io/cyber-nomad-collective/beskid-*` |
+| **GitHub Actions** (`platform-delivery.yml`) | Gate, build, sign, and record exact image digests |
 | **OpenBao** (`https://secrets.bdziam.dev`) | Runtime secrets per service path |
-| **CI** (`coolify-compose-deploy.yml`) | Sync OpenBao → Coolify env; PATCH compose; redeploy |
+| **CI** (`reusable-promote.yml`) | Sync OpenBao, render digests, deploy, poll, smoke, rollback |
 | **Coolify** | TLS proxy, volumes, compose runtime |
 
 Compose source: [`compose/production/docker-compose.yml`](../compose/production/docker-compose.yml). Production config: [`config/coolify-production.json`](../config/coolify-production.json).
@@ -31,7 +31,7 @@ Coolify **Domains** use explicit ports (`https://<host>:<port>`). App-facing `*_
 
 Domains are applied from [`config/domains.json`](../config/domains.json) on deploy. See also [compose/production/README.md](../compose/production/README.md) and [observability.md](observability.md).
 
-## Staging (reference — phase 2)
+## Staging
 
 Staging hostnames use the `stg-` prefix (site apex: `stg.beskid-lang.org`).
 
@@ -49,7 +49,7 @@ OpenBao lane: `secret/beskid/staging/{service}`.
 
 | Service | KV path | Synced by CI |
 | --- | --- | --- |
-| site | `secret/beskid/production/site` | optional (`IMAGE_TAG` may be static) |
+| site | `secret/beskid/production/site` | optional (non-image runtime values only) |
 | auth | `secret/beskid/production/auth` | yes |
 | platform-spec | `secret/beskid/production/platform-spec` | yes |
 | tracker | `secret/beskid/production/tracker` | yes |
@@ -76,10 +76,10 @@ The [auth hub](https://github.com/Cyber-Nomad-Collective/beskid/blob/main/site/a
 
 | Service | Required keys |
 | --- | --- |
-| **auth** | `SESSION_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `AUTH_HUB_PUBLIC_URL`, `IMAGE_TAG` |
+| **auth** | `SESSION_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `AUTH_HUB_PUBLIC_URL` |
 | **tracker** | `AUTH_HUB_PUBLIC_URL`, `SESSION_SECRET`, `TRACKER_PUBLIC_URL`; recommended: `GITHUB_SYNC_TOKEN`, `TRACKER_PAIRING_APPROVER_LOGIN` |
 | **nexus** | `GITNEXUS_HOME`, `AUTH_HUB_PUBLIC_URL`, `SESSION_SECRET` |
-| **pckg** | `POSTGRES_PASSWORD`, `AUTH_HUB_PUBLIC_URL`, `IMAGE_TAG`; recommended: `PCKG_PUBLIC_URL`, `GITHUB_SYNC_TOKEN` |
+| **pckg** | `POSTGRES_PASSWORD`, `AUTH_HUB_PUBLIC_URL`; recommended: `PCKG_PUBLIC_URL`, `GITHUB_SYNC_TOKEN` |
 
 Full key tables: [openbao-layout.md](openbao-layout.md).
 

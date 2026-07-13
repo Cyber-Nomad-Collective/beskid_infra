@@ -10,7 +10,6 @@ OPENBAO_ADDR="${_openbao_addr_raw%/}"
 unset _openbao_addr_raw
 OPENBAO_MOUNT="${OPENBAO_MOUNT:-secret}"
 OPENBAO_LANE="${OPENBAO_LANE:-production}"
-IMAGE_TAG_DEFAULT="${IMAGE_TAG_DEFAULT:-}"
 PCKG_POSTGRES_PASSWORD="${PCKG_POSTGRES_PASSWORD:-}"
 
 export BAO_ADDR="${OPENBAO_ADDR}"
@@ -47,18 +46,6 @@ print(''.join(secrets.choice(alphabet) for _ in range(48)))
 PY
 }
 
-lane_image_tag() {
-  if [[ -n "${IMAGE_TAG_DEFAULT}" ]]; then
-    printf '%s' "${IMAGE_TAG_DEFAULT}"
-    return
-  fi
-  case "${OPENBAO_LANE}" in
-    production) printf 'main' ;;
-    staging) printf 'staging' ;;
-    *) printf 'latest' ;;
-  esac
-}
-
 ensure_value() {
   local path="$1"
   local key="$2"
@@ -81,7 +68,6 @@ tracker_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/tracker" "SESSION
 nexus_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/nexus" "SESSION_SECRET")"
 platform_spec_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/platform-spec" "SESSION_SECRET")"
 pckg_postgres_secret="$(ensure_value "beskid/${OPENBAO_LANE}/pckg" "POSTGRES_PASSWORD" "${PCKG_POSTGRES_PASSWORD}")"
-site_image_tag="$(ensure_value "beskid/${OPENBAO_LANE}/site" "IMAGE_TAG" "$(lane_image_tag)")"
 
 auth_hub_public_url="$(read_secret_value "beskid/${OPENBAO_LANE}/tracker" "AUTH_HUB_PUBLIC_URL")"
 if [[ -z "${auth_hub_public_url}" ]]; then
@@ -133,7 +119,6 @@ lane_public_url() {
   esac
 }
 
-auth_image_tag="$(ensure_value "beskid/${OPENBAO_LANE}/auth" "IMAGE_TAG" "$(lane_image_tag)")"
 tracker_public_url="$(read_secret_value "beskid/${OPENBAO_LANE}/tracker" "TRACKER_PUBLIC_URL")"
 if [[ -z "${tracker_public_url}" ]]; then
   tracker_public_url="$(lane_public_url TRACKER_PUBLIC_URL || true)"
@@ -166,13 +151,9 @@ if [[ -n "${OPENROUTER_API_KEY:-}" ]]; then
   echo "Patched OPENROUTER_API_KEY on ${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/nexus"
 fi
 
-bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/site" \
-  IMAGE_TAG="${site_image_tag}"
-
 bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/auth" \
   SESSION_SECRET="${auth_session_secret}" \
-  AUTH_HUB_SECRET="${auth_hub_secret}" \
-  IMAGE_TAG="${auth_image_tag}"
+  AUTH_HUB_SECRET="${auth_hub_secret}"
 
 tracker_args=(
   "SESSION_SECRET=${tracker_session_secret}"

@@ -1,11 +1,11 @@
 # Beskid platform — production lane (Coolify compose service).
-# Secrets: OpenBao → coolify-sync-env-from-openbao.sh → Coolify service env.
+# Secrets: OpenBao → scripts/ci/sync-runtime-env.sh → Coolify service env.
 # Optional services: set COMPOSE_PROFILES=tracker,nexus,pckg on the Coolify service.
 name: beskid-platform-production
 
 services:
   site:
-    image: ghcr.io/cyber-nomad-collective/beskid-site:${IMAGE_TAG:-main}
+    image: ghcr.io/cyber-nomad-collective/beskid-site:${BESKID_RELEASE_TAG:?render an immutable release manifest}
     restart: unless-stopped
     expose:
       - "80"
@@ -17,7 +17,7 @@ services:
       start_period: 10s
 
   auth:
-    image: ghcr.io/cyber-nomad-collective/beskid-auth:${IMAGE_TAG:-main}
+    image: ghcr.io/cyber-nomad-collective/beskid-auth:${BESKID_RELEASE_TAG:?render an immutable release manifest}
     restart: unless-stopped
     expose:
       - "8090"
@@ -43,7 +43,7 @@ services:
       - memgraph-data:/var/lib/memgraph
 
   platform-spec:
-    image: ghcr.io/cyber-nomad-collective/beskid-platform-spec:${IMAGE_TAG:-main}
+    image: ghcr.io/cyber-nomad-collective/beskid-platform-spec:${BESKID_RELEASE_TAG:?render an immutable release manifest}
     restart: unless-stopped
     depends_on:
       - memgraph
@@ -57,15 +57,11 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:-}
       PLATFORM_SPEC_PUBLIC_URL: ${PLATFORM_SPEC_PUBLIC_URL:-https://spec.beskid-lang.org}
       GITHUB_REPO_OWNER: ${GITHUB_REPO_OWNER:-Cyber-Nomad-Collective}
-      GITHUB_REPO_NAME: ${GITHUB_REPO_NAME:-beskid_normative_spec}
+      GITHUB_REPO_NAME: ${GITHUB_REPO_NAME:-beskid}
       GITHUB_OAUTH_REPO_OWNER: ${GITHUB_OAUTH_REPO_OWNER:-Cyber-Nomad-Collective}
       GITHUB_OAUTH_REPO_NAME: ${GITHUB_OAUTH_REPO_NAME:-beskid}
       GITHUB_SYNC_TOKEN: ${GITHUB_SYNC_TOKEN:-}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
-      SPEC_GIT_REPO_URL: ${SPEC_GIT_REPO_URL:-https://github.com/Cyber-Nomad-Collective/beskid_normative_spec.git}
-      SPEC_GIT_REF: ${SPEC_GIT_REF:-main}
-      SPEC_GIT_CONTENT_PATH: ${SPEC_GIT_CONTENT_PATH:-platform-spec}
-      SPEC_SYNC_MODE: ${SPEC_SYNC_MODE:-json}
       PLATFORM_SPEC_PAIRING_APPROVER_LOGIN: ${PLATFORM_SPEC_PAIRING_APPROVER_LOGIN:-}
       PLATFORM_SPEC_MODERATOR_LOGINS: ${PLATFORM_SPEC_MODERATOR_LOGINS:-}
       PLATFORM_SPEC_DATA_DIR: /app/site/platform-spec/data/runtime
@@ -80,7 +76,7 @@ services:
 
   tracker:
     profiles: [tracker]
-    image: ghcr.io/cyber-nomad-collective/beskid-tracker:${IMAGE_TAG:-main}
+    image: ghcr.io/cyber-nomad-collective/beskid-tracker:${BESKID_RELEASE_TAG:?render an immutable release manifest}
     restart: unless-stopped
     expose:
       - "3000"
@@ -108,7 +104,7 @@ services:
 
   nexus:
     profiles: [nexus]
-    image: ghcr.io/cyber-nomad-collective/beskid-nexus:${IMAGE_TAG:-main}
+    image: ghcr.io/cyber-nomad-collective/beskid-nexus:${BESKID_RELEASE_TAG:?render an immutable release manifest}
     restart: unless-stopped
     expose:
       - "8452"
@@ -143,7 +139,7 @@ services:
 
   pckg:
     profiles: [pckg]
-    image: ghcr.io/cyber-nomad-collective/beskid-pckg:${IMAGE_TAG:-main}
+    image: ghcr.io/cyber-nomad-collective/beskid-pckg:${BESKID_RELEASE_TAG:?render an immutable release manifest}
     depends_on:
       postgres:
         condition: service_healthy

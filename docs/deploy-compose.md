@@ -1,70 +1,70 @@
-# Coolify Compose deploy (production)
+# Manifest-driven Coolify deployment
 
-The Beskid platform runs as **one Coolify compose service** per environment. Source of truth: [`compose/production/docker-compose.yml`](../compose/production/docker-compose.yml).
+The Beskid platform uses one Compose template and two isolated Coolify services:
+`beskid-platform-staging` and `beskid-platform-production`. The template is
+[`compose/production/docker-compose.yml`](../compose/production/docker-compose.yml).
 
-| Layer | Responsibility |
-|-------|----------------|
-| **GitHub Actions** (`container-images.yml`) | Build and push `ghcr.io/cyber-nomad-collective/beskid-*` |
-| **OpenBao** (`https://secrets.bdziam.dev`) | Runtime secrets per service path |
-| **CI** (`coolify-compose-deploy.yml`) | Sync OpenBao → Coolify env; PATCH compose; redeploy |
-| **Coolify** | TLS proxy, volumes, compose runtime |
+## Build-once flow
 
-OpenTofu and the vendored Coolify Terraform provider are **removed**.
+1. `platform-delivery.yml` blocks on OpenSpec, conformance, integration, and
+   supply-chain security gates.
+2. Each service image is built once, tagged by full source SHA, supplied with an
+   SBOM/provenance attestation, and signed keylessly.
+3. `reusable-release-manifest.yml` records exact image digests and the source run.
+4. The same manifest is rendered into exact `repository@sha256:…` references.
+5. Main deploys to the protected `staging` environment automatically.
+6. `promote-production.yml` accepts the successful main delivery run ID and
+   promotes its existing artifact after production approval. It never rebuilds.
 
-Service URL and secret matrix: [deploy-matrix.md](deploy-matrix.md).
+The deploy script polls Coolify to a terminal state, runs trace-correlated health
+checks, and restores the previous Compose payload if deploy or smoke verification
+fails.
 
-## Prerequisites
+## GitHub environments
 
-- Coolify project **Beskid**, environment **production**
-- GitHub variables: `COOLIFY_ENDPOINT`, `COOLIFY_SERVER_UUID`, `COOLIFY_DESTINATION_UUID`
-- GitHub secrets: `COOLIFY_API_TOKEN`, `OPENBAO_TOKEN`
-- OpenBao paths seeded: `just seed-openbao-all` (see [openbao-layout.md](openbao-layout.md))
+Create `staging` and `production` environments with different values:
 
-## First-time production setup
+| Name | Type |
+|---|---|
+| `COOLIFY_ENDPOINT` | variable |
+| `COOLIFY_SERVICE_UUID` | variable |
+| `BESKID_SMOKE_URLS` | newline-separated variable |
+| `OPENBAO_ADDR` | variable |
+| `COOLIFY_API_TOKEN` | secret |
+| `OPENBAO_TOKEN` | lane-scoped read-only secret |
+
+Production requires reviewers. Neither environment secret is available to pull
+requests. OpenBao policies must limit each token to its matching
+`secret/beskid/{lane}/*` prefix.
+
+## First-time setup
+
+Create the two Coolify Compose services and their isolated volumes through the
+Coolify operator UI/API, set their service UUIDs on the matching GitHub
+environment, seed OpenBao, then validate locally:
 
 ```bash
 cd beskid_infra
-cp .env.example .env
-# Set COOLIFY_API_TOKEN, OPENBAO_TOKEN (or use config/openbao-secrets.env)
-
 just config-init
-just compose-config          # validate YAML locally
-just deploy-prod             # create/update compose service + sync env + deploy
+just compose-config
+just delivery-contract
+just seed-openbao-all
 ```
 
-After first create, commit `service_uuid` in [`config/coolify-production.json`](../config/coolify-production.json).
+The repository does not automatically create infrastructure or infer a production
+service. Host bootstrap remains available through
+`ansible/playbooks/prepare-coolify-host.yml`.
 
-## Domains and volumes
+## Rollback and evidence
 
-Production and staging Coolify URLs (`https://host:port`) live in [`config/domains.json`](../config/domains.json). `coolify-deploy-compose.sh` sends them as the Coolify `urls` array on create/update.
+- The release manifest SHA and W3C `traceparent` are written to workflow logs and
+  forwarded to OpenBao, Coolify, and smoke HTTP calls.
+- Coolify trigger, polling, environment synchronization, and smoke failures are
+  fatal.
+- Rollback restores the Compose payload read immediately before the attempted
+  deployment and polls the rollback deployment to completion.
+- GitHub artifacts retain the signed-image records, manifest, checksum, and gate
+  JUnit evidence.
 
-See [compose/production/README.md](../compose/production/README.md) for the full table and volume adoption from legacy per-app resources.
-
-## Compose profiles
-
-Production runs the full stack via `compose_profiles: "tracker,nexus,pckg"` in [`config/coolify-production.json`](../config/coolify-production.json). OpenBao paths must exist for every entry in `openbao_services` (`auth`, `tracker`, `nexus`, `pckg`). Seed with `just seed-openbao-all`, then CI syncs env and redeploys.
-
-## Local commands
-
-| Command | Purpose |
-|---------|---------|
-| `just compose-config` | `docker compose config` validation |
-| `just sync-env-prod` | OpenBao → Coolify env only |
-| `just deploy-prod` | Full compose create/update + deploy |
-| `just openbao-check-prod` | Audit OpenBao keys (no Coolify writes) |
-
-## Staging (phase 2)
-
-Not automated on `stg` yet. See [compose/staging/README.md](../compose/staging/README.md).
-
-## Troubleshooting
-
-| Issue | Fix |
-|-------|-----|
-| `docker_compose_raw` 422 | Compose file must be valid YAML; API expects base64 body (handled by `coolify-deploy-compose.sh`) |
-| PATCH service 422 (`project_uuid` not allowed) | Update sends only `docker_compose_raw`, `urls`, `force_domain_override` — not create-only fields |
-| `Server has multiple destinations` | Set `COOLIFY_DESTINATION_UUID` (see `config/coolify.snapshot.json`) |
-| Service not found | Run `just deploy-prod` once; set `service_uuid` in config |
-| Auth OAuth redirect mismatch | `AUTH_HUB_PUBLIC_URL` must match Coolify domain on **auth** service |
-| Duplicate routes | Remove legacy `beskid-site`, `beskid-auth`, … **applications** after cutover |
-| Degraded / `No such container: tracker-…` | Set `compose_profiles` to `tracker,nexus,pckg` and sync OpenBao for all `openbao_services`, then redeploy. |
+Service ports, domains, volumes, and secret keys are documented in
+[deploy-matrix.md](deploy-matrix.md) and [openbao-layout.md](openbao-layout.md).
