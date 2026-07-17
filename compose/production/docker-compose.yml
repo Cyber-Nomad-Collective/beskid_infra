@@ -22,7 +22,16 @@ services:
     expose:
       - "8090"
     environment:
+      NODE_ENV: production
+      PORT: "8090"
       AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      AUTH_HUB_SECRET: ${AUTH_HUB_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_OAUTH_CALLBACK_URL: ${GITHUB_OAUTH_CALLBACK_URL:-}
+      AUTH_SETUP_TOKEN: ${AUTH_SETUP_TOKEN:-}
+      AUTH_DATA_DIR: /app/site/auth/data/runtime
       PLATFORM_SPEC_PUBLIC_URL: ${PLATFORM_SPEC_PUBLIC_URL:-https://spec.beskid-lang.org}
     volumes:
       - auth-data:/app/site/auth/data/runtime

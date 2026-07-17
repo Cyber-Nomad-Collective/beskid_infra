@@ -190,6 +190,7 @@ bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/platform-spec" \
 pckg_args=("POSTGRES_PASSWORD=${pckg_postgres_secret}")
 [[ -n "${pckg_public_url}" ]] && pckg_args+=("PCKG_PUBLIC_URL=${pckg_public_url}")
 [[ -n "${auth_hub_public_url}" ]] && pckg_args+=("AUTH_HUB_PUBLIC_URL=${auth_hub_public_url}")
+[[ -n "${pairing_approver}" ]] && pckg_args+=("PCKG_PAIRING_APPROVER_LOGIN=${pairing_approver}")
 [[ -n "${tracker_sync_token}" ]] && pckg_args+=("GITHUB_SYNC_TOKEN=${tracker_sync_token}")
 
 bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/pckg" \
