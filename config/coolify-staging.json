@@ -1,10 +1,17 @@
 {
   "lane": "staging",
   "service_name": "beskid-platform-staging",
+  "service_uuid": "n2faf85soesljo4bng5g1gck",
   "environment_name": "staging",
   "project_name": "Beskid",
   "openbao_lane": "staging",
-  "openbao_services": ["auth", "platform-spec", "tracker", "nexus", "pckg"],
+  "openbao_services": [
+    "auth",
+    "platform-spec",
+    "tracker",
+    "nexus",
+    "pckg"
+  ],
   "compose_profiles": "tracker,nexus,pckg",
   "domains_lane": "staging",
   "static_env": {

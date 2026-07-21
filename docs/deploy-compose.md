@@ -34,11 +34,10 @@ Create `staging` and `production` environments with different values:
 | `OPENBAO_TOKEN` | lane-scoped read-only secret |
 
 
-Local `just sync-env-prod` / `scripts/ci/sync-runtime-env.sh` may omit
+Local `just sync-env-*` / `scripts/ci/sync-runtime-env.sh` may omit
 `COOLIFY_SERVICE_UUID` when the lane JSON already has `service_uuid`
-(production: `config/coolify-production.json`). Staging still needs the GitHub
-environment variable or `service_uuid` in `config/coolify-staging.json`. CI
-always supplies the environment variable.
+(`config/coolify-production.json`, `config/coolify-staging.json`). CI still
+supplies the matching GitHub environment variable.
 
 Production requires reviewers. Neither environment secret is available to pull
 requests. OpenBao policies must limit each token to its matching
