@@ -12,7 +12,7 @@
     "nexus",
     "pckg"
   ],
-  "compose_profiles": "tracker,nexus,pckg",
+  "compose_profiles": "tracker,nexus",
   "domains_lane": "staging",
   "static_env": {
     "AUTH_HUB_PUBLIC_URL": "https://stg-auth.beskid-lang.org",
