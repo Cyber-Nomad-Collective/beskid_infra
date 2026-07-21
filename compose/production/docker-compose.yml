@@ -50,12 +50,19 @@ services:
       - "7444"
     volumes:
       - memgraph-data:/var/lib/memgraph
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'RETURN 0;' | mgconsole --host 127.0.0.1 --port 7687 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
   platform-spec:
     image: ghcr.io/cyber-nomad-collective/beskid-platform-spec:${BESKID_RELEASE_TAG:?render an immutable release manifest}
     restart: unless-stopped
     depends_on:
-      - memgraph
+      memgraph:
+        condition: service_healthy
     expose:
       - "8460"
     environment:
