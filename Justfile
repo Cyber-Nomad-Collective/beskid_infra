@@ -43,6 +43,8 @@ compose-config:
 delivery-contract:
     cd "{{superrepo}}" && bash scripts/ci/test/run-cicd-foundation-tests.sh
 
+# OpenBao → Coolify env sync. Needs OPENBAO_* + COOLIFY_ENDPOINT/API_TOKEN.
+# COOLIFY_SERVICE_UUID: GitHub env var, beskid_infra/.env, or lane JSON service_uuid.
 sync-env-prod:
     cd "{{superrepo}}" && scripts/ci/sync-runtime-env.sh production beskid_infra/config/coolify-production.json
 
