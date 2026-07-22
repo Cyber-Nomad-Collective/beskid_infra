@@ -44,7 +44,7 @@ Production enables **site**, **auth**, **tracker**, **nexus**, and **pckg** (wit
 | tracker-data | tracker runtime | `tracker-data` |
 | nexus-data | GitNexus home | `nexus-data` |
 | pckg_pg_data | Postgres data | separate per environment |
-| pckg_packages, pckg_data | pckg storage | `beskid-pckg-packages`, `beskid-pckg-data` |
+| pckg_packages, pckg_data | pckg artifacts + uploads (`/app/packages`, `/app/data`) | `beskid-pckg-packages`, `beskid-pckg-data` |
 
 During cutover, attach existing Coolify persistent volumes to these names in the UI when possible.
 
