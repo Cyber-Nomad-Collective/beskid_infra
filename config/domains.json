@@ -1,32 +1,32 @@
 {
-  "production": {
-    "services": {
-      "site": { "host": "beskid-lang.org", "port": 80 },
-      "auth": { "host": "auth.beskid-lang.org", "port": 8090 },
-      "platform-spec": { "host": "spec.beskid-lang.org", "port": 8460 },
-      "tracker": { "host": "tracker.beskid-lang.org", "port": 3000 },
-      "nexus": { "host": "nexus.beskid-lang.org", "port": 8452 },
-      "pckg": { "host": "pckg.beskid-lang.org", "port": 8082 }
-    },
-    "public_urls": {
-      "AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
-      "PLATFORM_SPEC_PUBLIC_URL": "https://spec.beskid-lang.org",
-      "TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org"
-    }
-  },
-  "staging": {
-    "services": {
-      "site": { "host": "stg.beskid-lang.org", "port": 80 },
-      "auth": { "host": "stg-auth.beskid-lang.org", "port": 8090 },
-      "platform-spec": { "host": "stg-spec.beskid-lang.org", "port": 8460 },
-      "tracker": { "host": "stg-tracker.beskid-lang.org", "port": 3000 },
-      "nexus": { "host": "stg-nexus.beskid-lang.org", "port": 8452 },
-      "pckg": { "host": "stg-pckg.beskid-lang.org", "port": 8082 }
-    },
-    "public_urls": {
-      "AUTH_HUB_PUBLIC_URL": "https://stg-auth.beskid-lang.org",
-      "PLATFORM_SPEC_PUBLIC_URL": "https://stg-spec.beskid-lang.org",
-      "TRACKER_PUBLIC_URL": "https://stg-tracker.beskid-lang.org"
-    }
-  }
+	"production": {
+		"services": {
+			"site": { "host": "beskid-lang.org", "port": 80 },
+			"auth": { "host": "auth.beskid-lang.org", "port": 8090 },
+			"platform-spec": { "host": "spec.beskid-lang.org", "port": 8460 },
+			"tracker": { "host": "tracker.beskid-lang.org", "port": 3000 },
+			"nexus": { "host": "nexus.beskid-lang.org", "port": 8452 },
+			"pckg": { "host": "pckg.beskid-lang.org", "port": 8082 }
+		},
+		"public_urls": {
+			"AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
+			"PLATFORM_SPEC_PUBLIC_URL": "https://spec.beskid-lang.org",
+			"TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org"
+		}
+	},
+	"staging": {
+		"services": {
+			"site": { "host": "stg.beskid-lang.org", "port": 80 },
+			"auth": { "host": "stg-auth.beskid-lang.org", "port": 8090 },
+			"platform-spec": { "host": "stg-spec.beskid-lang.org", "port": 8460 },
+			"tracker": { "host": "stg-tracker.beskid-lang.org", "port": 3000 },
+			"nexus": { "host": "stg-nexus.beskid-lang.org", "port": 8452 },
+			"pckg": { "host": "stg-pckg.beskid-lang.org", "port": 8082 }
+		},
+		"public_urls": {
+			"AUTH_HUB_PUBLIC_URL": "https://stg-auth.beskid-lang.org",
+			"PLATFORM_SPEC_PUBLIC_URL": "https://stg-spec.beskid-lang.org",
+			"TRACKER_PUBLIC_URL": "https://stg-tracker.beskid-lang.org"
+		}
+	}
 }

@@ -1,18 +1,18 @@
 {
-  "lane": "production",
-  "service_name": "beskid-platform-production",
-  "service_uuid": "s4ir1ovgqtubarqeql3gf3pz",
-  "environment_name": "production",
-  "project_name": "Beskid",
-  "openbao_lane": "production",
-  "openbao_services": ["auth", "platform-spec", "tracker", "nexus", "pckg"],
-  "compose_profiles": "tracker,nexus,pckg",
-  "domains_lane": "production",
-  "static_env": {
-    "AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
-    "PLATFORM_SPEC_PUBLIC_URL": "https://spec.beskid-lang.org",
-    "TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org",
-    "PCKG_PUBLIC_URL": "https://pckg.beskid-lang.org",
-    "OTEL_RESOURCE_ATTRIBUTES": "deployment.environment.name=production"
-  }
+	"lane": "production",
+	"service_name": "beskid-platform-production",
+	"service_uuid": "s4ir1ovgqtubarqeql3gf3pz",
+	"environment_name": "production",
+	"project_name": "Beskid",
+	"openbao_lane": "production",
+	"openbao_services": ["auth", "platform-spec", "tracker", "nexus", "pckg"],
+	"compose_profiles": "tracker,nexus,pckg",
+	"domains_lane": "production",
+	"static_env": {
+		"AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
+		"PLATFORM_SPEC_PUBLIC_URL": "https://spec.beskid-lang.org",
+		"TRACKER_PUBLIC_URL": "https://tracker.beskid-lang.org",
+		"PCKG_PUBLIC_URL": "https://pckg.beskid-lang.org",
+		"OTEL_RESOURCE_ATTRIBUTES": "deployment.environment.name=production"
+	}
 }

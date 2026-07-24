@@ -1,32 +1,32 @@
 {
-  "project_beskid": {
-    "name": "Beskid",
-    "uuid": "dw8f0hjsvczn2gk0xbv5sxns"
-  },
-  "server_localhost": {
-    "name": "localhost",
-    "uuid": "ec0cs0cw0ocsok488gc0k80k"
-  },
-  "destination_coolify_network": {
-    "name": "coolify",
-    "uuid": "zss4wkockgw8gok888gscc84"
-  },
-  "compose_service": {
-    "name": "beskid-platform-production",
-    "uuid": "s4ir1ovgqtubarqeql3gf3pz",
-    "environment": "production",
-    "environment_uuid": "xq0pbusdwdrbokp4k7fwsyiy"
-  },
-  "legacy_removed_2026_05_29": {
-    "beskid-site": "l2056jt8tfcanm6wooxn4p2w",
-    "beskid-auth": "henysbd1j452gwcq38sunqne",
-    "beskid-tofu-state-db": "len9tfpswmz5j6n028iaiqtj",
-    "beskid-pckg-db": "br4ffoqwrdky3uy960mvdmyl"
-  },
-  "compose_service_staging": {
-    "name": "beskid-platform-staging",
-    "uuid": "n2faf85soesljo4bng5g1gck",
-    "environment": "staging",
-    "environment_uuid": "l11s9h3x24bf94a9pa824u9j"
-  }
+	"project_beskid": {
+		"name": "Beskid",
+		"uuid": "dw8f0hjsvczn2gk0xbv5sxns"
+	},
+	"server_localhost": {
+		"name": "localhost",
+		"uuid": "ec0cs0cw0ocsok488gc0k80k"
+	},
+	"destination_coolify_network": {
+		"name": "coolify",
+		"uuid": "zss4wkockgw8gok888gscc84"
+	},
+	"compose_service": {
+		"name": "beskid-platform-production",
+		"uuid": "s4ir1ovgqtubarqeql3gf3pz",
+		"environment": "production",
+		"environment_uuid": "xq0pbusdwdrbokp4k7fwsyiy"
+	},
+	"legacy_removed_2026_05_29": {
+		"beskid-site": "l2056jt8tfcanm6wooxn4p2w",
+		"beskid-auth": "henysbd1j452gwcq38sunqne",
+		"beskid-tofu-state-db": "len9tfpswmz5j6n028iaiqtj",
+		"beskid-pckg-db": "br4ffoqwrdky3uy960mvdmyl"
+	},
+	"compose_service_staging": {
+		"name": "beskid-platform-staging",
+		"uuid": "n2faf85soesljo4bng5g1gck",
+		"environment": "staging",
+		"environment_uuid": "l11s9h3x24bf94a9pa824u9j"
+	}
 }
