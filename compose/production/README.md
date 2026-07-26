@@ -11,7 +11,7 @@ Domains are applied on deploy from [`config/domains.json`](../../config/domains.
 |-----------------|-------------|
 | site | `https://beskid-lang.org:80` |
 | auth | `https://auth.beskid-lang.org:8090` |
-| learn | profile-gated; configure a domain before public exposure |
+| learn | required service; domain is applied by the configured Coolify lane |
 | tracker | `https://tracker.beskid-lang.org:3000` |
 | nexus | `https://nexus.beskid-lang.org:8452` |
 | pckg | `https://pckg.beskid-lang.org:8082` |
@@ -26,7 +26,7 @@ Staging uses the `stg-` hostname pattern (site apex: `stg.beskid-lang.org`):
 |-----------------|-------------|
 | site | `https://stg.beskid-lang.org:80` |
 | auth | `https://stg-auth.beskid-lang.org:8090` |
-| learn | profile-gated; configure a domain before public exposure |
+| learn | required service; domain is applied by the configured Coolify lane |
 | tracker | `https://stg-tracker.beskid-lang.org:3000` |
 | nexus | `https://stg-nexus.beskid-lang.org:8452` |
 | pckg | `https://stg-pckg.beskid-lang.org:8082` |
@@ -36,7 +36,7 @@ Coolify service consuming the same immutable manifest format.
 
 ## Compose profiles
 
-Production enables **site**, **auth**, **tracker**, **nexus**, and **pckg** (with Postgres) via `compose_profiles: tracker,nexus,pckg` in [`config/coolify-production.json`](../../config/coolify-production.json). The canonical `learn` image is represented by the `learn` profile so every release manifest maps it to one service; an operator must explicitly add its public domain and enable that profile before public exposure. OpenBao is not required for learn's current documented configuration.
+Production starts **site**, **auth**, **platform-spec**, and **learn** by default; it enables **tracker**, **nexus**, and **pckg** (with Postgres) via `compose_profiles: tracker,nexus,pckg` in [`config/coolify-production.json`](../../config/coolify-production.json). Learn is a required release service because its configured lane smoke URL must be healthy after every deployment. OpenBao is not required for learn's current documented configuration.
 
 ## Volumes
 

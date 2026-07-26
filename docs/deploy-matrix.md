@@ -22,7 +22,7 @@ Coolify **Domains** use explicit ports (`https://<host>:<port>`). App-facing `*_
 | **site** | `beskid-site` | 80 | `https://beskid-lang.org:80` | `https://beskid-lang.org` |
 | **auth** | `beskid-auth` | 8090 | `https://auth.beskid-lang.org:8090` | `AUTH_HUB_PUBLIC_URL=https://auth.beskid-lang.org` |
 | **platform-spec** | `beskid-platform-spec` | 8460 | `https://spec.beskid-lang.org:8460` | `PLATFORM_SPEC_PUBLIC_URL=https://spec.beskid-lang.org` |
-| **learn** | `beskid-learn` | 80 | profile-gated; domain not yet configured | `BESKID_AUTH_HUB_URL` (defaults to the auth hub) |
+| **learn** | `beskid-learn` | 80 | configured by the Coolify lane | `BESKID_AUTH_HUB_URL` (defaults to the auth hub) |
 | **memgraph** | `memgraph/memgraph-mage` | 7687 | internal only | `MEMGRAPH_URI=bolt://memgraph:7687` |
 | **tracker** | `beskid-tracker` | 3000 | `https://tracker.beskid-lang.org:3000` | `TRACKER_PUBLIC_URL=https://tracker.beskid-lang.org` |
 | **nexus** | `beskid-nexus` | 8452 | `https://nexus.beskid-lang.org:8452` | (pairing `publicUrl`) |
@@ -40,7 +40,7 @@ Staging hostnames use the `stg-` prefix (site apex: `stg.beskid-lang.org`).
 | --- | --- |
 | site | `https://stg.beskid-lang.org:80` |
 | auth | `https://stg-auth.beskid-lang.org:8090` |
-| learn | profile-gated; domain not yet configured |
+| learn | configured by the Coolify lane |
 | tracker | `https://stg-tracker.beskid-lang.org:3000` |
 | nexus | `https://stg-nexus.beskid-lang.org:8452` |
 | pckg | `https://stg-pckg.beskid-lang.org:8082` |
