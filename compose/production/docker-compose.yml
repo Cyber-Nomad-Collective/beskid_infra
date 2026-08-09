@@ -97,6 +97,8 @@ services:
       - "80"
     environment:
       BESKID_AUTH_HUB_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
+      LEARN_AUTH_SERVICE_TOKEN: ${LEARN_AUTH_SERVICE_TOKEN:-}
+      LEARN_SESSION_SECRET: ${LEARN_SESSION_SECRET:-}
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/api/health || exit 1"]
       interval: 30s
