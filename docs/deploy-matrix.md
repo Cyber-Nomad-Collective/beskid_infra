@@ -15,7 +15,8 @@ Compose source: [`compose/production/docker-compose.yml`](../compose/production/
 
 ## Production services
 
-Coolify **Domains** use explicit ports (`https://<host>:<port>`). App-facing `*_PUBLIC_URL` env values omit the port suffix.
+Coolify **target URLs** use explicit container ports (`https://<host>:<port>`).
+Public browser/API origins terminate on standard HTTPS and omit that target-port suffix.
 
 | Service | GHCR image | Container port | Coolify URL | Public env URL |
 | --- | --- | --- | --- | --- |
@@ -25,7 +26,7 @@ Coolify **Domains** use explicit ports (`https://<host>:<port>`). App-facing `*_
 | **memgraph** | `memgraph/memgraph-mage` | 7687 | internal only | `MEMGRAPH_URI=bolt://memgraph:7687` |
 | **tracker** | `beskid-tracker` | 3000 | `https://tracker.beskid-lang.org:3000` | `TRACKER_PUBLIC_URL=https://tracker.beskid-lang.org` |
 | **nexus** | `beskid-nexus` | 8452 | `https://nexus.beskid-lang.org:8452` | (pairing `publicUrl`) |
-| **pckg** | `beskid-pckg` | 8082 | `https://pckg.beskid-lang.org:8082` | seed-derived `PCKG_DATABASE_URL` from OpenBao |
+| **pckg** | `beskid-pckg` | 8082 | `https://pckg.beskid-lang.org:8082` | `https://pckg.beskid-lang.org`; seed-derived `PCKG_DATABASE_URL` from OpenBao |
 | **postgres** | `postgres:16` | 5432 | internal only | — |
 | **Grafana** | (Coolify **Beskid Monitoring**) | 3000 | `https://monitor.beskid-lang.org:3000` | internal `/metrics` via Alloy Docker SD |
 
@@ -71,6 +72,7 @@ main site under [`/docs/standard/`](https://beskid-lang.org/docs/standard/).
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | OpenBao `…/auth` only | **hub only** — consumers must not receive these |
 | `SESSION_SECRET` | OpenBao per service | **no** — distinct value per auth / tracker / nexus |
 | `PCKG_DATABASE_URL` | OpenBao pckg | **no** — canonical URL derived by the seed from one PostgreSQL configuration source |
+| `PCKG_RELEASE_PUBLISHER_KEY_SHA256` | GitHub promotion digest | **no** — one-way digest only; the raw release bearer key never enters Coolify |
 
 **Deprecated:** `AUTH_HUB_SECRET` (legacy shared handoff). New deployments use per-app service tokens from pairing.
 

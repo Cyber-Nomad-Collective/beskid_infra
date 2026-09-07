@@ -3,7 +3,7 @@
 The `beskid-platform-production` Coolify service runs a digest-rendered form of
 this template. GHCR images are built once by `platform-delivery.yml`.
 
-Domains are applied on deploy from [`config/domains.json`](../../config/domains.json) (`production` lane) as Coolify `urls` (`https://<host>:<port>` per compose service).
+Domains are applied on deploy from [`config/domains.json`](../../config/domains.json) (`production` lane) as Coolify target `urls` (`https://<host>:<container-port>` per compose service). Public health and API requests use each service's separate standard-HTTPS `public_url`.
 
 ## Domains (production / `main`)
 
@@ -71,6 +71,11 @@ OpenBao seed script derives it from its single PostgreSQL configuration source
 and percent-encodes user, password, and database components; Compose never
 constructs a URL from password fragments. The local `.env.example` uses a
 non-secret dummy URL only for `docker compose config` validation.
+
+`PCKG_RELEASE_PUBLISHER_KEY_SHA256` is also required. GitHub hashes the
+release-only bearer key before environment synchronization, so Coolify and the
+registry receive only the digest used to reconcile the deterministic release
+publisher row.
 
 ## Local validation
 
