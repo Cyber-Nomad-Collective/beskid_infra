@@ -49,8 +49,9 @@ OpenBao is not required for learn's current documented configuration.
 | Volume | Mount | Adopted production Docker volume |
 |--------|-------|--------------------------------|
 | auth-data | auth runtime | `s4ir1ovgqtubarqeql3gf3pz_auth-data` |
+| memgraph-data | Memgraph database | `s4ir1ovgqtubarqeql3gf3pz_memgraph-data` |
 | tracker-data | tracker runtime | `beskid-sites_tracker-data` |
-| nexus-data | GitNexus home | `nexus-data` |
+| nexus-data | GitNexus home | `beskid-platform_nexus-data` |
 | pckg_pg_data | Postgres data | `s4ir1ovgqtubarqeql3gf3pz_pckg-pg-data` |
 | pckg_packages | pckg artifacts (`/app/packages`) | `beskid-pckg_pckg-artifacts` |
 
