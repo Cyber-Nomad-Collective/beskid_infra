@@ -101,13 +101,14 @@ Full key tables: [openbao-layout.md](openbao-layout.md).
 
 Production and staging enable tracker, nexus, and pckg via `compose_profiles: tracker,nexus,pckg`; staging verifies the Rust registry before promotion.
 
-| Volume | Mount |
-| --- | --- |
-| `auth-data` | Hub SQLite (`/app/site/auth/data/runtime`) |
-| `tracker-data` | Tracker SQLite (`/app/beskid_tracker/data/runtime`) |
-| `nexus-data` | `GITNEXUS_HOME` (`/data/gitnexus`) |
-| `pckg_pg_data` | Postgres data |
-| `pckg_packages` | Registry artifacts |
+| Volume | Mount | Production Docker name |
+| --- | --- | --- |
+| `auth-data` | Hub SQLite (`/app/site/auth/data/runtime`) | `s4ir1ovgqtubarqeql3gf3pz_auth-data` (external) |
+| `tracker-data` | Tracker SQLite (`/app/beskid_tracker/data/runtime`) | `beskid-sites_tracker-data` (external) |
+| `memgraph-data` | Memgraph database | `s4ir1ovgqtubarqeql3gf3pz_memgraph-data` (external) |
+| `nexus-data` | `GITNEXUS_HOME` (`/data/gitnexus`) | `beskid-platform_nexus-data` (external) |
+| `pckg_pg_data` | Postgres data | `s4ir1ovgqtubarqeql3gf3pz_pckg-pg-data` (external) |
+| `pckg_packages` | Registry artifacts | `beskid-pckg_pckg-artifacts` (external) |
 
 ## Verification checklist (operator)
 

@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Render the existing production auth, Memgraph, tracker, Nexus, pckg
+  PostgreSQL, and pckg artifact volumes by their exact external Docker names
+  so a GitHub-driven Coolify cutover cannot silently attach empty
+  project-scoped replacements while staging remains isolated.
 - Derive each lane's Coolify service URLs from `config/domains.json` during
   manifest deployment, including the `learn` service, so the proxy receives
   the same immutable lane mapping as release smoke checks.

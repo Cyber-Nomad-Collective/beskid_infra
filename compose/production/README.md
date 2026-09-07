@@ -46,15 +46,18 @@ OpenBao is not required for learn's current documented configuration.
 
 ## Volumes
 
-| Volume | Mount | Legacy Coolify app volume name |
+| Volume | Mount | Adopted production Docker volume |
 |--------|-------|--------------------------------|
-| auth-data | auth runtime | `auth-data` on `beskid-auth` |
-| tracker-data | tracker runtime | `tracker-data` |
+| auth-data | auth runtime | `s4ir1ovgqtubarqeql3gf3pz_auth-data` |
+| tracker-data | tracker runtime | `beskid-sites_tracker-data` |
 | nexus-data | GitNexus home | `nexus-data` |
-| pckg_pg_data | Postgres data | separate per environment |
-| pckg_packages | pckg artifacts (`/app/packages`) | `beskid-pckg-packages` |
+| pckg_pg_data | Postgres data | `s4ir1ovgqtubarqeql3gf3pz_pckg-pg-data` |
+| pckg_packages | pckg artifacts (`/app/packages`) | `beskid-pckg_pckg-artifacts` |
 
-During cutover, attach existing Coolify persistent volumes to these names in the UI when possible.
+The production lane configuration declares all six state volumes as external
+by exact Docker name. The lane renderer applies those bindings only to the
+production payload, so Coolify reuses them during the GitHub-managed cutover.
+Staging retains isolated project-scoped volumes from the shared template.
 
 ## pckg authentication
 

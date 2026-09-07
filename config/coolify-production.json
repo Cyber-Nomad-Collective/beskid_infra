@@ -7,6 +7,14 @@
 	"openbao_lane": "production",
 	"openbao_services": ["auth", "tracker", "nexus", "pckg"],
 	"compose_profiles": "tracker,nexus,pckg",
+	"external_volumes": {
+		"auth-data": "s4ir1ovgqtubarqeql3gf3pz_auth-data",
+		"memgraph-data": "s4ir1ovgqtubarqeql3gf3pz_memgraph-data",
+		"tracker-data": "beskid-sites_tracker-data",
+		"nexus-data": "beskid-platform_nexus-data",
+		"pckg_pg_data": "s4ir1ovgqtubarqeql3gf3pz_pckg-pg-data",
+		"pckg_packages": "beskid-pckg_pckg-artifacts"
+	},
 	"domains_lane": "production",
 	"static_env": {
 		"AUTH_HUB_PUBLIC_URL": "https://auth.beskid-lang.org",
