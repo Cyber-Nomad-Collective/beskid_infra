@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Require the one-way `PCKG_RELEASE_PUBLISHER_KEY_SHA256` digest in the pckg
+  service environment so registry startup can reconcile the GitHub release
+  publisher without exposing its raw bearer key to Coolify.
+- Separate each service's public HTTPS URL from its explicit Coolify target
+  port in `config/domains.json`; proxy configuration keeps the target port
+  while release smoke uses the real public TLS route.
 - Configure production and staging pckg with the Rust registry's canonical
   `PCKG_DATABASE_URL`, artifact, web-root, and bind-address settings; generate
   the URL from one percent-encoded PostgreSQL configuration source and remove
