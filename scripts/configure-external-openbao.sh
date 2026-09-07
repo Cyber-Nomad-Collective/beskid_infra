@@ -11,6 +11,10 @@ unset _openbao_addr_raw
 OPENBAO_MOUNT="${OPENBAO_MOUNT:-secret}"
 OPENBAO_LANE="${OPENBAO_LANE:-production}"
 PCKG_POSTGRES_PASSWORD="${PCKG_POSTGRES_PASSWORD:-}"
+PCKG_POSTGRES_USER="${PCKG_POSTGRES_USER:-}"
+PCKG_POSTGRES_DB="${PCKG_POSTGRES_DB:-}"
+PCKG_DB_HOST="${PCKG_DB_HOST:-}"
+PCKG_DB_PORT="${PCKG_DB_PORT:-}"
 
 export BAO_ADDR="${OPENBAO_ADDR}"
 export BAO_TOKEN="${OPENBAO_TOKEN}"
@@ -62,12 +66,35 @@ ensure_value() {
   printf '%s' "${value}"
 }
 
+read_or_default() {
+  local path="$1"
+  local key="$2"
+  local default_value="$3"
+  local provided="${4:-}"
+  local value="${provided:-$(read_secret_value "${path}" "${key}")}"
+  printf '%s' "${value:-${default_value}}"
+}
+
+uri_encode() {
+  jq -rn --arg value "$1" '$value | @uri'
+}
+
 auth_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/auth" "SESSION_SECRET")"
 auth_hub_secret="$(ensure_value "beskid/${OPENBAO_LANE}/auth" "AUTH_HUB_SECRET")"
 tracker_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/tracker" "SESSION_SECRET")"
 nexus_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/nexus" "SESSION_SECRET")"
 platform_spec_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/platform-spec" "SESSION_SECRET")"
-pckg_postgres_secret="$(ensure_value "beskid/${OPENBAO_LANE}/pckg" "POSTGRES_PASSWORD" "${PCKG_POSTGRES_PASSWORD}")"
+pckg_path="beskid/${OPENBAO_LANE}/pckg"
+pckg_postgres_secret="$(ensure_value "${pckg_path}" "POSTGRES_PASSWORD" "${PCKG_POSTGRES_PASSWORD}")"
+pckg_postgres_user="$(read_or_default "${pckg_path}" "POSTGRES_USER" "postgres" "${PCKG_POSTGRES_USER}")"
+pckg_postgres_db="$(read_or_default "${pckg_path}" "POSTGRES_DB" "pckgdb" "${PCKG_POSTGRES_DB}")"
+pckg_db_host="$(read_or_default "${pckg_path}" "PCKG_DB_HOST" "postgres" "${PCKG_DB_HOST}")"
+pckg_db_port="$(read_or_default "${pckg_path}" "PCKG_DB_PORT" "5432" "${PCKG_DB_PORT}")"
+if [[ -z "${pckg_postgres_user}" || -z "${pckg_postgres_db}" || ! "${pckg_db_host}" =~ ^[A-Za-z0-9.-]+$ || ! "${pckg_db_port}" =~ ^[1-9][0-9]*$ || "${pckg_db_port}" -gt 65535 ]]; then
+  echo "pckg PostgreSQL user, database, host, or port is invalid" >&2
+  exit 1
+fi
+pckg_database_url="postgres://$(uri_encode "${pckg_postgres_user}"):$(uri_encode "${pckg_postgres_secret}")@${pckg_db_host}:${pckg_db_port}/$(uri_encode "${pckg_postgres_db}")"
 
 auth_hub_public_url="$(read_secret_value "beskid/${OPENBAO_LANE}/tracker" "AUTH_HUB_PUBLIC_URL")"
 if [[ -z "${auth_hub_public_url}" ]]; then
@@ -111,10 +138,8 @@ lane_public_url() {
   case "${OPENBAO_LANE}:${key}" in
     production:AUTH_HUB_PUBLIC_URL) printf 'https://auth.beskid-lang.org' ;;
     production:TRACKER_PUBLIC_URL) printf 'https://tracker.beskid-lang.org' ;;
-    production:PCKG_PUBLIC_URL) printf 'https://pckg.beskid-lang.org' ;;
     staging:AUTH_HUB_PUBLIC_URL) printf 'https://stg-auth.beskid-lang.org' ;;
     staging:TRACKER_PUBLIC_URL) printf 'https://stg-tracker.beskid-lang.org' ;;
-    staging:PCKG_PUBLIC_URL) printf 'https://stg-pckg.beskid-lang.org' ;;
     *) return 1 ;;
   esac
 }
@@ -123,11 +148,6 @@ tracker_public_url="$(read_secret_value "beskid/${OPENBAO_LANE}/tracker" "TRACKE
 if [[ -z "${tracker_public_url}" ]]; then
   tracker_public_url="$(lane_public_url TRACKER_PUBLIC_URL || true)"
 fi
-pckg_public_url="$(read_secret_value "beskid/${OPENBAO_LANE}/pckg" "PCKG_PUBLIC_URL")"
-if [[ -z "${pckg_public_url}" ]]; then
-  pckg_public_url="$(lane_public_url PCKG_PUBLIC_URL || true)"
-fi
-
 tracker_sync_token="$(read_secret_value "beskid/${OPENBAO_LANE}/tracker" "GITHUB_SYNC_TOKEN")"
 if [[ -z "${tracker_sync_token}" && -n "${GITHUB_SYNC_TOKEN:-}" ]]; then
   tracker_sync_token="${GITHUB_SYNC_TOKEN}"
@@ -187,11 +207,14 @@ platform_spec_args=(
 bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/platform-spec" \
   "${platform_spec_args[@]}"
 
-pckg_args=("POSTGRES_PASSWORD=${pckg_postgres_secret}")
-[[ -n "${pckg_public_url}" ]] && pckg_args+=("PCKG_PUBLIC_URL=${pckg_public_url}")
-[[ -n "${auth_hub_public_url}" ]] && pckg_args+=("AUTH_HUB_PUBLIC_URL=${auth_hub_public_url}")
-[[ -n "${pairing_approver}" ]] && pckg_args+=("PCKG_PAIRING_APPROVER_LOGIN=${pairing_approver}")
-[[ -n "${tracker_sync_token}" ]] && pckg_args+=("GITHUB_SYNC_TOKEN=${tracker_sync_token}")
+pckg_args=(
+  "POSTGRES_PASSWORD=${pckg_postgres_secret}"
+  "POSTGRES_USER=${pckg_postgres_user}"
+  "POSTGRES_DB=${pckg_postgres_db}"
+  "PCKG_DB_HOST=${pckg_db_host}"
+  "PCKG_DB_PORT=${pckg_db_port}"
+  "PCKG_DATABASE_URL=${pckg_database_url}"
+)
 
 bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/pckg" \
   "${pckg_args[@]}"

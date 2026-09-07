@@ -46,14 +46,29 @@ Production starts **site**, **auth**, **platform-spec**, and **learn** by defaul
 | tracker-data | tracker runtime | `tracker-data` |
 | nexus-data | GitNexus home | `nexus-data` |
 | pckg_pg_data | Postgres data | separate per environment |
-| pckg_packages, pckg_data | pckg artifacts + uploads (`/app/packages`, `/app/data`) | `beskid-pckg-packages`, `beskid-pckg-data` |
+| pckg_packages | pckg artifacts (`/app/packages`) | `beskid-pckg-packages` |
 
 During cutover, attach existing Coolify persistent volumes to these names in the UI when possible.
+
+## pckg authentication
+
+The Rust pckg service is deployed without `SHELL_AUTH_MODE`. It does not
+create or validate browser sessions itself, and the production Compose file
+must not trust client-supplied `Remote-*` headers. Until Coolify has a verified
+forward-auth boundary that strips those headers, validates the request with
+Authelia, and preserves bearer authorization for package publishing, session
+management and authenticated registry mutations remain disabled. Public
+catalogue, download, and readiness endpoints may be served normally.
+
+`PCKG_DATABASE_URL` is a required canonical OpenBao/Coolify secret. The
+OpenBao seed script derives it from its single PostgreSQL configuration source
+and percent-encodes user, password, and database components; Compose never
+constructs a URL from password fragments. The local `.env.example` uses a
+non-secret dummy URL only for `docker compose config` validation.
 
 ## Local validation
 
 ```bash
 cd beskid_infra/compose/production
-cp .env.example .env
-BESKID_RELEASE_TAG=validation docker compose config
+BESKID_RELEASE_TAG=validation docker compose --env-file .env.example config
 ```

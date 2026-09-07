@@ -64,7 +64,7 @@ manifest supplies exact digests.
 | `SESSION_SECRET` | yes |
 | `TRACKER_PUBLIC_URL` | yes |
 | `GITHUB_SYNC_TOKEN` | recommended (autopair via GitHub API) |
-| `TRACKER_PAIRING_APPROVER_LOGIN` | recommended (autopair without sync token; same pattern as pckg `PCKG_PAIRING_APPROVER_LOGIN`) |
+| `TRACKER_PAIRING_APPROVER_LOGIN` | recommended (autopair without a sync token) |
 
 ### nexus
 
@@ -81,11 +81,9 @@ manifest supplies exact digests.
 
 | Key | Required |
 |-----|----------|
-| `POSTGRES_PASSWORD` | yes |
-| `POSTGRES_DB`, `POSTGRES_USER` | recommended |
-| `AUTH_HUB_PUBLIC_URL` | yes |
-| `PCKG_PUBLIC_URL` | recommended |
-| `GITHUB_SYNC_TOKEN` | recommended |
+| `POSTGRES_PASSWORD` | yes (generated or supplied by the seed script) |
+| `POSTGRES_USER`, `POSTGRES_DB`, `PCKG_DB_HOST`, `PCKG_DB_PORT` | yes (seeded defaults or explicit overrides) |
+| `PCKG_DATABASE_URL` | yes (derived by the seed script with percent-encoded credentials) |
 
 ## Bootstrap
 

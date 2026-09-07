@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Configure production and staging pckg with the Rust registry's canonical
+  `PCKG_DATABASE_URL`, artifact, web-root, and bind-address settings; generate
+  the URL from one percent-encoded PostgreSQL configuration source and remove
+  obsolete .NET and legacy session settings.
+- Keep pckg session authentication disabled until a trusted Coolify
+  forward-auth boundary is configured.
+
 ### Fixed
 
 - Derive each lane's Coolify service URLs from `config/domains.json` during

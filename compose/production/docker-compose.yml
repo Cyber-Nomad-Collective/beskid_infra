@@ -176,28 +176,14 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      HTTP_PORTS: ${HTTP_PORTS:-8082}
-      AUTH_HUB_PUBLIC_URL: ${AUTH_HUB_PUBLIC_URL:-https://auth.beskid-lang.org}
-      PCKG_PUBLIC_URL: ${PCKG_PUBLIC_URL:-https://pckg.beskid-lang.org}
-      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-beskid-pckg}
-      OTEL_RESOURCE_ATTRIBUTES: ${OTEL_RESOURCE_ATTRIBUTES:-deployment.environment=production}
-      GITHUB_SYNC_TOKEN: ${GITHUB_SYNC_TOKEN:-}
-      PCKG_PAIRING_APPROVER_LOGIN: ${PCKG_PAIRING_APPROVER_LOGIN:-}
-      HttpClient__InternalBaseAddress: ${HTTP_CLIENT_INTERNAL_BASE_ADDRESS:-http://127.0.0.1:8082}
-      ConnectionStrings__DefaultConnection: Host=${PCKG_DB_HOST:-postgres};Port=${PCKG_DB_PORT:-5432};Database=${POSTGRES_DB:-pckgdb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
-      Pckg__Database__AutoMigrateOnStartup: ${PCKG_AUTO_MIGRATE_ON_STARTUP:-true}
-      Storage__ArtifactsRootPath: /app/packages
-      Storage__UploadsRootPath: /app/data/uploads
-      Captcha__RecaptchaV3SiteKey: ${CAPTCHA_RECAPTCHA_V3_SITE_KEY:-}
-      Captcha__RecaptchaEnterpriseProjectId: ${CAPTCHA_RECAPTCHA_ENTERPRISE_PROJECT_ID:-}
-      Captcha__RecaptchaEnterpriseApiKey: ${CAPTCHA_RECAPTCHA_ENTERPRISE_API_KEY:-}
-      Captcha__MinimumScore: ${CAPTCHA_RECAPTCHA_MINIMUM_SCORE:-0.5}
+      PCKG_DATABASE_URL: ${PCKG_DATABASE_URL:?set PCKG_DATABASE_URL}
+      PCKG_ARTIFACT_ROOT: ${PCKG_ARTIFACT_ROOT:-/app/packages}
+      PCKG_WEB_ROOT: ${PCKG_WEB_ROOT:-/app/web}
+      PCKG_BIND_ADDRESS: "0.0.0.0:8082"
     expose:
       - "8082"
     volumes:
       - pckg_packages:/app/packages
-      - pckg_data:/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/health/ready"]
@@ -214,4 +200,3 @@ volumes:
   nexus-data:
   pckg_pg_data:
   pckg_packages:
-  pckg_data:

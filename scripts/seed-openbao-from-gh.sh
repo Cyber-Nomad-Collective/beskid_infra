@@ -181,6 +181,11 @@ audit_lane() {
   report_key "beskid/${lane}/nexus" "SESSION_SECRET" "no"
   report_key "beskid/${lane}/nexus" "OPENROUTER_API_KEY" "no"
   report_key "beskid/${lane}/pckg" "POSTGRES_PASSWORD" "no"
+  report_key "beskid/${lane}/pckg" "POSTGRES_USER" "yes"
+  report_key "beskid/${lane}/pckg" "POSTGRES_DB" "yes"
+  report_key "beskid/${lane}/pckg" "PCKG_DB_HOST" "yes"
+  report_key "beskid/${lane}/pckg" "PCKG_DB_PORT" "yes"
+  report_key "beskid/${lane}/pckg" "PCKG_DATABASE_URL" "yes"
 
   echo "=== secret/beskid/ci/build ==="
   report_key "beskid/ci/build" "NODE_AUTH_TOKEN" "no"
