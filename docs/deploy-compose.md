@@ -72,5 +72,6 @@ service. Host bootstrap remains available through
 - GitHub artifacts retain the signed-image records, manifest, checksum, and gate
   JUnit evidence.
 
-Service ports, domains, volumes, and secret keys are documented in
+The release manifest contains exactly six application images: site, auth,
+learn, tracker, nexus, and pckg. Service ports, domains, volumes, and secret keys are documented in
 [deploy-matrix.md](deploy-matrix.md) and [openbao-layout.md](openbao-layout.md).

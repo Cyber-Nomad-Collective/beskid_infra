@@ -83,7 +83,6 @@ auth_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/auth" "SESSION_SECRE
 auth_hub_secret="$(ensure_value "beskid/${OPENBAO_LANE}/auth" "AUTH_HUB_SECRET")"
 tracker_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/tracker" "SESSION_SECRET")"
 nexus_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/nexus" "SESSION_SECRET")"
-platform_spec_session_secret="$(ensure_value "beskid/${OPENBAO_LANE}/platform-spec" "SESSION_SECRET")"
 pckg_path="beskid/${OPENBAO_LANE}/pckg"
 pckg_postgres_secret="$(ensure_value "${pckg_path}" "POSTGRES_PASSWORD" "${PCKG_POSTGRES_PASSWORD}")"
 pckg_postgres_user="$(read_or_default "${pckg_path}" "POSTGRES_USER" "postgres" "${PCKG_POSTGRES_USER}")"
@@ -105,33 +104,7 @@ if [[ -z "${auth_hub_public_url}" ]]; then
   esac
 fi
 
-platform_spec_public_url="$(read_secret_value "beskid/${OPENBAO_LANE}/platform-spec" "PLATFORM_SPEC_PUBLIC_URL")"
-if [[ -z "${platform_spec_public_url}" ]]; then
-  case "${OPENBAO_LANE}" in
-    production) platform_spec_public_url="https://spec.beskid-lang.org" ;;
-    staging) platform_spec_public_url="https://stg-spec.beskid-lang.org" ;;
-    *) platform_spec_public_url="https://spec.beskid-lang.org" ;;
-  esac
-fi
-
 pairing_approver="$(read_secret_value "beskid/${OPENBAO_LANE}/tracker" "TRACKER_PAIRING_APPROVER_LOGIN")"
-if [[ -z "${pairing_approver}" && -n "${PLATFORM_SPEC_PAIRING_APPROVER_LOGIN:-}" ]]; then
-  pairing_approver="${PLATFORM_SPEC_PAIRING_APPROVER_LOGIN}"
-fi
-
-moderator_logins="$(read_secret_value "beskid/${OPENBAO_LANE}/platform-spec" "PLATFORM_SPEC_MODERATOR_LOGINS")"
-if [[ -z "${moderator_logins}" && -n "${pairing_approver}" ]]; then
-  moderator_logins="${pairing_approver}"
-elif [[ -z "${moderator_logins}" && -n "${PLATFORM_SPEC_MODERATOR_LOGINS:-}" ]]; then
-  moderator_logins="${PLATFORM_SPEC_MODERATOR_LOGINS}"
-fi
-
-github_sync_token="$(read_secret_value "beskid/${OPENBAO_LANE}/platform-spec" "GITHUB_SYNC_TOKEN")"
-if [[ -z "${github_sync_token}" && -n "${GITHUB_SYNC_TOKEN:-}" ]]; then
-  github_sync_token="${GITHUB_SYNC_TOKEN}"
-fi
-
-github_webhook_secret="$(ensure_value "beskid/${OPENBAO_LANE}/platform-spec" "GITHUB_WEBHOOK_SECRET")"
 
 lane_public_url() {
   local key="$1"
@@ -152,14 +125,6 @@ tracker_sync_token="$(read_secret_value "beskid/${OPENBAO_LANE}/tracker" "GITHUB
 if [[ -z "${tracker_sync_token}" && -n "${GITHUB_SYNC_TOKEN:-}" ]]; then
   tracker_sync_token="${GITHUB_SYNC_TOKEN}"
 fi
-if [[ -z "${github_sync_token}" && -n "${tracker_sync_token}" ]]; then
-  github_sync_token="${tracker_sync_token}"
-fi
-
-kv_has_path() {
-  bao kv get -format=json "${OPENBAO_MOUNT}/$1" >/dev/null 2>&1
-}
-
 bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/nexus" \
   SESSION_SECRET="${nexus_session_secret}" \
   AUTH_HUB_PUBLIC_URL="${auth_hub_public_url}" \
@@ -185,27 +150,6 @@ tracker_args=(
 
 bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/tracker" \
   "${tracker_args[@]}"
-
-platform_spec_args=(
-  "SESSION_SECRET=${platform_spec_session_secret}"
-  "AUTH_HUB_PUBLIC_URL=${auth_hub_public_url}"
-  "PLATFORM_SPEC_PUBLIC_URL=${platform_spec_public_url}"
-  "MEMGRAPH_URI=bolt://memgraph:7687"
-  "GITHUB_REPO_OWNER=Cyber-Nomad-Collective"
-  "GITHUB_REPO_NAME=beskid_normative_spec"
-  "GITHUB_OAUTH_REPO_OWNER=Cyber-Nomad-Collective"
-  "GITHUB_OAUTH_REPO_NAME=beskid"
-  "GITHUB_WEBHOOK_SECRET=${github_webhook_secret}"
-  "SPEC_GIT_REPO_URL=https://github.com/Cyber-Nomad-Collective/beskid_normative_spec.git"
-  "SPEC_GIT_REF=main"
-  "SPEC_SYNC_MODE=json"
-)
-[[ -n "${pairing_approver}" ]] && platform_spec_args+=("PLATFORM_SPEC_PAIRING_APPROVER_LOGIN=${pairing_approver}")
-[[ -n "${moderator_logins}" ]] && platform_spec_args+=("PLATFORM_SPEC_MODERATOR_LOGINS=${moderator_logins}")
-[[ -n "${github_sync_token}" ]] && platform_spec_args+=("GITHUB_SYNC_TOKEN=${github_sync_token}")
-
-bao kv patch "${OPENBAO_MOUNT}/beskid/${OPENBAO_LANE}/platform-spec" \
-  "${platform_spec_args[@]}"
 
 pckg_args=(
   "POSTGRES_PASSWORD=${pckg_postgres_secret}"

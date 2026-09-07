@@ -36,7 +36,13 @@ Coolify service consuming the same immutable manifest format.
 
 ## Compose profiles
 
-Production starts **site**, **auth**, **platform-spec**, and **learn** by default; it enables **tracker**, **nexus**, and **pckg** (with Postgres) via `compose_profiles: tracker,nexus,pckg` in [`config/coolify-production.json`](../../config/coolify-production.json). Learn is a required release service because its configured lane smoke URL must be healthy after every deployment. OpenBao is not required for learn's current documented configuration.
+Production starts **site**, **auth**, and **learn** by default; it enables
+**tracker**, **nexus**, and **pckg** (with Postgres) via
+`compose_profiles: tracker,nexus,pckg` in
+[`config/coolify-production.json`](../../config/coolify-production.json). These
+six application lanes are the complete release topology. Learn is required
+because its configured lane smoke URL must be healthy after every deployment.
+OpenBao is not required for learn's current documented configuration.
 
 ## Volumes
 

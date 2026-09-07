@@ -14,8 +14,8 @@ Platform delivery synchronizes them with the superrepo
 ```
 secret/
   beskid/
-    production/   site, auth, platform-spec, tracker, nexus, pckg
-    staging/      site, auth, platform-spec, tracker, nexus, pckg
+    production/   site, auth, tracker, nexus, pckg
+    staging/      site, auth, tracker, nexus, pckg
     ci/
       build/        NODE_AUTH_TOKEN, OVSX_TOKEN
 ```
@@ -28,7 +28,7 @@ secret/
 |-----|----------|
 | `PUBLIC_GISCUS_*` | no |
 
-Delivery reads **auth**, **platform-spec**, **tracker**, **nexus**, and **pckg**
+Delivery reads **auth**, **tracker**, **nexus**, and **pckg**
 from the lane config. Image identity never comes from OpenBao; the signed release
 manifest supplies exact digests.
 
@@ -39,22 +39,6 @@ manifest supplies exact digests.
 | `AUTH_HUB_PUBLIC_URL` | yes (also set in `coolify-production.json` static_env) |
 | `SESSION_SECRET` | yes |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | yes* |
-
-### platform-spec
-
-| Key | Required |
-|-----|----------|
-| `AUTH_HUB_PUBLIC_URL` | yes |
-| `SESSION_SECRET` | yes |
-| `PLATFORM_SPEC_PUBLIC_URL` | yes (`https://spec.beskid-lang.org`) |
-| `MEMGRAPH_URI` | yes (`bolt://memgraph:7687` in compose) |
-| `GITHUB_SYNC_TOKEN` | yes (git clone sync + PR workflow) |
-| `GITHUB_WEBHOOK_SECRET` | recommended (PR merge webhook) |
-| `SPEC_GIT_REPO_URL` | recommended (`https://github.com/Cyber-Nomad-Collective/beskid_normative_spec.git`) |
-| `SPEC_GIT_REF` | optional (default `main`) |
-| `SPEC_SYNC_MODE` | optional (`json` or `mdx-legacy`) |
-| `PLATFORM_SPEC_MODERATOR_LOGINS` | recommended (comma-separated GitHub logins) |
-| `PLATFORM_SPEC_PAIRING_APPROVER_LOGIN` | recommended |
 
 ### tracker
 
@@ -75,7 +59,6 @@ manifest supplies exact digests.
 | `SESSION_SECRET` | yes |
 | `OPENROUTER_API_KEY` | no (enables server-side code-doc maintenance) |
 | `NEXUS_DOC_MODEL` | no |
-| `NEXUS_SPEC_ROOT` | no (path to platform-spec MDX for spec link index) |
 
 ### pckg
 

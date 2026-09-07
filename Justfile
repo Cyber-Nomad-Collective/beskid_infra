@@ -40,6 +40,9 @@ check:
 compose-config:
     cd "{{compose_prod}}" && BESKID_RELEASE_TAG=validation docker compose --env-file .env config
 
+six-lane-contract:
+    "{{root}}/scripts/test-six-lane-contract.sh"
+
 delivery-contract:
     cd "{{superrepo}}" && bash scripts/ci/test/run-cicd-foundation-tests.sh
 

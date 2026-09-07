@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+infra_dir="$(cd "${script_dir}/.." && pwd)"
+compose_file="${infra_dir}/compose/production/docker-compose.yml"
+compose_env="${infra_dir}/compose/production/.env.example"
+
+expected_lanes='["auth","learn","nexus","pckg","site","tracker"]'
+expected_services='["auth","learn","memgraph","nexus","pckg","postgres","site","tracker"]'
+expected_secret_services='["auth","nexus","pckg","tracker"]'
+expected_profiles='["nexus","pckg","tracker"]'
+
+assert_json_equal() {
+  local description="$1"
+  local expected="$2"
+  local actual="$3"
+
+  if ! jq -e -n --argjson expected "${expected}" --argjson actual "${actual}" \
+    '$expected == $actual' >/dev/null; then
+    printf 'FAIL: %s\nexpected: %s\nactual:   %s\n' \
+      "${description}" "${expected}" "${actual}" >&2
+    return 1
+  fi
+}
+
+for lane in production staging; do
+  domains="$(
+    jq -c --arg lane "${lane}" \
+      '.[$lane].services | keys | sort' "${infra_dir}/config/domains.json"
+  )"
+  assert_json_equal "${lane} domain lanes" "${expected_lanes}" "${domains}"
+
+  config="${infra_dir}/config/coolify-${lane}.json"
+  secret_services="$(jq -c '.openbao_services | sort' "${config}")"
+  assert_json_equal "${lane} OpenBao services" "${expected_secret_services}" "${secret_services}"
+
+  profiles="$(jq -Rc 'split(",") | sort' <<<"$(jq -r '.compose_profiles' "${config}")")"
+  assert_json_equal "${lane} Compose profiles" "${expected_profiles}" "${profiles}"
+done
+
+rendered_services="$(
+  BESKID_RELEASE_TAG=contract docker compose \
+    --env-file "${compose_env}" \
+    --file "${compose_file}" \
+    config --services |
+    jq -Rsc 'split("\n") | map(select(length > 0)) | sort'
+)"
+assert_json_equal "rendered Compose services" "${expected_services}" "${rendered_services}"
+
+rendered_lanes="$(
+  BESKID_RELEASE_TAG=contract docker compose \
+    --env-file "${compose_env}" \
+    --file "${compose_file}" \
+    config --images |
+    sed -n 's#^ghcr.io/cyber-nomad-collective/beskid-\([^:@]*\).*#\1#p' |
+    jq -Rsc 'split("\n") | map(select(length > 0)) | sort'
+)"
+assert_json_equal "rendered application lanes" "${expected_lanes}" "${rendered_lanes}"
+
+retired_slug="platform""-spec"
+retired_env="PLATFORM""_SPEC"
+if grep -R -l -E \
+  --exclude='test-six-lane-contract.sh' \
+  "${retired_slug}|${retired_env}" \
+  "${infra_dir}/compose/production/docker-compose.yml" \
+  "${infra_dir}/compose/production/README.md" \
+  "${infra_dir}/compose/staging/README.md" \
+  "${infra_dir}/config/domains.json" \
+  "${infra_dir}/config/coolify-production.json" \
+  "${infra_dir}/config/coolify-staging.json" \
+  "${infra_dir}/config/openbao-secrets.env.example" \
+  "${infra_dir}/docs" \
+  "${infra_dir}/monitoring" \
+  "${infra_dir}/scripts"; then
+  echo "FAIL: retired lane remains in the active infrastructure surface" >&2
+  exit 1
+fi
+
+echo "six-lane infrastructure contract: PASS"
