@@ -10,6 +10,14 @@ expected_lanes='["auth","learn","nexus","pckg","site","tracker"]'
 expected_services='["auth","learn","memgraph","nexus","pckg","postgres","site","tracker"]'
 expected_secret_services='["auth","nexus","pckg","tracker"]'
 expected_profiles='["nexus","pckg","tracker"]'
+expected_production_volumes='{
+  "auth-data":"s4ir1ovgqtubarqeql3gf3pz_auth-data",
+  "memgraph-data":"s4ir1ovgqtubarqeql3gf3pz_memgraph-data",
+  "nexus-data":"beskid-platform_nexus-data",
+  "pckg_packages":"beskid-pckg_pckg-artifacts",
+  "pckg_pg_data":"s4ir1ovgqtubarqeql3gf3pz_pckg-pg-data",
+  "tracker-data":"beskid-sites_tracker-data"
+}'
 
 assert_json_equal() {
   local description="$1"
@@ -38,6 +46,11 @@ for lane in production staging; do
   profiles="$(jq -Rc 'split(",") | sort' <<<"$(jq -r '.compose_profiles' "${config}")")"
   assert_json_equal "${lane} Compose profiles" "${expected_profiles}" "${profiles}"
 done
+
+production_volumes="$(jq -cS '.external_volumes // {}' "${infra_dir}/config/coolify-production.json")"
+assert_json_equal "production external volumes" "$(jq -cS . <<<"${expected_production_volumes}")" "${production_volumes}"
+staging_volumes="$(jq -cS '.external_volumes // {}' "${infra_dir}/config/coolify-staging.json")"
+assert_json_equal "staging external volumes" '{}' "${staging_volumes}"
 
 rendered_services="$(
   BESKID_RELEASE_TAG=contract docker compose \
