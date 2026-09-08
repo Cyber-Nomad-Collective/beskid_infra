@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Lock the production pckg service to the Rust registry environment contract
+  and reject obsolete ASP.NET, session, and commented example topology.
 - Render the existing production auth, Memgraph, tracker, Nexus, pckg
   PostgreSQL, and pckg artifact volumes by their exact external Docker names
   so a GitHub-driven Coolify cutover cannot silently attach empty

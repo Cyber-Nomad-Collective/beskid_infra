@@ -71,6 +71,17 @@ rendered_lanes="$(
 )"
 assert_json_equal "rendered application lanes" "${expected_lanes}" "${rendered_lanes}"
 
+# Keep the production pckg lane on the Rust registry contract. This catches
+# accidental reintroduction of the retired ASP.NET/session configuration and
+# of commented deployment examples that cannot be validated as topology.
+grep -Fq 'PCKG_DATABASE_URL: ${PCKG_DATABASE_URL:?set PCKG_DATABASE_URL}' "${compose_file}"
+grep -Fq 'PCKG_RELEASE_PUBLISHER_KEY_SHA256: ${PCKG_RELEASE_PUBLISHER_KEY_SHA256:?set PCKG_RELEASE_PUBLISHER_KEY_SHA256}' "${compose_file}"
+grep -Fq 'PCKG_BIND_ADDRESS: "0.0.0.0:8082"' "${compose_file}"
+if grep -Eq 'ASPNETCORE_|ConnectionStrings__|Storage__UploadsRootPath|SHELL_AUTH_MODE|Example: a shell-template|authelia' "${compose_file}"; then
+  echo "FAIL: obsolete pckg or example deployment configuration remains in production Compose" >&2
+  exit 1
+fi
+
 retired_slug="platform""-spec"
 retired_env="PLATFORM""_SPEC"
 if grep -R -l -E \
