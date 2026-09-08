@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- License Beskid-owned infrastructure configuration and tooling under
+  Apache-2.0.
 - Require the one-way `PCKG_RELEASE_PUBLISHER_KEY_SHA256` digest in the pckg
   service environment so registry startup can reconcile the GitHub release
   publisher without exposing its raw bearer key to Coolify.

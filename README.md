@@ -40,3 +40,9 @@ scripts/                     # host bootstrap and OpenBao seed utilities only
 Operator guide: [docs/deploy-compose.md](docs/deploy-compose.md). Secret layout:
 [docs/openbao-layout.md](docs/openbao-layout.md). Service matrix:
 [docs/deploy-matrix.md](docs/deploy-matrix.md).
+
+## License
+
+Beskid-owned infrastructure configuration and tooling is licensed under the
+[Apache License 2.0](LICENSE). Third-party services and container images retain
+their own licenses.
